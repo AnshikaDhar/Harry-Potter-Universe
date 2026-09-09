@@ -2136,3 +2136,22 @@ window.addEventListener("beforeunload", event => {
   }
 
 });
+/* =========================================
+   HOGWARTS INTRO
+   ========================================= */
+
+const hogwartsIntro = document.getElementById("hogwartsIntro");
+const enterHogwartsBtn = document.getElementById("enterHogwartsBtn");
+
+if (enterHogwartsBtn) {
+    enterHogwartsBtn.addEventListener("click", () => {
+        hogwartsIntro.classList.add("hidden");
+
+        // Show the existing Hogwarts letter
+        const letterScreen = document.getElementById("letterScreen");
+
+        if (letterScreen) {
+            letterScreen.classList.add("active");
+        }
+    });
+}
