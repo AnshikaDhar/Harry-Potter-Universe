@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <meta name="theme-color" content="#050608">
 
     <title>The Hogwarts Sorting Ceremony</title>
@@ -11,22 +10,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:wght@400;700&display=swap"
-        rel="stylesheet"
-    >
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- =========================================
-         BACKGROUND
-    ========================================== -->
-
+    <!-- Atmosphere -->
     <div class="stars"></div>
-
     <div class="fog fog-one"></div>
     <div class="fog fog-two"></div>
 
@@ -39,16 +31,11 @@
     </div>
 
 
-    <!-- =========================================
-         MAIN APP
-    ========================================== -->
-
     <main id="app">
 
-
-        <!-- =====================================
-             HOGWARTS OPENING
-        ====================================== -->
+        <!-- =========================
+             HOGWARTS INTRO
+        ========================== -->
 
         <section id="hogwartsIntro" class="intro-screen">
 
@@ -74,10 +61,7 @@
                     their place.
                 </p>
 
-                <button
-                    id="enterHogwartsBtn"
-                    class="gold-button"
-                >
+                <button id="enterHogwartsBtn" class="gold-button">
                     Enter Hogwarts
                 </button>
 
@@ -86,9 +70,9 @@
         </section>
 
 
-        <!-- =====================================
-             LETTER SCREEN
-        ====================================== -->
+        <!-- =========================
+             HOGWARTS LETTER
+        ========================== -->
 
         <section id="letterScreen" class="screen">
 
@@ -102,15 +86,19 @@
                     A Letter From Hogwarts
                 </h2>
 
+
                 <div class="envelope-wrapper">
 
                     <div id="envelope" class="envelope">
 
+                        <!-- Back of envelope -->
                         <div class="envelope-back"></div>
 
+
+                        <!-- Letter inside envelope -->
                         <div class="envelope-paper">
 
-                            <div class="letter-seal-small">
+                            <div class="letter-header-mark">
                                 ✦
                             </div>
 
@@ -146,7 +134,19 @@
 
                         </div>
 
-                        <div class="envelope-flap"></div>
+
+                        <!-- Front fold of envelope -->
+                        <div class="envelope-front"></div>
+
+
+                        <!-- Top flap -->
+                        <div class="envelope-flap">
+
+                            <div class="wax-seal">
+                                ✦
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -154,21 +154,17 @@
 
 
                 <p id="letterPrompt" class="letter-prompt">
-                    The seal bears the Hogwarts crest.
+                    A sealed letter awaits you.
                 </p>
 
-                <button
-                    id="openLetter"
-                    class="text-button"
-                >
+
+                <!-- THIS BUTTON IS OUTSIDE THE ENVELOPE -->
+                <button id="openLetter" class="text-button open-letter-button">
                     Open the letter
                 </button>
 
 
-                <div
-                    id="letterReveal"
-                    class="letter-reveal hidden"
-                >
+                <div id="letterReveal" class="letter-reveal hidden">
 
                     <p>
                         Your journey begins with a question:
@@ -178,10 +174,7 @@
                         "It is our choices that show what we truly are."
                     </p>
 
-                    <button
-                        id="openSorting"
-                        class="magic-button"
-                    >
+                    <button id="openSorting" class="magic-button">
                         Begin the Sorting Ceremony
                     </button>
 
@@ -192,9 +185,9 @@
         </section>
 
 
-        <!-- =====================================
-             MODE SCREEN
-        ====================================== -->
+        <!-- =========================
+             SORTING MODE
+        ========================== -->
 
         <section id="modeScreen" class="screen">
 
@@ -216,17 +209,9 @@
 
                 <div class="mode-grid">
 
+                    <button class="mode-card" data-mode="20">
 
-                    <!-- 20 QUESTIONS -->
-
-                    <button
-                        class="mode-card"
-                        data-mode="20"
-                    >
-
-                        <div class="mode-number">
-                            I
-                        </div>
+                        <div class="mode-number">I</div>
 
                         <h3>
                             Surface Sorting
@@ -248,16 +233,9 @@
                     </button>
 
 
-                    <!-- 35 QUESTIONS -->
+                    <button class="mode-card" data-mode="35">
 
-                    <button
-                        class="mode-card"
-                        data-mode="35"
-                    >
-
-                        <div class="mode-number">
-                            II
-                        </div>
+                        <div class="mode-number">II</div>
 
                         <h3>
                             Deep Sorting
@@ -279,16 +257,9 @@
                     </button>
 
 
-                    <!-- 50 QUESTIONS -->
+                    <button class="mode-card featured" data-mode="50">
 
-                    <button
-                        class="mode-card featured"
-                        data-mode="50"
-                    >
-
-                        <div class="mode-number">
-                            III
-                        </div>
+                        <div class="mode-number">III</div>
 
                         <h3>
                             Deepest Sorting
@@ -323,9 +294,9 @@
         </section>
 
 
-        <!-- =====================================
-             QUIZ SCREEN
-        ====================================== -->
+        <!-- =========================
+             QUIZ
+        ========================== -->
 
         <section id="quizScreen" class="screen">
 
@@ -334,6 +305,7 @@
                 <div class="quiz-top">
 
                     <div>
+
                         <p class="eyebrow">
                             THE SORTING HAT
                         </p>
@@ -341,6 +313,7 @@
                         <p id="questionNumber">
                             Question 1 of 50
                         </p>
+
                     </div>
 
                     <div id="houseHint" class="house-hint">
@@ -351,38 +324,24 @@
 
 
                 <div class="progress-track">
-
-                    <div
-                        id="progressBar"
-                        class="progress-bar"
-                    ></div>
-
+                    <div id="progressBar" class="progress-bar"></div>
                 </div>
 
 
                 <div class="question-card">
 
-                    <p
-                        id="questionText"
-                        class="question-text"
-                    >
+                    <p id="questionText" class="question-text">
                         Loading...
                     </p>
 
-                    <div
-                        id="answersContainer"
-                        class="answers-container"
-                    ></div>
+                    <div id="answersContainer" class="answers-container"></div>
 
                 </div>
 
 
                 <div class="quiz-navigation">
 
-                    <button
-                        id="backButton"
-                        class="text-button"
-                    >
+                    <button id="backButton" class="text-button">
                         ← Back
                     </button>
 
@@ -397,9 +356,9 @@
         </section>
 
 
-        <!-- =====================================
-             THINKING SCREEN
-        ====================================== -->
+        <!-- =========================
+             THINKING
+        ========================== -->
 
         <section id="thinkingScreen" class="screen">
 
@@ -417,10 +376,7 @@
                     Hmm...
                 </h2>
 
-                <p
-                    id="thinkingText"
-                    class="thinking-text"
-                >
+                <p id="thinkingText" class="thinking-text">
                     I see something rather interesting...
                 </p>
 
@@ -435,9 +391,9 @@
         </section>
 
 
-        <!-- =====================================
-             RESULT SCREEN
-        ====================================== -->
+        <!-- =========================
+             RESULT
+        ========================== -->
 
         <section id="resultScreen" class="screen">
 
@@ -451,10 +407,7 @@
                     Better be...
                 </p>
 
-                <h1
-                    id="resultHouse"
-                    class="result-house"
-                >
+                <h1 id="resultHouse" class="result-house">
                     GRYFFINDOR
                 </h1>
 
@@ -464,21 +417,14 @@
                     The Courageous Heart
                 </h2>
 
-                <p
-                    id="resultSecondary"
-                    class="result-secondary"
-                >
+                <p id="resultSecondary" class="result-secondary">
                     Your secondary house is Ravenclaw.
                 </p>
 
 
                 <div class="hat-monologue">
 
-                    <p
-                        id="hatMonologue"
-                        class="hat-text"
-                    >
-                    </p>
+                    <p id="hatMonologue" class="hat-text"></p>
 
                 </div>
 
@@ -492,82 +438,46 @@
                     <div class="score-bars">
 
                         <div class="score-row">
-
-                            <span>
-                                Gryffindor
-                            </span>
+                            <span>Gryffindor</span>
 
                             <div class="score-track">
-                                <div
-                                    id="scoreG"
-                                    class="score-fill"
-                                ></div>
+                                <div id="scoreG" class="score-fill"></div>
                             </div>
 
-                            <span id="scoreGText">
-                                0%
-                            </span>
-
+                            <span id="scoreGText">0%</span>
                         </div>
 
 
                         <div class="score-row">
-
-                            <span>
-                                Ravenclaw
-                            </span>
+                            <span>Ravenclaw</span>
 
                             <div class="score-track">
-                                <div
-                                    id="scoreR"
-                                    class="score-fill"
-                                ></div>
+                                <div id="scoreR" class="score-fill"></div>
                             </div>
 
-                            <span id="scoreRText">
-                                0%
-                            </span>
-
+                            <span id="scoreRText">0%</span>
                         </div>
 
 
                         <div class="score-row">
-
-                            <span>
-                                Hufflepuff
-                            </span>
+                            <span>Hufflepuff</span>
 
                             <div class="score-track">
-                                <div
-                                    id="scoreH"
-                                    class="score-fill"
-                                ></div>
+                                <div id="scoreH" class="score-fill"></div>
                             </div>
 
-                            <span id="scoreHText">
-                                0%
-                            </span>
-
+                            <span id="scoreHText">0%</span>
                         </div>
 
 
                         <div class="score-row">
-
-                            <span>
-                                Slytherin
-                            </span>
+                            <span>Slytherin</span>
 
                             <div class="score-track">
-                                <div
-                                    id="scoreS"
-                                    class="score-fill"
-                                ></div>
+                                <div id="scoreS" class="score-fill"></div>
                             </div>
 
-                            <span id="scoreSText">
-                                0%
-                            </span>
-
+                            <span id="scoreSText">0%</span>
                         </div>
 
                     </div>
@@ -577,17 +487,11 @@
 
                 <div class="result-actions">
 
-                    <button
-                        id="shareResult"
-                        class="magic-button"
-                    >
+                    <button id="shareResult" class="magic-button">
                         Share My Sorting
                     </button>
 
-                    <button
-                        id="restartSorting"
-                        class="text-button"
-                    >
+                    <button id="restartSorting" class="text-button">
                         Sort Me Again
                     </button>
 
