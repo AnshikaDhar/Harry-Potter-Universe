@@ -537,6 +537,7 @@ const questions = [
    ========================================================= */
 
 let selectedMode = 50;
+
 let currentQuestion = 0;
 
 let answersGiven = [];
@@ -550,26 +551,36 @@ let scores = {
 
 
 /* =========================================================
-   HELPERS
+   HELPER
    ========================================================= */
 
-const $ = (id) => document.getElementById(id);
+const $ = (id) =>
+    document.getElementById(id);
+
 
 function showScreen(id) {
 
-    document.querySelectorAll(".screen").forEach(screen => {
-        screen.classList.remove("active");
-    });
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
 
     const screen = $(id);
 
     if (screen) {
+
         screen.classList.add("active");
+
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         });
+
     }
+
 }
 
 
@@ -577,170 +588,275 @@ function showScreen(id) {
    INITIAL LOAD
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-    document.querySelectorAll(".screen").forEach(screen => {
-        screen.classList.remove("active");
-    });
+        document
+            .querySelectorAll(".screen")
+            .forEach(screen => {
 
-    const intro = $("hogwartsIntro");
+                screen.classList.remove("active");
 
-    if (intro) {
-        intro.classList.remove("hidden");
-    }
-
-
-    /* ENTER HOGWARTS */
-
-    const enterButton = $("enterHogwartsBtn");
-
-    if (enterButton) {
-
-        enterButton.addEventListener("click", () => {
-
-            intro.classList.add("hidden");
-
-            setTimeout(() => {
-
-                showScreen("letterScreen");
-
-            }, 900);
-
-        });
-
-    }
+            });
 
 
-    /* OPEN LETTER */
+        const intro =
+            $("hogwartsIntro");
 
-    const openLetter = $("openLetter");
-    const envelope = $("envelope");
-    const letterPrompt = $("letterPrompt");
-    const letterReveal = $("letterReveal");
 
-    if (openLetter) {
+        if (intro) {
 
-        openLetter.addEventListener("click", () => {
+            intro.classList.remove("hidden");
 
-            if (!envelope) return;
+        }
 
-            /* Prevent repeated clicking */
-            if (envelope.classList.contains("opened")) {
-                return;
-            }
 
-            envelope.classList.add("opened");
+        /* ENTER HOGWARTS */
 
-            if (letterPrompt) {
-                letterPrompt.textContent =
-                    "The letter has been opened.";
-            }
+        const enterButton =
+            $("enterHogwartsBtn");
 
-            openLetter.classList.add("hidden");
 
-            setTimeout(() => {
+        if (enterButton) {
 
-                if (letterReveal) {
-                    letterReveal.classList.remove("hidden");
+            enterButton.addEventListener(
+                "click",
+                () => {
+
+                    intro.classList.add("hidden");
+
+
+                    setTimeout(
+                        () => {
+
+                            showScreen(
+                                "letterScreen"
+                            );
+
+                        },
+                        900
+                    );
+
                 }
+            );
 
-            }, 850);
+        }
 
-        });
+
+        /* =================================================
+           OPEN LETTER
+        ================================================= */
+
+        const openLetter =
+            $("openLetter");
+
+        const envelope =
+            $("envelope");
+
+        const letterPrompt =
+            $("letterPrompt");
+
+        const letterReveal =
+            $("letterReveal");
+
+
+        if (openLetter) {
+
+            openLetter.addEventListener(
+                "click",
+                () => {
+
+                    if (!envelope) {
+                        return;
+                    }
+
+
+                    if (
+                        envelope.classList.contains(
+                            "opened"
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    /* Open flap */
+                    envelope.classList.add(
+                        "opened"
+                    );
+
+
+                    if (letterPrompt) {
+
+                        letterPrompt.textContent =
+                            "The letter has been opened.";
+
+                    }
+
+
+                    /* Hide open button */
+                    openLetter.classList.add(
+                        "hidden"
+                    );
+
+
+                    /* Reveal sorting button */
+                    setTimeout(
+                        () => {
+
+                            if (letterReveal) {
+
+                                letterReveal.classList.remove(
+                                    "hidden"
+                                );
+
+                            }
+
+                        },
+                        850
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* BEGIN SORTING */
+
+        const openSorting =
+            $("openSorting");
+
+
+        if (openSorting) {
+
+            openSorting.addEventListener(
+                "click",
+                () => {
+
+                    showScreen(
+                        "modeScreen"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* MODE SELECTION */
+
+        document
+            .querySelectorAll(".mode-card")
+            .forEach(card => {
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        selectedMode =
+                            Number(
+                                card.dataset.mode
+                            );
+
+                        startSorting();
+
+                    }
+                );
+
+            });
+
+
+        /* BACK */
+
+        const backButton =
+            $("backButton");
+
+
+        if (backButton) {
+
+            backButton.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        currentQuestion <= 0
+                    ) {
+                        return;
+                    }
+
+
+                    const previousAnswer =
+                        answersGiven[
+                            currentQuestion - 1
+                        ];
+
+
+                    if (previousAnswer) {
+
+                        scores[
+                            previousAnswer
+                        ]--;
+
+                        answersGiven[
+                            currentQuestion - 1
+                        ] = null;
+
+                    }
+
+
+                    currentQuestion--;
+
+                    renderQuestion();
+
+                }
+            );
+
+        }
+
+
+        /* SHARE */
+
+        const shareButton =
+            $("shareResult");
+
+
+        if (shareButton) {
+
+            shareButton.addEventListener(
+                "click",
+                shareResult
+            );
+
+        }
+
+
+        /* RESTART */
+
+        const restartButton =
+            $("restartSorting");
+
+
+        if (restartButton) {
+
+            restartButton.addEventListener(
+                "click",
+                () => {
+
+                    resetSorting();
+
+                    showScreen(
+                        "modeScreen"
+                    );
+
+                }
+            );
+
+        }
 
     }
-
-
-    /* BEGIN SORTING */
-
-    const openSorting = $("openSorting");
-
-    if (openSorting) {
-
-        openSorting.addEventListener("click", () => {
-
-            showScreen("modeScreen");
-
-        });
-
-    }
-
-
-    /* MODE SELECTION */
-
-    document.querySelectorAll(".mode-card").forEach(card => {
-
-        card.addEventListener("click", () => {
-
-            selectedMode = Number(card.dataset.mode);
-
-            startSorting();
-
-        });
-
-    });
-
-
-    /* BACK BUTTON */
-
-    const backButton = $("backButton");
-
-    if (backButton) {
-
-        backButton.addEventListener("click", () => {
-
-            if (currentQuestion <= 0) {
-                return;
-            }
-
-            const previousAnswer =
-                answersGiven[currentQuestion - 1];
-
-            if (previousAnswer) {
-
-                scores[previousAnswer]--;
-
-                answersGiven[currentQuestion - 1] = null;
-
-            }
-
-            currentQuestion--;
-
-            renderQuestion();
-
-        });
-
-    }
-
-
-    /* SHARE */
-
-    const shareButton = $("shareResult");
-
-    if (shareButton) {
-
-        shareButton.addEventListener("click", shareResult);
-
-    }
-
-
-    /* RESTART */
-
-    const restartButton = $("restartSorting");
-
-    if (restartButton) {
-
-        restartButton.addEventListener("click", () => {
-
-            resetSorting();
-
-            showScreen("modeScreen");
-
-        });
-
-    }
-
-});
+);
 
 
 /* =========================================================
@@ -760,7 +876,9 @@ function startSorting() {
         S: 0
     };
 
-    showScreen("quizScreen");
+    showScreen(
+        "quizScreen"
+    );
 
     renderQuestion();
 
@@ -773,18 +891,30 @@ function startSorting() {
 
 function renderQuestion() {
 
-    const question = questions[currentQuestion];
+    const question =
+        questions[currentQuestion];
+
 
     if (!question) {
+
         finishSorting();
+
         return;
+
     }
 
 
-    const questionNumber = $("questionNumber");
-    const questionText = $("questionText");
-    const answersContainer = $("answersContainer");
-    const progressBar = $("progressBar");
+    const questionNumber =
+        $("questionNumber");
+
+    const questionText =
+        $("questionText");
+
+    const answersContainer =
+        $("answersContainer");
+
+    const progressBar =
+        $("progressBar");
 
 
     questionNumber.textContent =
@@ -795,35 +925,56 @@ function renderQuestion() {
         question.q;
 
 
-    answersContainer.innerHTML = "";
+    answersContainer.innerHTML =
+        "";
 
 
     const progress =
-        ((currentQuestion) / selectedMode) * 100;
+        (
+            currentQuestion /
+            selectedMode
+        ) * 100;
+
 
     progressBar.style.width =
         `${progress}%`;
 
 
-    question.a.forEach((answer, index) => {
+    question.a.forEach(
+        answer => {
 
-        const button =
-            document.createElement("button");
+            const button =
+                document.createElement(
+                    "button"
+                );
 
-        button.className = "answer-button";
 
-        button.textContent =
-            answer[0];
+            button.className =
+                "answer-button";
 
-        button.addEventListener("click", () => {
 
-            selectAnswer(answer[1]);
+            button.textContent =
+                answer[0];
 
-        });
 
-        answersContainer.appendChild(button);
+            button.addEventListener(
+                "click",
+                () => {
 
-    });
+                    selectAnswer(
+                        answer[1]
+                    );
+
+                }
+            );
+
+
+            answersContainer.appendChild(
+                button
+            );
+
+        }
+    );
 
 }
 
@@ -836,11 +987,17 @@ function selectAnswer(house) {
 
     scores[house]++;
 
-    answersGiven[currentQuestion] = house;
+    answersGiven[
+        currentQuestion
+    ] = house;
 
     currentQuestion++;
 
-    if (currentQuestion >= selectedMode) {
+
+    if (
+        currentQuestion >=
+        selectedMode
+    ) {
 
         finishSorting();
 
@@ -859,28 +1016,46 @@ function selectAnswer(house) {
 
 function finishSorting() {
 
-    $("progressBar").style.width = "100%";
+    $("progressBar").style.width =
+        "100%";
 
-    showScreen("thinkingScreen");
+
+    showScreen(
+        "thinkingScreen"
+    );
 
 
     const thinkingTitles = [
+
         "Hmm...",
+
         "Interesting...",
+
         "Very interesting...",
+
         "I see...",
+
         "There is more here than meets the eye...",
+
         "Your choices tell me quite a lot..."
+
     ];
 
 
     const thinkingTexts = [
+
         "I see something rather interesting...",
+
         "There are qualities here worth considering...",
+
         "Your instincts have spoken...",
+
         "Not everything is quite as simple as it first appears...",
+
         "Let me look a little deeper...",
+
         "Ah... now I begin to understand..."
+
     ];
 
 
@@ -888,26 +1063,42 @@ function finishSorting() {
 
 
     const thinkingInterval =
-        setInterval(() => {
+        setInterval(
+            () => {
 
-            $("thinkingTitle").textContent =
-                thinkingTitles[index % thinkingTitles.length];
-
-            $("thinkingText").textContent =
-                thinkingTexts[index % thinkingTexts.length];
-
-            index++;
-
-        }, 750);
+                $("thinkingTitle").textContent =
+                    thinkingTitles[
+                        index %
+                        thinkingTitles.length
+                    ];
 
 
-    setTimeout(() => {
+                $("thinkingText").textContent =
+                    thinkingTexts[
+                        index %
+                        thinkingTexts.length
+                    ];
 
-        clearInterval(thinkingInterval);
 
-        revealResult();
+                index++;
 
-    }, 4300);
+            },
+            750
+        );
+
+
+    setTimeout(
+        () => {
+
+            clearInterval(
+                thinkingInterval
+            );
+
+            revealResult();
+
+        },
+        4300
+    );
 
 }
 
@@ -921,19 +1112,31 @@ function determineHouse() {
     const entries =
         Object.entries(scores);
 
-    entries.sort((a, b) => {
 
-        if (b[1] !== a[1]) {
-            return b[1] - a[1];
+    const order =
+        ["G", "R", "H", "S"];
+
+
+    entries.sort(
+        (a, b) => {
+
+            if (
+                b[1] !== a[1]
+            ) {
+
+                return b[1] - a[1];
+
+            }
+
+
+            return (
+                order.indexOf(a[0]) -
+                order.indexOf(b[0])
+            );
+
         }
+    );
 
-        /* Deterministic tie-break */
-        const order = ["G", "R", "H", "S"];
-
-        return order.indexOf(a[0]) -
-               order.indexOf(b[0]);
-
-    });
 
     return entries[0][0];
 
@@ -944,8 +1147,15 @@ function determineSecondary(primary) {
 
     const entries =
         Object.entries(scores)
-            .filter(([house]) => house !== primary)
-            .sort((a, b) => b[1] - a[1]);
+            .filter(
+                ([house]) =>
+                    house !== primary
+            )
+            .sort(
+                (a, b) =>
+                    b[1] - a[1]
+            );
+
 
     return entries[0][0];
 
@@ -957,10 +1167,15 @@ function determineSecondary(primary) {
    ========================================================= */
 
 const houseNames = {
+
     G: "GRYFFINDOR",
+
     R: "RAVENCLAW",
+
     H: "HUFFLEPUFF",
+
     S: "SLYTHERIN"
+
 };
 
 
@@ -980,23 +1195,35 @@ const personalities = {
 const monologues = {
 
     G: [
+
         "Ah... courage. Not the absence of fear, no. Something more interesting than that. You feel fear and still move forward. You have a tendency to act when others hesitate, and though that may sometimes get you into trouble, it is also what makes you remarkable.",
+
         "There is fire in you. You care deeply, and when something matters to you, you find it difficult to remain on the sidelines. You may question yourself afterwards, but in the moment that matters, you are capable of choosing the brave path."
+
     ],
 
     R: [
+
         "Curious. Very curious. Your mind does not simply accept the world as it is presented to you. You examine it, question it, turn it over and look at it from another angle. You seek understanding, not merely answers.",
+
         "There is a quiet hunger for knowledge here. You notice patterns, inconsistencies and details others overlook. You may spend longer thinking than acting, but when you finally move, you usually know exactly why."
+
     ],
 
     H: [
+
         "Ah, loyalty. A quality often underestimated by those who have never truly needed it. You understand that people matter. You remember kindness, you remember betrayal, and once someone has earned a place in your heart, you do not surrender it easily.",
+
         "There is warmth beneath your choices. You value trust, consistency and genuine connection. You may not always demand the spotlight, but you are often the person others quietly depend upon."
+
     ],
 
     S: [
+
         "Ambition. There it is. You know there is more you could become, and the idea of settling for less does not sit comfortably with you. You are strategic, observant and considerably more determined than you sometimes let people see.",
+
         "You understand that wanting something is only the beginning. You think about timing, opportunity and consequences. Some may mistake that calculation for coldness, but I see something else: a refusal to leave your potential unused."
+
     ]
 
 };
@@ -1011,15 +1238,20 @@ function revealResult() {
     const primary =
         determineHouse();
 
+
     const secondary =
-        determineSecondary(primary);
+        determineSecondary(
+            primary
+        );
 
 
     $("resultHouse").textContent =
         houseNames[primary];
 
+
     $("resultPersonality").textContent =
         personalities[primary];
+
 
     $("resultSecondary").textContent =
         `Your secondary house is ${houseNames[secondary]}.`;
@@ -1028,53 +1260,95 @@ function revealResult() {
     const options =
         monologues[primary];
 
+
     const monologue =
         options[
             Math.floor(
-                Math.random() * options.length
+                Math.random() *
+                options.length
             )
         ];
+
 
     $("hatMonologue").textContent =
         monologue;
 
 
-    updateScore("G", "scoreG", "scoreGText");
-    updateScore("R", "scoreR", "scoreRText");
-    updateScore("H", "scoreH", "scoreHText");
-    updateScore("S", "scoreS", "scoreSText");
+    updateScore(
+        "G",
+        "scoreG",
+        "scoreGText"
+    );
+
+    updateScore(
+        "R",
+        "scoreR",
+        "scoreRText"
+    );
+
+    updateScore(
+        "H",
+        "scoreH",
+        "scoreHText"
+    );
+
+    updateScore(
+        "S",
+        "scoreSText"
+    );
 
 
-    showScreen("resultScreen");
+    showScreen(
+        "resultScreen"
+    );
 
 }
 
 
-function updateScore(house, barId, textId) {
+/* =========================================================
+   SCORE
+   ========================================================= */
+
+function updateScore(
+    house,
+    barId,
+    textId
+) {
 
     const total =
         Object.values(scores)
-            .reduce((sum, value) => sum + value, 0);
+            .reduce(
+                (sum, value) =>
+                    sum + value,
+                0
+            );
 
 
     let percentage = 0;
+
 
     if (total > 0) {
 
         percentage =
             Math.round(
-                (scores[house] / total) * 100
+                (
+                    scores[house] /
+                    total
+                ) * 100
             );
 
     }
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        $(barId).style.width =
-            `${percentage}%`;
+            $(barId).style.width =
+                `${percentage}%`;
 
-    }, 250);
+        },
+        250
+    );
 
 
     $(textId).textContent =
@@ -1090,33 +1364,51 @@ function updateScore(house, barId, textId) {
 function shareResult() {
 
     const house =
-        $("resultHouse").textContent;
+        $("resultHouse")
+            .textContent;
+
 
     const text =
         `The Sorting Hat has sorted me into ${house}!`;
 
-    if (navigator.share) {
+
+    if (
+        navigator.share
+    ) {
 
         navigator.share({
-            title: "My Hogwarts Sorting",
-            text: text
-        }).catch(() => {});
+
+            title:
+                "My Hogwarts Sorting",
+
+            text:
+                text
+
+        }).catch(
+            () => {}
+        );
 
     } else {
 
-        navigator.clipboard.writeText(text)
-            .then(() => {
+        navigator
+            .clipboard
+            .writeText(text)
+            .then(
+                () => {
 
-                alert(
-                    "Your Sorting result has been copied!"
-                );
+                    alert(
+                        "Your Sorting result has been copied!"
+                    );
 
-            })
-            .catch(() => {
+                }
+            )
+            .catch(
+                () => {
 
-                alert(text);
+                    alert(text);
 
-            });
+                }
+            );
 
     }
 
@@ -1140,9 +1432,17 @@ function resetSorting() {
         S: 0
     };
 
-    $("scoreG").style.width = "0%";
-    $("scoreR").style.width = "0%";
-    $("scoreH").style.width = "0%";
-    $("scoreS").style.width = "0%";
+
+    $("scoreG").style.width =
+        "0%";
+
+    $("scoreR").style.width =
+        "0%";
+
+    $("scoreH").style.width =
+        "0%";
+
+    $("scoreS").style.width =
+        "0%";
 
 }
