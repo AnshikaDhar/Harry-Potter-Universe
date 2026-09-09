@@ -1,344 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#08090d" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>The Hogwarts Sorting Ceremony</title>
+    <meta name="theme-color" content="#050608">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+    <title>The Hogwarts Sorting Ceremony</title>
 
-  <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:wght@400;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <div class="stars"></div>
-  <div class="fog fog-one"></div>
-  <div class="fog fog-two"></div>
+    <!-- =========================================
+         BACKGROUND
+    ========================================== -->
 
-  <div class="candle candle-left">
-    <div class="flame"></div>
-  </div>
+    <div class="stars"></div>
 
-  <div class="candle candle-right">
-    <div class="flame"></div>
-  </div>
+    <div class="fog fog-one"></div>
+    <div class="fog fog-two"></div>
 
-  <main id="app">
-    <!-- HOGWARTS INTRO -->
-<section id="hogwartsIntro" class="intro-screen">
-    <div class="intro-stars"></div>
-
-    <div class="hogwarts-intro-content">
-        <p class="intro-eyebrow">THE WIZARDING WORLD AWAITS</p>
-
-        <h1>HOGWARTS</h1>
-
-        <div class="intro-divider"></div>
-
-        <p class="intro-subtitle">
-            School of Witchcraft and Wizardry
-        </p>
-
-        <p class="intro-text">
-            Beyond the ordinary world lies a castle where magic lives,
-            ancient secrets linger, and every witch and wizard finds
-            their place.
-        </p>
-
-        <button id="enterHogwartsBtn" class="gold-button">
-            Enter Hogwarts
-        </button>
+    <div class="candle candle-left">
+        <div class="flame"></div>
     </div>
-</section>
 
-    <!-- =========================
-         LETTER SCREEN
-    ========================== -->
+    <div class="candle candle-right">
+        <div class="flame"></div>
+    </div>
 
-    <section id="letterScreen" class="screen active">
 
-      <div class="envelope" id="envelope">
-        <div class="wax-seal">H</div>
-      </div>
-
-      <div class="letter hidden" id="letter">
-
-        <div class="letter-header">
-          <span>HOGWARTS SCHOOL OF WITCHCRAFT AND WIZARDRY</span>
-        </div>
-
-        <div class="letter-body">
-
-          <p class="salutation">Dear Witch or Wizard,</p>
-
-          <p>
-            We are pleased to inform you that you have been
-            <strong>selected to attend Hogwarts School of Witchcraft and Wizardry.</strong>
-          </p>
+    <!-- =========================================
+         MAIN APP
+    ========================================== -->
 
-          <p>
-            Your Sorting Ceremony awaits.
-          </p>
+    <main id="app">
 
-          <p>
-            The Sorting Hat has been waiting for you.
-          </p>
 
-          <p class="letter-warning">
-            Answer honestly. There are no right answers.
-            The Hat is less interested in what you <em>wish</em> you were
-            and far more interested in who you truly are.
-          </p>
+        <!-- =====================================
+             HOGWARTS OPENING
+        ====================================== -->
 
-          <p class="signature">
-            Yours magically,<br>
-            <span>The Deputy Headmistress</span>
-          </p>
+        <section id="hogwartsIntro" class="intro-screen">
 
-        </div>
+            <div class="intro-stars"></div>
 
-        <button id="openSorting" class="magic-button">
-          Begin the Sorting Ceremony
-        </button>
+            <div class="hogwarts-intro-content">
 
-      </div>
+                <p class="intro-eyebrow">
+                    THE WIZARDING WORLD AWAITS
+                </p>
 
-      <div id="envelopePrompt" class="envelope-prompt">
-        <p>A letter has arrived.</p>
-        <button id="openLetter" class="text-button">Open the letter</button>
-      </div>
+                <h1>HOGWARTS</h1>
 
-    </section>
+                <div class="intro-divider"></div>
 
+                <p class="intro-subtitle">
+                    School of Witchcraft and Wizardry
+                </p>
 
-    <!-- =========================
-         MODE SELECTION
-    ========================== -->
+                <p class="intro-text">
+                    Beyond the ordinary world lies a castle where magic lives,
+                    ancient secrets linger, and every witch and wizard finds
+                    their place.
+                </p>
 
-    <section id="modeScreen" class="screen">
+                <button
+                    id="enterHogwartsBtn"
+                    class="gold-button"
+                >
+                    Enter Hogwarts
+                </button>
 
-      <div class="section-heading">
-        <div class="small-title">THE SORTING HAT AWAITS</div>
+            </div>
 
-        <h1>How deeply shall we sort you?</h1>
+        </section>
 
-        <p>
-          The deeper you go, the less the Hat relies on first impressions
-          and the more it discovers about your instincts, values and choices.
-        </p>
-      </div>
 
-      <div class="mode-grid">
+        <!-- =====================================
+             LETTER SCREEN
+        ====================================== -->
 
-        <button class="mode-card" data-mode="20">
-          <span class="mode-number">I</span>
-          <h2>Surface Sorting</h2>
-          <div class="mode-count">20 QUESTIONS</div>
-          <p>
-            A quick first impression.
-            Your instincts, personality and immediate choices.
-          </p>
-          <span class="mode-time">~5 MINUTES</span>
-        </button>
+        <section id="letterScreen" class="screen">
 
-        <button class="mode-card featured" data-mode="35">
-          <span class="mode-number">II</span>
-          <h2>Deep Sorting</h2>
-          <div class="mode-count">35 QUESTIONS</div>
-          <p>
-            The Hat looks beneath the surface:
-            loyalty, ambition, courage, morality and judgment.
-          </p>
-          <span class="mode-time">~9–12 MINUTES</span>
-        </button>
+            <div class="screen-inner letter-screen-inner">
 
-        <button class="mode-card" data-mode="50">
-          <span class="mode-number">III</span>
-          <h2>Deepest Sorting</h2>
-          <div class="mode-count">50 QUESTIONS</div>
-          <p>
-            The full ceremony.
-            Fifty questions designed to reveal what truly drives you.
-          </p>
-          <span class="mode-time">~15–20 MINUTES</span>
-        </button>
+                <p class="eyebrow">
+                    AN ENVELOPE HAS ARRIVED
+                </p>
 
-      </div>
+                <h2 class="page-title">
+                    A Letter From Hogwarts
+                </h2>
 
-      <p class="mode-note">
-        ✦ The Hat recommends the Deepest Sorting ✦
-      </p>
+                <div class="envelope-wrapper">
 
-    </section>
+                    <div id="envelope" class="envelope">
 
+                        <div class="envelope-back"></div>
 
-    <!-- =========================
-         QUIZ SCREEN
-    ========================== -->
+                        <div class="envelope-paper">
 
-    <section id="quizScreen" class="screen">
+                            <div class="letter-seal-small">
+                                ✦
+                            </div>
 
-      <div class="quiz-top">
+                            <p class="letter-heading">
+                                HOGWARTS SCHOOL
+                            </p>
 
-        <div class="quiz-brand">
-          THE SORTING CEREMONY
-        </div>
+                            <p class="letter-subheading">
+                                of Witchcraft and Wizardry
+                            </p>
 
-        <div class="question-counter">
-          <span id="currentNumber">1</span>
-          <span class="divider">/</span>
-          <span id="totalNumber">50</span>
-        </div>
+                            <div class="letter-line"></div>
 
-      </div>
+                            <p>
+                                Dear Witch or Wizard,
+                            </p>
 
-      <div class="progress-container">
-        <div id="progressBar"></div>
-      </div>
+                            <p>
+                                We are pleased to inform you that you have
+                                been selected to take part in the Hogwarts
+                                Sorting Ceremony.
+                            </p>
 
-      <div class="quiz-content">
+                            <p>
+                                Your qualities, instincts and choices will
+                                determine where you truly belong.
+                            </p>
 
-        <div class="question-symbol">✦</div>
+                            <p class="letter-signature">
+                                Yours magically,<br>
+                                <em>The Sorting Hat</em>
+                            </p>
 
-        <div class="question-category" id="questionCategory">
-          THE HAT ASKS
-        </div>
+                        </div>
 
-        <h1 id="questionText"></h1>
+                        <div class="envelope-flap"></div>
 
-        <div id="answers" class="answers"></div>
+                    </div>
 
-        <div class="quiz-footer">
+                </div>
 
-          <button id="backButton" class="small-button">
-            ← Previous
-          </button>
 
-          <span class="answer-note">
-            Choose the answer that feels most like you.
-          </span>
+                <p id="letterPrompt" class="letter-prompt">
+                    The seal bears the Hogwarts crest.
+                </p>
 
-        </div>
+                <button
+                    id="openLetter"
+                    class="text-button"
+                >
+                    Open the letter
+                </button>
 
-      </div>
 
-    </section>
+                <div
+                    id="letterReveal"
+                    class="letter-reveal hidden"
+                >
 
+                    <p>
+                        Your journey begins with a question:
+                    </p>
 
-    <!-- =========================
-         THINKING SCREEN
-    ========================== -->
+                    <p class="quote">
+                        "It is our choices that show what we truly are."
+                    </p>
 
-    <section id="thinkingScreen" class="screen">
+                    <button
+                        id="openSorting"
+                        class="magic-button"
+                    >
+                        Begin the Sorting Ceremony
+                    </button>
 
-      <div class="sorting-hat-symbol">♜</div>
+                </div>
 
-      <div class="thinking-text">
+            </div>
 
-        <p class="whisper">The Hat is thinking...</p>
+        </section>
 
-        <h1 id="thinkingLine">
-          Interesting...
-        </h1>
 
-        <div class="thinking-loader">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <!-- =====================================
+             MODE SCREEN
+        ====================================== -->
 
-      </div>
+        <section id="modeScreen" class="screen">
 
-    </section>
+            <div class="screen-inner">
 
+                <p class="eyebrow">
+                    THE SORTING HAT AWAITS
+                </p>
 
-    <!-- =========================
-         RESULT SCREEN
-    ========================== -->
+                <h2 class="page-title">
+                    How Deep Shall We Go?
+                </h2>
 
-    <section id="resultScreen" class="screen">
+                <p class="mode-intro">
+                    The more questions you answer, the more closely
+                    the Sorting Hat can read your character.
+                </p>
 
-      <div class="result-container">
 
-        <div class="result-intro">
-          <div class="small-title">THE SORTING HAT HAS DECIDED</div>
+                <div class="mode-grid">
 
-          <h1 id="hatSpeechTitle">
-            Hmm...
-          </h1>
 
-          <div class="hat-speech" id="hatSpeech"></div>
-        </div>
+                    <!-- 20 QUESTIONS -->
 
+                    <button
+                        class="mode-card"
+                        data-mode="20"
+                    >
 
-        <div class="house-reveal">
+                        <div class="mode-number">
+                            I
+                        </div>
 
-          <div class="crest-placeholder" id="houseCrest">
-            ✦
-          </div>
+                        <h3>
+                            Surface Sorting
+                        </h3>
 
-          <div class="house-label">
-            YOU BELONG IN
-          </div>
+                        <p class="mode-count">
+                            20 QUESTIONS
+                        </p>
 
-          <h2 id="houseName"></h2>
+                        <p>
+                            A quick glimpse into your instincts,
+                            values and natural tendencies.
+                        </p>
 
-          <p id="houseMotto"></p>
+                        <span class="mode-enter">
+                            BEGIN →
+                        </span>
 
-        </div>
+                    </button>
 
 
-        <div class="personality-card">
+                    <!-- 35 QUESTIONS -->
 
-          <div class="small-title">WHAT THE HAT SAW</div>
+                    <button
+                        class="mode-card"
+                        data-mode="35"
+                    >
 
-          <h2 id="personalityTitle"></h2>
+                        <div class="mode-number">
+                            II
+                        </div>
 
-          <p id="personalityText"></p>
+                        <h3>
+                            Deep Sorting
+                        </h3>
 
-          <div class="trait-grid" id="traitGrid"></div>
+                        <p class="mode-count">
+                            35 QUESTIONS
+                        </p>
 
-        </div>
+                        <p>
+                            A deeper examination of your choices,
+                            relationships and ambitions.
+                        </p>
 
+                        <span class="mode-enter">
+                            BEGIN →
+                        </span>
 
-        <div class="scores-card">
+                    </button>
 
-          <div class="small-title">THE FOUR HOUSES</div>
 
-          <div id="scoreBars"></div>
+                    <!-- 50 QUESTIONS -->
 
-        </div>
+                    <button
+                        class="mode-card featured"
+                        data-mode="50"
+                    >
 
+                        <div class="mode-number">
+                            III
+                        </div>
 
-        <div class="result-actions">
+                        <h3>
+                            Deepest Sorting
+                        </h3>
 
-          <button id="shareButton" class="magic-button">
-            Share My Sorting
-          </button>
+                        <p class="mode-count">
+                            50 QUESTIONS
+                        </p>
 
-          <button id="restartButton" class="text-button">
-            Sort Again
-          </button>
+                        <p>
+                            The complete Sorting experience.
+                            Leave almost nothing hidden from the Hat.
+                        </p>
 
-        </div>
+                        <span class="mode-enter">
+                            BEGIN →
+                        </span>
 
-        <p class="disclaimer">
-          This is an unofficial fan-made Hogwarts-inspired sorting experience.
-          It is not affiliated with or endorsed by Warner Bros. or J.K. Rowling.
-        </p>
+                    </button>
 
-      </div>
+                </div>
 
-    </section>
 
-  </main>
+                <p class="fan-note">
+                    This is an unofficial fan-made Hogwarts-inspired
+                    experience and is not affiliated with Warner Bros.
+                    or the Harry Potter franchise.
+                </p>
 
-  <script src="script.js"></script>
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             QUIZ SCREEN
+        ====================================== -->
+
+        <section id="quizScreen" class="screen">
+
+            <div class="screen-inner quiz-inner">
+
+                <div class="quiz-top">
+
+                    <div>
+                        <p class="eyebrow">
+                            THE SORTING HAT
+                        </p>
+
+                        <p id="questionNumber">
+                            Question 1 of 50
+                        </p>
+                    </div>
+
+                    <div id="houseHint" class="house-hint">
+                        ✦
+                    </div>
+
+                </div>
+
+
+                <div class="progress-track">
+
+                    <div
+                        id="progressBar"
+                        class="progress-bar"
+                    ></div>
+
+                </div>
+
+
+                <div class="question-card">
+
+                    <p
+                        id="questionText"
+                        class="question-text"
+                    >
+                        Loading...
+                    </p>
+
+                    <div
+                        id="answersContainer"
+                        class="answers-container"
+                    ></div>
+
+                </div>
+
+
+                <div class="quiz-navigation">
+
+                    <button
+                        id="backButton"
+                        class="text-button"
+                    >
+                        ← Back
+                    </button>
+
+                    <p class="quiz-note">
+                        Choose the answer that feels most like you.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             THINKING SCREEN
+        ====================================== -->
+
+        <section id="thinkingScreen" class="screen">
+
+            <div class="screen-inner thinking-inner">
+
+                <div class="sorting-hat-symbol">
+                    ♜
+                </div>
+
+                <p class="eyebrow">
+                    THE HAT IS THINKING
+                </p>
+
+                <h2 id="thinkingTitle">
+                    Hmm...
+                </h2>
+
+                <p
+                    id="thinkingText"
+                    class="thinking-text"
+                >
+                    I see something rather interesting...
+                </p>
+
+                <div class="thinking-line">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             RESULT SCREEN
+        ====================================== -->
+
+        <section id="resultScreen" class="screen">
+
+            <div class="screen-inner result-inner">
+
+                <p class="eyebrow">
+                    THE SORTING HAT HAS SPOKEN
+                </p>
+
+                <p class="result-introduction">
+                    Better be...
+                </p>
+
+                <h1
+                    id="resultHouse"
+                    class="result-house"
+                >
+                    GRYFFINDOR
+                </h1>
+
+                <div class="result-divider"></div>
+
+                <h2 id="resultPersonality">
+                    The Courageous Heart
+                </h2>
+
+                <p
+                    id="resultSecondary"
+                    class="result-secondary"
+                >
+                    Your secondary house is Ravenclaw.
+                </p>
+
+
+                <div class="hat-monologue">
+
+                    <p
+                        id="hatMonologue"
+                        class="hat-text"
+                    >
+                    </p>
+
+                </div>
+
+
+                <div class="score-section">
+
+                    <h3>
+                        Your House Resonance
+                    </h3>
+
+                    <div class="score-bars">
+
+                        <div class="score-row">
+
+                            <span>
+                                Gryffindor
+                            </span>
+
+                            <div class="score-track">
+                                <div
+                                    id="scoreG"
+                                    class="score-fill"
+                                ></div>
+                            </div>
+
+                            <span id="scoreGText">
+                                0%
+                            </span>
+
+                        </div>
+
+
+                        <div class="score-row">
+
+                            <span>
+                                Ravenclaw
+                            </span>
+
+                            <div class="score-track">
+                                <div
+                                    id="scoreR"
+                                    class="score-fill"
+                                ></div>
+                            </div>
+
+                            <span id="scoreRText">
+                                0%
+                            </span>
+
+                        </div>
+
+
+                        <div class="score-row">
+
+                            <span>
+                                Hufflepuff
+                            </span>
+
+                            <div class="score-track">
+                                <div
+                                    id="scoreH"
+                                    class="score-fill"
+                                ></div>
+                            </div>
+
+                            <span id="scoreHText">
+                                0%
+                            </span>
+
+                        </div>
+
+
+                        <div class="score-row">
+
+                            <span>
+                                Slytherin
+                            </span>
+
+                            <div class="score-track">
+                                <div
+                                    id="scoreS"
+                                    class="score-fill"
+                                ></div>
+                            </div>
+
+                            <span id="scoreSText">
+                                0%
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="result-actions">
+
+                    <button
+                        id="shareResult"
+                        class="magic-button"
+                    >
+                        Share My Sorting
+                    </button>
+
+                    <button
+                        id="restartSorting"
+                        class="text-button"
+                    >
+                        Sort Me Again
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="script.js"></script>
 
 </body>
 </html>
