@@ -34,10 +34,22 @@ html {
 
 body {
     min-height: 100vh;
+
     background:
-        radial-gradient(circle at 50% 20%, #17171b 0%, #08090c 45%, #030405 100%);
+        radial-gradient(
+            circle at 50% 20%,
+            #17171b 0%,
+            #08090c 45%,
+            #030405 100%
+        );
+
     color: var(--cream);
-    font-family: "Libre Baskerville", Georgia, serif;
+
+    font-family:
+        "Libre Baskerville",
+        Georgia,
+        serif;
+
     overflow-x: hidden;
 }
 
@@ -49,33 +61,52 @@ body {
 .stars {
     position: fixed;
     inset: 0;
+
     pointer-events: none;
+
     z-index: 0;
 
     background-image:
-        radial-gradient(circle, rgba(255,255,255,.65) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px);
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.65) 1px,
+            transparent 1px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.35) 1px,
+            transparent 1px
+        );
 
-    background-size: 110px 110px, 180px 180px;
-    background-position: 10px 20px, 80px 100px;
+    background-size:
+        110px 110px,
+        180px 180px;
+
+    background-position:
+        10px 20px,
+        80px 100px;
 
     opacity: .22;
 }
 
 .fog {
     position: fixed;
+
     pointer-events: none;
+
     z-index: 1;
 
     width: 70vw;
     height: 25vh;
 
     border-radius: 50%;
+
     filter: blur(45px);
 
-    background: rgba(180, 180, 180, .025);
+    background: rgba(180,180,180,.025);
 
-    animation: fogMove 18s ease-in-out infinite alternate;
+    animation:
+        fogMove 18s ease-in-out infinite alternate;
 }
 
 .fog-one {
@@ -86,16 +117,22 @@ body {
 .fog-two {
     top: 20%;
     right: -20%;
+
     animation-delay: -7s;
 }
 
 @keyframes fogMove {
+
     from {
-        transform: translateX(-4%) scale(1);
+        transform:
+            translateX(-4%)
+            scale(1);
     }
 
     to {
-        transform: translateX(8%) scale(1.1);
+        transform:
+            translateX(8%)
+            scale(1.1);
     }
 }
 
@@ -106,12 +143,24 @@ body {
 
 .candle {
     position: fixed;
+
     bottom: 25px;
+
     width: 8px;
     height: 75px;
-    background: linear-gradient(to right, #aaa, #eee, #888);
+
+    background:
+        linear-gradient(
+            to right,
+            #aaa,
+            #eee,
+            #888
+        );
+
     border-radius: 2px;
+
     z-index: 3;
+
     opacity: .55;
 }
 
@@ -125,24 +174,45 @@ body {
 
 .flame {
     position: absolute;
+
     width: 12px;
     height: 22px;
+
     left: 50%;
     top: -20px;
+
     transform: translateX(-50%);
-    border-radius: 50% 50% 45% 45%;
+
+    border-radius:
+        50%
+        50%
+        45%
+        45%;
+
     background: #f5d56c;
-    box-shadow: 0 0 20px 8px rgba(241, 194, 74, .25);
-    animation: flicker .8s infinite alternate;
+
+    box-shadow:
+        0 0 20px 8px
+        rgba(241,194,74,.25);
+
+    animation:
+        flicker .8s infinite alternate;
 }
 
 @keyframes flicker {
+
     from {
-        transform: translateX(-50%) scale(.9) rotate(-2deg);
+        transform:
+            translateX(-50%)
+            scale(.9)
+            rotate(-2deg);
     }
 
     to {
-        transform: translateX(-50%) scale(1.08) rotate(2deg);
+        transform:
+            translateX(-50%)
+            scale(1.08)
+            rotate(2deg);
     }
 }
 
@@ -155,21 +225,26 @@ body {
     display: none;
 
     min-height: 100vh;
+
     padding: 70px 24px;
 
     position: relative;
+
     z-index: 5;
 }
 
 .screen.active {
     display: flex;
+
     align-items: center;
     justify-content: center;
 }
 
 .screen-inner {
     width: min(1100px, 100%);
+
     margin: 0 auto;
+
     text-align: center;
 }
 
@@ -180,11 +255,13 @@ body {
 
 .intro-screen {
     position: fixed;
+
     inset: 0;
 
     z-index: 100;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -193,8 +270,8 @@ body {
     background:
         radial-gradient(
             circle at center,
-            rgba(34, 31, 25, .55),
-            rgba(3, 4, 6, .98) 70%
+            rgba(34,31,25,.55),
+            rgba(3,4,6,.98) 70%
         );
 
     transition:
@@ -204,36 +281,51 @@ body {
 
 .intro-screen.hidden {
     display: flex !important;
+
     opacity: 0;
+
     visibility: hidden;
+
     pointer-events: none;
 }
 
 .intro-stars {
     position: absolute;
+
     inset: 0;
 
     background-image:
-        radial-gradient(circle, white 1px, transparent 1px);
+        radial-gradient(
+            circle,
+            white 1px,
+            transparent 1px
+        );
 
     background-size: 130px 130px;
+
     opacity: .25;
 }
 
 .hogwarts-intro-content {
     position: relative;
+
     z-index: 2;
 
     max-width: 750px;
+
     padding: 30px;
 }
 
 .intro-eyebrow,
 .eyebrow {
     font-family: "Cinzel", serif;
+
     letter-spacing: .28em;
+
     font-size: .72rem;
+
     color: var(--gold);
+
     text-transform: uppercase;
 }
 
@@ -243,44 +335,63 @@ body {
 
 .hogwarts-intro-content h1 {
     font-family: "Cinzel", serif;
-    font-size: clamp(4rem, 12vw, 8rem);
+
+    font-size:
+        clamp(
+            4rem,
+            12vw,
+            8rem
+        );
+
     letter-spacing: .12em;
+
     font-weight: 500;
 
     color: #ddd1aa;
 
     text-shadow:
-        0 0 20px rgba(201, 168, 92, .18),
-        0 3px 20px #000;
+        0 0 20px
+        rgba(201,168,92,.18),
+
+        0 3px 20px
+        #000;
 }
 
 .intro-divider {
     width: 180px;
+
     height: 1px;
 
     margin: 20px auto;
 
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--gold),
-        transparent
-    );
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
 }
 
 .intro-subtitle {
     font-family: "Cinzel", serif;
+
     color: #c8bd9d;
+
     letter-spacing: .18em;
+
     font-size: .95rem;
 }
 
 .intro-text {
     max-width: 590px;
+
     margin: 30px auto;
 
     color: #a9a395;
+
     line-height: 1.9;
+
     font-size: .95rem;
 }
 
@@ -291,6 +402,7 @@ body {
 
 button {
     font: inherit;
+
     cursor: pointer;
 }
 
@@ -298,6 +410,7 @@ button {
 .magic-button,
 .text-button {
     position: relative;
+
     z-index: 30;
 }
 
@@ -305,58 +418,81 @@ button {
     padding: 14px 30px;
 
     border: 1px solid var(--gold);
+
     background: transparent;
 
     color: var(--gold-light);
 
     font-family: "Cinzel", serif;
+
     letter-spacing: .12em;
+
     text-transform: uppercase;
 
     transition: .3s ease;
 }
 
 .gold-button:hover {
-    background: rgba(201, 168, 92, .1);
-    box-shadow: 0 0 25px rgba(201, 168, 92, .12);
-    transform: translateY(-2px);
+    background:
+        rgba(201,168,92,.1);
+
+    box-shadow:
+        0 0 25px
+        rgba(201,168,92,.12);
+
+    transform:
+        translateY(-2px);
 }
 
 .magic-button {
     padding: 14px 26px;
 
     border: 1px solid var(--gold);
-    background: linear-gradient(
-        180deg,
-        rgba(201,168,92,.18),
-        rgba(201,168,92,.05)
-    );
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(201,168,92,.18),
+            rgba(201,168,92,.05)
+        );
 
     color: var(--gold-light);
 
     font-family: "Cinzel", serif;
+
     font-size: .78rem;
+
     letter-spacing: .1em;
+
     text-transform: uppercase;
 
     transition: .3s ease;
 }
 
 .magic-button:hover {
-    background: rgba(201,168,92,.25);
-    box-shadow: 0 0 25px rgba(201,168,92,.15);
+    background:
+        rgba(201,168,92,.25);
+
+    box-shadow:
+        0 0 25px
+        rgba(201,168,92,.15);
 }
 
 .text-button {
     border: 0;
+
     background: transparent;
 
     color: var(--gold);
+
     padding: 10px 18px;
 
     font-family: "Cinzel", serif;
+
     font-size: .75rem;
+
     letter-spacing: .08em;
+
     text-transform: uppercase;
 
     transition: .3s ease;
@@ -364,7 +500,10 @@ button {
 
 .text-button:hover {
     color: var(--gold-light);
-    text-shadow: 0 0 12px rgba(201,168,92,.3);
+
+    text-shadow:
+        0 0 12px
+        rgba(201,168,92,.3);
 }
 
 
@@ -374,333 +513,437 @@ button {
 
 .letter-screen-inner {
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
 }
 
 .page-title {
-    margin-top: 12px;
-    margin-bottom: 32px;
+    margin-top: 10px;
+
+    margin-bottom: 26px;
 
     font-family: "Cinzel", serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
+
+    font-size:
+        clamp(
+            2rem,
+            5vw,
+            3rem
+        );
+
     font-weight: 500;
 
     color: #ddd3b7;
 }
 
-.envelope-wrapper {
-    position: relative;
 
-    width: min(620px, 92vw);
-    height: 410px;
+/* =========================================================
+   ENVELOPE
+   ========================================================= */
+
+.envelope-wrapper {
+    width: min(560px, 90vw);
+
+    height: 335px;
+
+    margin: 0 auto 4px;
 
     display: flex;
-    align-items: center;
-    justify-content: center;
 
-    margin: 5px auto 10px;
+    align-items: center;
+
+    justify-content: center;
 }
 
 .envelope {
     position: relative;
 
-    width: min(600px, 90vw);
-    height: 370px;
+    width: min(520px, 88vw);
 
-    perspective: 1000px;
+    height: 300px;
+
+    perspective: 1200px;
 
     overflow: visible;
 }
 
 
-/* BACK */
+/* =========================================================
+   ENVELOPE BACK
+   ========================================================= */
 
 .envelope-back {
     position: absolute;
+
     inset: 0;
 
     z-index: 1;
 
-    border: 1px solid rgba(190, 160, 94, .65);
+    border-radius: 3px;
 
     background:
         linear-gradient(
             145deg,
-            #5e472c,
-            #34281c 45%,
-            #17130f
+            #725733 0%,
+            #4b3823 55%,
+            #302417 100%
         );
 
+    border:
+        1px solid
+        rgba(211,177,103,.6);
+
     box-shadow:
-        0 20px 55px rgba(0,0,0,.55),
-        inset 0 0 30px rgba(0,0,0,.3);
+        0 18px 45px
+        rgba(0,0,0,.5),
+
+        inset 0 0 25px
+        rgba(0,0,0,.2);
 }
 
 
-/* LETTER */
+/* =========================================================
+   LETTER PAPER
+   ========================================================= */
 
 .envelope-paper {
     position: absolute;
 
     left: 7%;
     right: 7%;
-    top: 7%;
 
-    height: 86%;
+    top: 5%;
+
+    height: 88%;
 
     z-index: 2;
 
-    padding: 30px 42px;
+    padding: 28px 36px;
 
     overflow: hidden;
 
     background:
         linear-gradient(
             135deg,
-            #eee0b8,
-            #d9c697
+            #f0e2bd,
+            #dfce9d
         );
 
-    color: #382c1c;
+    color: #392d1c;
 
-    font-family: "IM Fell English", Georgia, serif;
+    font-family:
+        "IM Fell English",
+        Georgia,
+        serif;
 
     text-align: left;
 
     box-shadow:
-        0 8px 20px rgba(0,0,0,.35);
+        0 5px 18px
+        rgba(0,0,0,.3);
 
     transition:
-        transform 1s cubic-bezier(.2,.8,.2,1),
+        transform 1s
+        cubic-bezier(.2,.8,.2,1),
+
         box-shadow 1s ease;
 }
+
+
+/* Magical symbol */
 
 .letter-header-mark {
     text-align: center;
 
-    font-size: 1.3rem;
+    color: #765b31;
 
-    color: #72562b;
+    font-size: 1.15rem;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
+
+/* Hogwarts heading */
+
 .letter-heading {
+    margin: 0;
+
     text-align: center;
 
     font-family: "Cinzel", serif;
 
-    font-size: 1.35rem;
-    letter-spacing: .13em;
+    font-size: 1.08rem;
 
-    color: #302515;
+    letter-spacing: .12em;
+
+    color: #342817;
 }
 
 .letter-subheading {
+    margin: 2px 0 0;
+
     text-align: center;
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
+
+    font-size: .9rem;
 
     font-style: italic;
 
-    font-size: 1rem;
-
-    margin-top: 3px;
+    color: #493a24;
 }
 
 .letter-line {
-    width: 65%;
+    width: 62%;
 
     height: 1px;
 
-    margin: 13px auto 18px;
+    margin: 12px auto 17px;
 
-    background: #765b31;
-    opacity: .55;
+    background: #7d6844;
+
+    opacity: .5;
 }
 
 .envelope-paper p {
-    margin-bottom: 14px;
+    margin-bottom: 11px;
 
-    line-height: 1.5;
+    font-family:
+        "IM Fell English",
+        Georgia,
+        serif;
 
-    font-size: .98rem;
+    font-size: .9rem;
+
+    line-height: 1.42;
 }
 
 .letter-signature {
-    text-align: right;
+    margin-top: 16px;
 
-    margin-top: 20px;
+    text-align: right;
 }
 
 .letter-signature em {
-    font-size: 1.05rem;
+    font-size: 1rem;
 }
 
 
-/* FRONT PANEL */
+/* =========================================================
+   FRONT PANEL
+   ========================================================= */
 
 .envelope-front {
     position: absolute;
 
     left: 0;
     right: 0;
+
     bottom: 0;
 
-    height: 63%;
+    height: 59%;
 
     z-index: 4;
 
     background:
         linear-gradient(
             145deg,
-            #60492d,
-            #392b1d
+            #765a35,
+            #493721
         );
 
-    clip-path: polygon(
-        0 0,
-        50% 60%,
-        100% 0,
-        100% 100%,
-        0 100%
-    );
+    clip-path:
+        polygon(
+            0 0,
+            50% 63%,
+            100% 0,
+            100% 100%,
+            0 100%
+        );
 
-    border-bottom: 1px solid rgba(190,160,94,.55);
+    box-shadow:
+        inset 0 1px
+        rgba(230,196,120,.15);
 
     pointer-events: none;
 }
 
 
-/* FLAP */
+/* =========================================================
+   TOP FLAP
+   ========================================================= */
 
 .envelope-flap {
     position: absolute;
 
     left: 0;
     right: 0;
+
     top: 0;
 
-    height: 62%;
+    height: 56%;
 
     z-index: 5;
-
-    transform-origin: top center;
 
     background:
         linear-gradient(
             145deg,
-            #765b37,
-            #493720
+            #876a40,
+            #5d4528
         );
 
-    clip-path: polygon(
-        0 0,
-        100% 0,
-        50% 100%
-    );
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            50% 100%
+        );
 
-    border-top: 1px solid rgba(210,180,105,.55);
-
-    transition:
-        transform 1s cubic-bezier(.22,.75,.2,1),
-        z-index .1s linear 1s;
+    transform-origin:
+        top center;
 
     transform-style: preserve-3d;
+
+    transition:
+        transform 1s
+        cubic-bezier(.2,.75,.2,1),
+
+        z-index .05s
+        linear 1s;
 }
 
 
-/* WAX SEAL */
+/* =========================================================
+   WAX SEAL
+   ========================================================= */
 
 .wax-seal {
     position: absolute;
 
     left: 50%;
-    top: 53%;
+    top: 58%;
 
-    transform: translate(-50%, -50%);
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
 
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
 
     border-radius: 50%;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
     background:
         radial-gradient(
             circle at 35% 30%,
-            #b9483e,
-            #681812 65%,
-            #3d0d0a
+            #a9342d,
+            #711914 65%,
+            #450d0a
         );
 
-    color: #e8c878;
+    border:
+        2px solid
+        #84251e;
 
-    border: 2px solid #8e2b21;
+    color: #e6c36d;
 
-    font-size: 1.25rem;
+    font-size: 1rem;
 
     box-shadow:
-        0 4px 12px rgba(0,0,0,.4),
-        inset 0 0 8px rgba(0,0,0,.35);
+        0 4px 10px
+        rgba(0,0,0,.45),
+
+        inset 0 0 8px
+        rgba(0,0,0,.35);
 }
 
 
-/* OPENED STATE */
+/* =========================================================
+   OPENED ENVELOPE
+   ========================================================= */
 
 .envelope.opened .envelope-flap {
-    transform: rotateX(180deg);
+    transform:
+        rotateX(180deg);
 
     z-index: 1;
 }
 
 .envelope.opened .envelope-paper {
-    transform: translateY(-155px);
+    transform:
+        translateY(-135px);
 
     z-index: 6;
 
     box-shadow:
-        0 18px 35px rgba(0,0,0,.5);
+        0 18px 35px
+        rgba(0,0,0,.45);
 }
 
+
+/* =========================================================
+   LETTER CONTROLS
+   ========================================================= */
+
 .letter-prompt {
-    min-height: 24px;
+    min-height: 22px;
 
-    margin: 0 0 6px;
+    margin: 0 0 3px;
 
-    color: var(--muted);
+    color: #9d9584;
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
+
+    font-size: .9rem;
 
     font-style: italic;
-
-    font-size: .95rem;
 }
 
 .open-letter-button {
-    margin-top: 2px;
+    position: relative;
+
+    z-index: 30;
+
+    display: inline-block;
+
+    margin-top: 0;
 }
 
 .letter-reveal {
-    margin-top: 20px;
+    margin-top: 18px;
 
-    animation: fadeUp .8s ease forwards;
+    animation:
+        fadeUp .8s ease forwards;
 }
 
 .letter-reveal p {
     color: var(--muted);
-    margin-bottom: 10px;
+
+    margin-bottom: 9px;
 }
 
 .quote {
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
+
     font-style: italic;
+
     color: var(--gold-light) !important;
-    font-size: 1.05rem;
+
+    font-size: 1.02rem;
 }
 
 .hidden {
@@ -708,15 +951,21 @@ button {
 }
 
 @keyframes fadeUp {
+
     from {
         opacity: 0;
-        transform: translateY(15px);
+
+        transform:
+            translateY(15px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+            translateY(0);
     }
+
 }
 
 
@@ -726,6 +975,7 @@ button {
 
 .mode-intro {
     max-width: 650px;
+
     margin: 0 auto 35px;
 
     color: var(--muted);
@@ -736,7 +986,8 @@ button {
 .mode-grid {
     display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns:
+        repeat(3, 1fr);
 
     gap: 18px;
 
@@ -750,7 +1001,9 @@ button {
 
     padding: 30px 25px;
 
-    border: 1px solid rgba(201,168,92,.2);
+    border:
+        1px solid
+        rgba(201,168,92,.2);
 
     background:
         linear-gradient(
@@ -767,17 +1020,23 @@ button {
 }
 
 .mode-card:hover {
-    transform: translateY(-7px);
+    transform:
+        translateY(-7px);
 
-    border-color: var(--gold);
+    border-color:
+        var(--gold);
 
     box-shadow:
-        0 15px 35px rgba(0,0,0,.4),
-        0 0 25px rgba(201,168,92,.08);
+        0 15px 35px
+        rgba(0,0,0,.4),
+
+        0 0 25px
+        rgba(201,168,92,.08);
 }
 
 .mode-card.featured {
-    border-color: rgba(201,168,92,.5);
+    border-color:
+        rgba(201,168,92,.5);
 }
 
 .mode-number {
@@ -853,6 +1112,7 @@ button {
     display: flex;
 
     justify-content: space-between;
+
     align-items: flex-end;
 
     margin-bottom: 15px;
@@ -874,31 +1134,39 @@ button {
 
 .progress-track {
     width: 100%;
+
     height: 2px;
 
-    background: rgba(255,255,255,.08);
+    background:
+        rgba(255,255,255,.08);
 
     margin-bottom: 35px;
 }
 
 .progress-bar {
     width: 0;
+
     height: 100%;
 
     background: var(--gold);
 
-    transition: width .4s ease;
+    transition:
+        width .4s ease;
 }
 
 .question-card {
     padding: 50px 45px;
 
-    border: 1px solid rgba(201,168,92,.22);
+    border:
+        1px solid
+        rgba(201,168,92,.22);
 
-    background: rgba(13,14,18,.88);
+    background:
+        rgba(13,14,18,.88);
 
     box-shadow:
-        0 25px 70px rgba(0,0,0,.35);
+        0 25px 70px
+        rgba(0,0,0,.35);
 }
 
 .question-text {
@@ -906,9 +1174,16 @@ button {
 
     margin: 0 auto 35px;
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
-    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    font-size:
+        clamp(
+            1.35rem,
+            3vw,
+            1.8rem
+        );
 
     line-height: 1.5;
 
@@ -928,13 +1203,18 @@ button {
 
     text-align: left;
 
-    border: 1px solid rgba(201,168,92,.16);
+    border:
+        1px solid
+        rgba(201,168,92,.16);
 
-    background: rgba(255,255,255,.025);
+    background:
+        rgba(255,255,255,.025);
 
     color: #bbb5a7;
 
-    font-family: "Libre Baskerville", serif;
+    font-family:
+        "Libre Baskerville",
+        serif;
 
     font-size: .8rem;
 
@@ -944,19 +1224,23 @@ button {
 }
 
 .answer-button:hover {
-    border-color: rgba(201,168,92,.55);
+    border-color:
+        rgba(201,168,92,.55);
 
-    background: rgba(201,168,92,.06);
+    background:
+        rgba(201,168,92,.06);
 
     color: #e4d8b8;
 
-    transform: translateX(4px);
+    transform:
+        translateX(4px);
 }
 
 .quiz-navigation {
     display: flex;
 
     justify-content: space-between;
+
     align-items: center;
 
     margin-top: 18px;
@@ -986,17 +1270,24 @@ button {
 
     margin-bottom: 25px;
 
-    animation: hatPulse 2s infinite ease-in-out;
+    animation:
+        hatPulse 2s
+        infinite ease-in-out;
 }
 
 @keyframes hatPulse {
-    0%,100% {
-        transform: translateY(0);
+
+    0%, 100% {
+        transform:
+            translateY(0);
+
         opacity: .55;
     }
 
     50% {
-        transform: translateY(-7px);
+        transform:
+            translateY(-7px);
+
         opacity: 1;
     }
 }
@@ -1004,7 +1295,9 @@ button {
 .thinking-inner h2 {
     margin: 15px 0;
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
     font-size: 2.5rem;
 
@@ -1016,7 +1309,9 @@ button {
 .thinking-text {
     color: var(--muted);
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
     font-size: 1.1rem;
 
@@ -1041,7 +1336,9 @@ button {
 
     background: var(--gold);
 
-    animation: dots 1s infinite alternate;
+    animation:
+        dots 1s
+        infinite alternate;
 }
 
 .thinking-line span:nth-child(2) {
@@ -1053,6 +1350,7 @@ button {
 }
 
 @keyframes dots {
+
     from {
         opacity: .2;
     }
@@ -1060,6 +1358,7 @@ button {
     to {
         opacity: 1;
     }
+
 }
 
 
@@ -1076,7 +1375,9 @@ button {
 
     color: var(--muted);
 
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
     font-size: 1.2rem;
 }
@@ -1086,32 +1387,42 @@ button {
 
     font-family: "Cinzel", serif;
 
-    font-size: clamp(3rem, 10vw, 6.5rem);
+    font-size:
+        clamp(
+            3rem,
+            10vw,
+            6.5rem
+        );
 
     letter-spacing: .1em;
 
     color: var(--gold-light);
 
     text-shadow:
-        0 0 30px rgba(201,168,92,.14);
+        0 0 30px
+        rgba(201,168,92,.14);
 }
 
 .result-divider {
     width: 180px;
+
     height: 1px;
 
     margin: 20px auto;
 
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--gold),
-        transparent
-    );
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
 }
 
 .result-inner h2 {
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
     font-weight: normal;
 
@@ -1133,14 +1444,22 @@ button {
 
     padding: 28px;
 
-    border-left: 1px solid var(--gold);
-    border-right: 1px solid var(--gold);
+    border-left:
+        1px solid
+        var(--gold);
 
-    background: rgba(255,255,255,.02);
+    border-right:
+        1px solid
+        var(--gold);
+
+    background:
+        rgba(255,255,255,.02);
 }
 
 .hat-text {
-    font-family: "IM Fell English", serif;
+    font-family:
+        "IM Fell English",
+        serif;
 
     font-size: 1.05rem;
 
@@ -1171,13 +1490,15 @@ button {
 
 .score-bars {
     display: grid;
+
     gap: 11px;
 }
 
 .score-row {
     display: grid;
 
-    grid-template-columns: 95px 1fr 42px;
+    grid-template-columns:
+        95px 1fr 42px;
 
     align-items: center;
 
@@ -1193,7 +1514,8 @@ button {
 .score-track {
     height: 5px;
 
-    background: rgba(255,255,255,.08);
+    background:
+        rgba(255,255,255,.08);
 }
 
 .score-fill {
@@ -1203,13 +1525,15 @@ button {
 
     background: var(--gold);
 
-    transition: width 1.2s ease;
+    transition:
+        width 1.2s ease;
 }
 
 .result-actions {
     display: flex;
 
     justify-content: center;
+
     align-items: center;
 
     gap: 20px;
@@ -1241,11 +1565,15 @@ button {
     }
 
     .envelope-wrapper {
-        height: 360px;
+        width: 94vw;
+
+        height: 325px;
     }
 
     .envelope {
-        height: 300px;
+        width: 88vw;
+
+        height: 275px;
     }
 
     .envelope-paper {
@@ -1254,7 +1582,9 @@ button {
 
     .envelope-paper p {
         font-size: .78rem;
+
         line-height: 1.35;
+
         margin-bottom: 9px;
     }
 
@@ -1269,11 +1599,13 @@ button {
     .wax-seal {
         width: 45px;
         height: 45px;
+
         font-size: 1rem;
     }
 
     .envelope.opened .envelope-paper {
-        transform: translateY(-125px);
+        transform:
+            translateY(-120px);
     }
 
     .question-card {
@@ -1289,10 +1621,12 @@ button {
     }
 
     .score-row {
-        grid-template-columns: 75px 1fr 38px;
+        grid-template-columns:
+            75px 1fr 38px;
     }
 
     .result-actions {
         flex-direction: column;
     }
+
 }
