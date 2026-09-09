@@ -1100,3 +1100,137 @@ button {
     margin: 50px 0;
   }
 }
+/* =========================================
+   HOGWARTS INTRO
+   ========================================= */
+
+.intro-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at center, rgba(55, 47, 75, 0.35), transparent 45%),
+        linear-gradient(180deg, #050509 0%, #0b0a12 55%, #030305 100%);
+    transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
+.intro-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.hogwarts-intro-content {
+    width: min(700px, 90%);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    animation: introFadeIn 2s ease forwards;
+}
+
+.intro-eyebrow {
+    font-family: "Cinzel", serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    color: #b9a36a;
+    margin-bottom: 25px;
+    opacity: 0.85;
+}
+
+.hogwarts-intro-content h1 {
+    font-family: "Cinzel", serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    letter-spacing: 0.12em;
+    margin: 0;
+    color: #d8bd72;
+    text-shadow:
+        0 0 20px rgba(216, 189, 114, 0.25),
+        0 0 60px rgba(216, 189, 114, 0.1);
+}
+
+.intro-divider {
+    width: 180px;
+    height: 1px;
+    margin: 25px auto;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #b9a36a,
+        transparent
+    );
+}
+
+.intro-subtitle {
+    font-family: "IM Fell English", serif;
+    font-size: 1.35rem;
+    color: #ddd4c1;
+    font-style: italic;
+}
+
+.intro-text {
+    max-width: 550px;
+    margin: 30px auto 40px;
+    font-family: "Libre Baskerville", serif;
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: #aaa4a0;
+}
+
+.gold-button {
+    padding: 15px 34px;
+    border: 1px solid #b9a36a;
+    background: rgba(20, 18, 24, 0.85);
+    color: #d8bd72;
+    font-family: "Cinzel", serif;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: all 0.35s ease;
+}
+
+.gold-button:hover {
+    background: #b9a36a;
+    color: #08070b;
+    box-shadow: 0 0 30px rgba(185, 163, 106, 0.25);
+    transform: translateY(-2px);
+}
+
+@keyframes introFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Star field */
+
+.intro-stars,
+.intro-stars::before,
+.intro-stars::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background-image:
+        radial-gradient(circle, rgba(255,255,255,0.7) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+    background-size: 140px 140px, 230px 230px;
+    background-position: 20px 30px, 80px 100px;
+    opacity: 0.35;
+}
+
+.intro-stars::before {
+    transform: translateY(-20px);
+    opacity: 0.2;
+}
+
+.intro-stars::after {
+    transform: translateY(30px);
+    opacity: 0.15;
+}
