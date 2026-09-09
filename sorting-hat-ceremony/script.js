@@ -1,2157 +1,1520 @@
-/* =========================================================
+/* =========================================
    HOGWARTS SORTING CEREMONY
-   CLIENT-SIDE SORTING ENGINE
-========================================================= */
+   JAVASCRIPT
+========================================= */
 
 
-/* =========================================================
+/* =========================================
    QUESTIONS
-
-   Every answer has explicit deterministic House points.
-
-   G = Gryffindor
-   R = Ravenclaw
-   H = Hufflepuff
-   S = Slytherin
-
-   The user never sees these scores.
-========================================================= */
+========================================= */
 
 const questions = [
 
-  {
-    category: "COURAGE",
-    text: "You see someone being publicly humiliated by a popular student. What do you do?",
-    answers: [
-      {
-        text: "Step in immediately, even if it makes you a target.",
-        score: { G: 4 }
-      },
-      {
-        text: "Intervene calmly, using the strongest argument you can find.",
-        score: { R: 3, G: 2 }
-      },
-      {
-        text: "Stay beside the person being humiliated and make sure they aren't alone.",
-        score: { H: 4 }
-      },
-      {
-        text: "Find a way to stop the situation without putting yourself unnecessarily at risk.",
-        score: { S: 3, R: 1 }
-      }
-    ]
-  },
+    {
+        question: "You discover a locked door deep inside Hogwarts. What do you do?",
+        answers: [
+            { text: "Try to open it immediately. Secrets are meant to be uncovered.", house: "G" },
+            { text: "Study the lock and surrounding clues before touching anything.", house: "R" },
+            { text: "Wonder who might be protecting what lies beyond it.", house: "S" },
+            { text: "Look around to make sure nobody could be harmed by opening it.", house: "H" }
+        ]
+    },
 
-  {
-    category: "TRUTH",
-    text: "Your closest friend has done something seriously wrong, and an innocent person may take the blame. What do you do?",
-    answers: [
-      {
-        text: "Tell the truth, even if it destroys the friendship.",
-        score: { G: 4, R: 1 }
-      },
-      {
-        text: "First establish exactly what happened before deciding what to reveal.",
-        score: { R: 4 }
-      },
-      {
-        text: "Confront your friend privately and try to make them correct it themselves.",
-        score: { H: 3, G: 2 }
-      },
-      {
-        text: "Protect your friend unless the consequences for the innocent person become severe.",
-        score: { S: 2, H: 2 }
-      }
-    ]
-  },
+    {
+        question: "Which quality do you value most in another person?",
+        answers: [
+            { text: "Courage", house: "G" },
+            { text: "Intelligence", house: "R" },
+            { text: "Loyalty", house: "H" },
+            { text: "Ambition", house: "S" }
+        ]
+    },
 
-  {
-    category: "LOYALTY",
-    text: "Someone you dislike trusts you with a deeply damaging secret. What do you do?",
-    answers: [
-      {
-        text: "Keep it completely private. Their trust is still their trust.",
-        score: { H: 4 }
-      },
-      {
-        text: "Keep it private, but remember what it tells you about them.",
-        score: { R: 3 }
-      },
-      {
-        text: "Use the information only if they later seriously threaten someone.",
-        score: { S: 3, G: 1 }
-      },
-      {
-        text: "Tell someone if keeping the secret would allow serious harm.",
-        score: { G: 3, H: 1 }
-      }
-    ]
-  },
+    {
+        question: "You are offered a chance to become extremely powerful. What matters most?",
+        answers: [
+            { text: "Using the power to protect people.", house: "G" },
+            { text: "Understanding exactly how the power works.", house: "R" },
+            { text: "Making sure the people you love benefit too.", house: "H" },
+            { text: "Making sure nobody can ever take that power from you.", house: "S" }
+        ]
+    },
 
-  {
-    category: "AMBITION",
-    text: "Which future would tempt you most?",
-    answers: [
-      {
-        text: "A life remembered for extraordinary courage and meaningful deeds.",
-        score: { G: 4 }
-      },
-      {
-        text: "A life of exceptional knowledge, mastery and intellectual achievement.",
-        score: { R: 4 }
-      },
-      {
-        text: "A deeply loving life surrounded by people who genuinely matter to you.",
-        score: { H: 4 }
-      },
-      {
-        text: "A life of extraordinary achievement, influence and independence.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "A friend has betrayed you. Your first instinct is to...",
+        answers: [
+            { text: "Confront them directly.", house: "G" },
+            { text: "Figure out why they did it.", house: "R" },
+            { text: "Give them a chance to explain themselves.", house: "H" },
+            { text: "Remember it and change how much power you give them.", house: "S" }
+        ]
+    },
 
-  {
-    category: "POWER",
-    text: "You discover a spell powerful enough to reshape society. What would you do?",
-    answers: [
-      {
-        text: "Use it to fight injustice, even if the consequences are uncertain.",
-        score: { G: 4 }
-      },
-      {
-        text: "Study it thoroughly before deciding whether it should ever be used.",
-        score: { R: 4 }
-      },
-      {
-        text: "Use it only if it can protect ordinary people from suffering.",
-        score: { H: 4 }
-      },
-      {
-        text: "Use it strategically to repair broken systems and gain the influence needed to maintain them.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "Which sounds most appealing?",
+        answers: [
+            { text: "Being remembered as someone who stood up for others.", house: "G" },
+            { text: "Discovering something nobody else has discovered.", house: "R" },
+            { text: "Having a small circle of people who truly love you.", house: "H" },
+            { text: "Building a life where you answer to nobody.", house: "S" }
+        ]
+    },
 
-  {
-    category: "FAILURE",
-    text: "You work hard for something and someone else succeeds effortlessly. What is your first instinct?",
-    answers: [
-      {
-        text: "Try again. I refuse to let one failure define me.",
-        score: { G: 4 }
-      },
-      {
-        text: "Study exactly why they succeeded and where my approach failed.",
-        score: { R: 4 }
-      },
-      {
-        text: "Accept it and keep improving without turning it into a rivalry.",
-        score: { H: 3, R: 1 }
-      },
-      {
-        text: "Figure out what they did differently and use that knowledge to surpass the result.",
-        score: { S: 3, R: 1 }
-      }
-    ]
-  },
+    {
+        question: "You make a serious mistake. What bothers you most?",
+        answers: [
+            { text: "That someone got hurt because of you.", house: "G" },
+            { text: "That you failed to see the problem beforehand.", house: "R" },
+            { text: "That you disappointed someone who trusted you.", house: "H" },
+            { text: "That the mistake made you look weak.", house: "S" }
+        ]
+    },
 
-  {
-    category: "MORALITY",
-    text: "A Hogwarts rule is clearly unfair and prevents you from helping someone who has been wronged. What do you do?",
-    answers: [
-      {
-        text: "Break the rule and help them.",
-        score: { G: 4 }
-      },
-      {
-        text: "Find evidence proving the rule is unjust and challenge it properly.",
-        score: { R: 4 }
-      },
-      {
-        text: "Help the person while minimizing the risk to everyone involved.",
-        score: { H: 4 }
-      },
-      {
-        text: "Find a legitimate loophole that gets the result without openly breaking the rule.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "What kind of challenge excites you?",
+        answers: [
+            { text: "One that requires bravery.", house: "G" },
+            { text: "One that requires solving something difficult.", house: "R" },
+            { text: "One that requires patience and persistence.", house: "H" },
+            { text: "One where there is something significant to win.", house: "S" }
+        ]
+    },
 
-  {
-    category: "RELATIONSHIPS",
-    text: "What kind of friendships do you value most?",
-    answers: [
-      {
-        text: "Friends who would stand beside me when everything goes wrong.",
-        score: { G: 4 }
-      },
-      {
-        text: "Friends with whom I can discuss ideas for hours.",
-        score: { R: 4 }
-      },
-      {
-        text: "A small circle of people who genuinely know and love me.",
-        score: { H: 4 }
-      },
-      {
-        text: "Friends who challenge me, understand my ambitions and help me grow.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "You are underestimated by someone. What do you do?",
+        answers: [
+            { text: "Prove them wrong immediately.", house: "G" },
+            { text: "Let your results speak for themselves.", house: "R" },
+            { text: "Shrug it off unless it affects someone you care about.", house: "H" },
+            { text: "Use their underestimation to your advantage.", house: "S" }
+        ]
+    },
 
-  {
-    category: "DECISIONS",
-    text: "You have a major decision to make. What is your natural approach?",
-    answers: [
-      {
-        text: "Listen to my instincts and commit.",
-        score: { G: 4 }
-      },
-      {
-        text: "Gather information and analyze every important factor.",
-        score: { R: 4 }
-      },
-      {
-        text: "Consider how the decision will affect the people I care about.",
-        score: { H: 4 }
-      },
-      {
-        text: "Compare the possible outcomes and choose the option with the strongest advantage.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "Which fear would be hardest for you to live with?",
+        answers: [
+            { text: "Being unable to protect someone.", house: "G" },
+            { text: "Never understanding your own potential.", house: "R" },
+            { text: "Being abandoned by the people you love.", house: "H" },
+            { text: "Having no control over your own life.", house: "S" }
+        ]
+    },
 
-  {
-    category: "RISK",
-    text: "A rare opportunity has a 30% chance of changing your life. What do you do?",
-    answers: [
-      {
-        text: "Take it. I'd rather risk failure than wonder what could have happened.",
-        score: { G: 4 }
-      },
-      {
-        text: "Calculate whether the 30% is realistic before committing.",
-        score: { R: 4 }
-      },
-      {
-        text: "Take it only if failure won't seriously hurt the people depending on me.",
-        score: { H: 4 }
-      },
-      {
-        text: "Look for a way to increase the odds before taking the opportunity.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "When making a difficult decision, you trust...",
+        answers: [
+            { text: "My courage and instincts.", house: "G" },
+            { text: "Evidence and reasoning.", house: "R" },
+            { text: "What feels right for everyone involved.", house: "H" },
+            { text: "What will put me in the strongest position.", house: "S" }
+        ]
+    },
 
-  {
-    category: "KNOWLEDGE",
-    text: "You accidentally discover a secret piece of information about someone. What is your instinct?",
-    answers: [
-      {
-        text: "If it could protect someone from harm, I would act.",
-        score: { G: 4 }
-      },
-      {
-        text: "Understand exactly what the information means before doing anything.",
-        score: { R: 4 }
-      },
-      {
-        text: "It isn't mine to discuss unless someone is genuinely at risk.",
-        score: { H: 4 }
-      },
-      {
-        text: "Remember it. Information can become important later.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "What would you rather receive?",
+        answers: [
+            { text: "Respect", house: "G" },
+            { text: "Knowledge", house: "R" },
+            { text: "Love", house: "H" },
+            { text: "Influence", house: "S" }
+        ]
+    },
 
-  {
-    category: "CONFLICT",
-    text: "Someone who hurt you sincerely apologizes. What does forgiveness mean to you?",
-    answers: [
-      {
-        text: "I can forgive them, but I will still stand up for myself.",
-        score: { G: 4 }
-      },
-      {
-        text: "I need to understand why they did it before I can truly forgive.",
-        score: { R: 4 }
-      },
-      {
-        text: "I can forgive without necessarily trusting them again.",
-        score: { H: 4 }
-      },
-      {
-        text: "Forgiveness is fine, but trust must be earned again through actions.",
-        score: { S: 3, H: 1 }
-      }
-    ]
-  },
+    {
+        question: "Someone insults you publicly. What is your instinct?",
+        answers: [
+            { text: "Stand up for yourself immediately.", house: "G" },
+            { text: "Wonder what insecurity made them say it.", house: "R" },
+            { text: "Ignore it unless they hurt someone else.", house: "H" },
+            { text: "Make sure they regret underestimating you.", house: "S" }
+        ]
+    },
 
-  {
-    category: "PRESSURE",
-    text: "Everything is going wrong during an important crisis. What happens inside your head?",
-    answers: [
-      {
-        text: "I force myself forward and deal with whatever is in front of me.",
-        score: { G: 4 }
-      },
-      {
-        text: "I immediately start identifying why everything went wrong.",
-        score: { R: 4 }
-      },
-      {
-        text: "I make sure everyone is safe and emotionally stable first.",
-        score: { H: 4 }
-      },
-      {
-        text: "I look for the fastest strategic way to regain control.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "You have an entire day completely free. You would rather...",
+        answers: [
+            { text: "Go somewhere spontaneous.", house: "G" },
+            { text: "Read, learn or explore an unusual subject.", house: "R" },
+            { text: "Spend it with people you care about.", house: "H" },
+            { text: "Work toward something that improves your future.", house: "S" }
+        ]
+    },
 
-  {
-    category: "LOYALTY",
-    text: "Your best friend asks you to support them, but you know they are making a terrible decision. What do you say?",
-    answers: [
-      {
-        text: "The truth. Real friendship means saying what they need to hear.",
-        score: { G: 3, H: 2 }
-      },
-      {
-        text: "I would show them the evidence and explain exactly why I disagree.",
-        score: { R: 4 }
-      },
-      {
-        text: "I'd be honest but make sure they know I won't abandon them.",
-        score: { H: 4 }
-      },
-      {
-        text: "I'd explain the risks and help them find a better route to what they want.",
-        score: { S: 3, R: 1 }
-      }
-    ]
-  },
+    {
+        question: "Which compliment would mean the most?",
+        answers: [
+            { text: "You are incredibly brave.", house: "G" },
+            { text: "You see things other people miss.", house: "R" },
+            { text: "People can always count on you.", house: "H" },
+            { text: "You know exactly what you want.", house: "S" }
+        ]
+    },
 
-  {
-    category: "INTEGRITY",
-    text: "You and a friend contribute equally to something, but you receive almost all the credit. What do you do?",
-    answers: [
-      {
-        text: "Correct the mistake immediately and make sure my friend receives equal credit.",
-        score: { G: 3, H: 3 }
-      },
-      {
-        text: "Explain the evidence of each person's contribution.",
-        score: { R: 4 }
-      },
-      {
-        text: "Give my friend the recognition privately and publicly.",
-        score: { H: 4 }
-      },
-      {
-        text: "Keep the recognition only if it helps both of us achieve something important.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "You see someone being treated unfairly. You...",
+        answers: [
+            { text: "Step in, even if it puts you at risk.", house: "G" },
+            { text: "Work out the smartest way to expose the injustice.", house: "R" },
+            { text: "Stay beside the person who is being hurt.", house: "H" },
+            { text: "Look for the person with enough influence to change things.", house: "S" }
+        ]
+    },
 
-  {
-    category: "BRAVERY",
-    text: "Which person do you consider the bravest?",
-    answers: [
-      {
-        text: "Someone who stands against everyone because they believe something is morally wrong.",
-        score: { G: 5 }
-      },
-      {
-        text: "Someone who walks knowingly into intellectual uncertainty to discover the truth.",
-        score: { R: 3, G: 1 }
-      },
-      {
-        text: "Someone terrified but willing to protect another person.",
-        score: { H: 3, G: 3 }
-      },
-      {
-        text: "Someone who remains composed and takes control during a dangerous crisis.",
-        score: { S: 3, G: 1 }
-      }
-    ]
-  },
+    {
+        question: "What is your greatest strength?",
+        answers: [
+            { text: "Fearlessness", house: "G" },
+            { text: "Curiosity", house: "R" },
+            { text: "Reliability", house: "H" },
+            { text: "Determination", house: "S" }
+        ]
+    },
 
-  {
-    category: "BELONGING",
-    text: "You have one extraordinary talent but nobody with whom to share your life. How would you feel?",
-    answers: [
-      {
-        text: "Accomplishment matters, but I would eventually fight to build meaningful connections.",
-        score: { G: 2, H: 2 }
-      },
-      {
-        text: "The achievement and mastery themselves would still be deeply satisfying.",
-        score: { R: 4 }
-      },
-      {
-        text: "The loneliness would eventually outweigh almost everything else.",
-        score: { H: 5 }
-      },
-      {
-        text: "I would accept the sacrifice if the achievement made my life extraordinary.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "Which weakness are you most likely to have?",
+        answers: [
+            { text: "Acting before thinking.", house: "G" },
+            { text: "Overthinking.", house: "R" },
+            { text: "Putting others before yourself.", house: "H" },
+            { text: "Wanting too much control.", house: "S" }
+        ]
+    },
 
-  {
-    category: "POWER",
-    text: "You are offered enormous magical power, but using too much could slowly make you emotionally detached. What do you do?",
-    answers: [
-      {
-        text: "Use it only when I have no other way to protect what matters.",
-        score: { G: 4, H: 1 }
-      },
-      {
-        text: "Study exactly how the power affects the mind before using it.",
-        score: { R: 4 }
-      },
-      {
-        text: "Set strict limits so I can protect people without losing myself.",
-        score: { H: 3, R: 2 }
-      },
-      {
-        text: "Accept the risk if the power gives me the ability to accomplish something extraordinary.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "If you could master one magical ability instantly, which would you choose?",
+        answers: [
+            { text: "Protective magic.", house: "G" },
+            { text: "Ancient magical knowledge.", house: "R" },
+            { text: "Healing magic.", house: "H" },
+            { text: "Powerful defensive or offensive magic.", house: "S" }
+        ]
+    },
 
-  {
-    category: "KNOWLEDGE",
-    text: "You discover dangerous magical knowledge. What is your response?",
-    answers: [
-      {
-        text: "Learn enough to know whether it can be used against people.",
-        score: { G: 3, R: 1 }
-      },
-      {
-        text: "Study it carefully and slowly, understanding every risk first.",
-        score: { R: 5 }
-      },
-      {
-        text: "Avoid it unless learning it is necessary to protect someone.",
-        score: { H: 4 }
-      },
-      {
-        text: "Master it before someone else does.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Your ideal reputation would be...",
+        answers: [
+            { text: "Fearless.", house: "G" },
+            { text: "Brilliant.", house: "R" },
+            { text: "Kind.", house: "H" },
+            { text: "Powerful.", house: "S" }
+        ]
+    },
 
-  {
-    category: "AMBITION",
-    text: "Someone gets a prestigious position through favoritism rather than merit. What do you do?",
-    answers: [
-      {
-        text: "Challenge the injustice openly.",
-        score: { G: 4 }
-      },
-      {
-        text: "Gather evidence and use the proper channels to challenge the decision.",
-        score: { R: 3, G: 2 }
-      },
-      {
-        text: "Focus first on whether anyone is actually being harmed.",
-        score: { H: 4 }
-      },
-      {
-        text: "Find the most effective way to change the outcome.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "You find a mysterious magical object. What comes first?",
+        answers: [
+            { text: "Touch it and see what happens.", house: "G" },
+            { text: "Research it before using it.", house: "R" },
+            { text: "Make sure nobody is endangered by it.", house: "H" },
+            { text: "Consider how it could benefit you.", house: "S" }
+        ]
+    },
 
-  {
-    category: "INSTINCT",
-    text: "You enter the Forbidden Forest and sense something dangerous nearby. What is your first move?",
-    answers: [
-      {
-        text: "Prepare to face it. Running blindly would be worse.",
-        score: { G: 4 }
-      },
-      {
-        text: "Figure out what the creature is and how it behaves.",
-        score: { R: 4 }
-      },
-      {
-        text: "Make sure everyone with me is safe before doing anything.",
-        score: { H: 4 }
-      },
-      {
-        text: "Assess the terrain and find the safest tactical advantage.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "When you lose an argument, you usually...",
+        answers: [
+            { text: "Move on quickly.", house: "G" },
+            { text: "Replay the argument in your head.", house: "R" },
+            { text: "Care more about whether feelings were hurt.", house: "H" },
+            { text: "Remember exactly what happened.", house: "S" }
+        ]
+    },
 
-  {
-    category: "FRIENDSHIP",
-    text: "You discover information that could give you and your closest friends a major advantage. What do you do?",
-    answers: [
-      {
-        text: "Tell them. I don't want an advantage that leaves my people behind.",
-        score: { G: 2, H: 3 }
-      },
-      {
-        text: "Verify the information first before telling anyone.",
-        score: { R: 4 }
-      },
-      {
-        text: "Share it with the people I genuinely trust.",
-        score: { H: 4 }
-      },
-      {
-        text: "Use it carefully and tell only the people who can help execute the plan.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "What motivates you most?",
+        answers: [
+            { text: "Doing what is right.", house: "G" },
+            { text: "Understanding the world.", house: "R" },
+            { text: "Taking care of your people.", house: "H" },
+            { text: "Creating the life you want.", house: "S" }
+        ]
+    },
 
-  {
-    category: "JUDGMENT",
-    text: "Two intelligent people present completely opposite arguments. What do you do?",
-    answers: [
-      {
-        text: "Listen, then choose the position I believe is right.",
-        score: { G: 3 }
-      },
-      {
-        text: "Research both positions before deciding.",
-        score: { R: 5 }
-      },
-      {
-        text: "Consider how each position affects real people.",
-        score: { H: 4 }
-      },
-      {
-        text: "Look at which position produces the strongest practical outcome.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "If someone you love makes a terrible decision, you...",
+        answers: [
+            { text: "Tell them bluntly that they are making a mistake.", house: "G" },
+            { text: "Explain the consequences logically.", house: "R" },
+            { text: "Stay beside them regardless.", house: "H" },
+            { text: "Help them fix it while protecting yourself.", house: "S" }
+        ]
+    },
 
-  {
-    category: "IDENTITY",
-    text: "Someone tells you that your opinion is wrong. What is your response?",
-    answers: [
-      {
-        text: "I'll defend it if I believe it is right.",
-        score: { G: 4 }
-      },
-      {
-        text: "I'll explain my reasoning and listen to theirs.",
-        score: { R: 4 }
-      },
-      {
-        text: "I'll make sure disagreement doesn't damage the relationship.",
-        score: { H: 4 }
-      },
-      {
-        text: "I'll decide whether their opinion contains something useful to me.",
-        score: { S: 3, R: 2 }
-      }
-    ]
-  },
+    {
+        question: "Which environment would you thrive in?",
+        answers: [
+            { text: "A place full of action and adventure.", house: "G" },
+            { text: "A quiet library full of mysteries.", house: "R" },
+            { text: "A warm room surrounded by friends.", house: "H" },
+            { text: "A place where ambitious people compete.", house: "S" }
+        ]
+    },
 
-  {
-    category: "SELF-KNOWLEDGE",
-    text: "You discover a flaw in an argument you made publicly. What do you do?",
-    answers: [
-      {
-        text: "Admit it. Being wrong is better than defending something false.",
-        score: { G: 3, R: 2 }
-      },
-      {
-        text: "Change my position and explain why.",
-        score: { R: 5 }
-      },
-      {
-        text: "Admit it and apologize to anyone affected.",
-        score: { H: 4 }
-      },
-      {
-        text: "Correct it quietly if the mistake has no meaningful consequences.",
-        score: { S: 3 }
-      }
-    ]
-  },
+    {
+        question: "You are given one chance to change the past. You would...",
+        answers: [
+            { text: "Save someone you could not save.", house: "G" },
+            { text: "Learn something you were never able to know.", house: "R" },
+            { text: "Repair a relationship.", house: "H" },
+            { text: "Change one decision that limited your future.", house: "S" }
+        ]
+    },
 
-  {
-    category: "RECOGNITION",
-    text: "You earn an award entirely through your own work. How do you feel about accepting it?",
-    answers: [
-      {
-        text: "Proud. Recognition for something earned is deserved.",
-        score: { G: 3 }
-      },
-      {
-        text: "Satisfied because it confirms mastery.",
-        score: { R: 4 }
-      },
-      {
-        text: "Happy, especially if people who supported me can share the moment.",
-        score: { H: 4 }
-      },
-      {
-        text: "Pleased because recognition opens doors to greater opportunities.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "What makes someone truly admirable?",
+        answers: [
+            { text: "Standing up when everyone else is afraid.", house: "G" },
+            { text: "Thinking independently.", house: "R" },
+            { text: "Remaining loyal when it is difficult.", house: "H" },
+            { text: "Turning ambition into achievement.", house: "S" }
+        ]
+    },
 
-  {
-    category: "AUTHORITY",
-    text: "A teacher you completely trust gives you an instruction without explanation. What do you do?",
-    answers: [
-      {
-        text: "Follow them. Trust means something.",
-        score: { G: 3, H: 2 }
-      },
-      {
-        text: "Ask why before committing.",
-        score: { R: 4 }
-      },
-      {
-        text: "Follow if I know they genuinely have my safety in mind.",
-        score: { H: 4 }
-      },
-      {
-        text: "Follow if their judgment has consistently produced good outcomes.",
-        score: { S: 3, R: 1 }
-      }
-    ]
-  },
+    {
+        question: "What would you rather avoid?",
+        answers: [
+            { text: "Cowardice.", house: "G" },
+            { text: "Ignorance.", house: "R" },
+            { text: "Cruelty.", house: "H" },
+            { text: "Helplessness.", house: "S" }
+        ]
+    },
 
-  {
-    category: "SACRIFICE",
-    text: "You can save one person from immediate danger. The choices are a stranger, a talented person who could change the world, or someone you love.",
-    answers: [
-      {
-        text: "The person who is most vulnerable and needs saving immediately.",
-        score: { G: 3, H: 2 }
-      },
-      {
-        text: "The person whose survival has the greatest potential consequences.",
-        score: { R: 3, S: 2 }
-      },
-      {
-        text: "Someone I love. I cannot abandon them.",
-        score: { H: 5 }
-      },
-      {
-        text: "The person whose survival prevents the greatest future harm.",
-        score: { S: 4, R: 2 }
-      }
-    ]
-  },
+    {
+        question: "A close friend is being attacked verbally. You...",
+        answers: [
+            { text: "Immediately defend them.", house: "G" },
+            { text: "Disarm the attacker with a clever response.", house: "R" },
+            { text: "Stay beside your friend and comfort them.", house: "H" },
+            { text: "Make a mental note of who the attacker is.", house: "S" }
+        ]
+    },
 
-  {
-    category: "FEAR",
-    text: "What kind of fear would be hardest for you to live with?",
-    answers: [
-      {
-        text: "Knowing I stayed silent when I should have spoken.",
-        score: { G: 5 }
-      },
-      {
-        text: "Knowing I believed something false and never discovered it.",
-        score: { R: 5 }
-      },
-      {
-        text: "Knowing someone I love needed me and I wasn't there.",
-        score: { H: 5 }
-      },
-      {
-        text: "Knowing I wasted my potential.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Which sentence feels closest to you?",
+        answers: [
+            { text: "I'd rather try and fail than never try.", house: "G" },
+            { text: "There is always more to learn.", house: "R" },
+            { text: "People matter more than achievements.", house: "H" },
+            { text: "I want more from life, and I am willing to work for it.", house: "S" }
+        ]
+    },
 
-  {
-    category: "THE FUTURE",
-    text: "The Mirror of Erised shows you one perfect future. What dominates the image?",
-    answers: [
-      {
-        text: "Me doing something extraordinary that I can be proud of.",
-        score: { G: 3, S: 2 }
-      },
-      {
-        text: "A life of extraordinary knowledge, achievement and mastery.",
-        score: { R: 5 }
-      },
-      {
-        text: "My loved ones happy, safe and close to me.",
-        score: { H: 5 }
-      },
-      {
-        text: "Success, independence and the freedom to live entirely on my own terms.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "If Hogwarts gave you a secret mission, you would want it to involve...",
+        answers: [
+            { text: "Danger.", house: "G" },
+            { text: "A mystery.", house: "R" },
+            { text: "Helping someone.", house: "H" },
+            { text: "Something valuable.", house: "S" }
+        ]
+    },
 
-  {
-    category: "ADAPTATION",
-    text: "A carefully prepared plan suddenly fails during a duel. What do you do?",
-    answers: [
-      {
-        text: "Keep fighting and improvise.",
-        score: { G: 4 }
-      },
-      {
-        text: "Identify what changed and redesign the plan.",
-        score: { R: 4 }
-      },
-      {
-        text: "Protect everyone involved before worrying about winning.",
-        score: { H: 4 }
-      },
-      {
-        text: "Use the environment, psychology and anything unexpected to gain an advantage.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "How do you react when plans suddenly change?",
+        answers: [
+            { text: "Adapt and improvise.", house: "G" },
+            { text: "Ask why the change happened.", house: "R" },
+            { text: "Make sure everyone is okay.", house: "H" },
+            { text: "Figure out the new advantage.", house: "S" }
+        ]
+    },
 
-  {
-    category: "ADMIRATION",
-    text: "Which compliment would mean the most to you?",
-    answers: [
-      {
-        text: "You are the bravest person I know.",
-        score: { G: 5 }
-      },
-      {
-        text: "You see things nobody else sees.",
-        score: { R: 5 }
-      },
-      {
-        text: "You make people feel safe and loved.",
-        score: { H: 5 }
-      },
-      {
-        text: "You always know how to get where you want to go.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Which would be hardest to forgive?",
+        answers: [
+            { text: "Cowardice when courage was needed.", house: "G" },
+            { text: "Deliberate ignorance.", house: "R" },
+            { text: "Betrayal.", house: "H" },
+            { text: "Trying to control or manipulate you.", house: "S" }
+        ]
+    },
 
-  {
-    category: "CRISIS",
-    text: "Under intense pressure, what is your most natural response?",
-    answers: [
-      {
-        text: "Act. Thinking too long can make things worse.",
-        score: { G: 4 }
-      },
-      {
-        text: "Analyze exactly why things went wrong, then act.",
-        score: { R: 5 }
-      },
-      {
-        text: "Calm everyone down and make sure nobody is left behind.",
-        score: { H: 5 }
-      },
-      {
-        text: "Take control and create the fastest route out.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "What do you secretly want people to understand about you?",
+        answers: [
+            { text: "I am stronger than I look.", house: "G" },
+            { text: "There is much more going on in my head than people realize.", house: "R" },
+            { text: "I care more deeply than I show.", house: "H" },
+            { text: "I know what I am capable of.", house: "S" }
+        ]
+    },
 
-  {
-    category: "LOYALTY",
-    text: "Your friend does something morally questionable but says nobody was harmed. What do you do?",
-    answers: [
-      {
-        text: "Tell them privately that I think it was wrong.",
-        score: { G: 4 }
-      },
-      {
-        text: "Ask questions before judging whether it was actually wrong.",
-        score: { R: 4 }
-      },
-      {
-        text: "Talk honestly with them while keeping the matter private.",
-        score: { H: 4 }
-      },
-      {
-        text: "Leave it alone unless their actions begin causing serious consequences.",
-        score: { S: 3 }
-      }
-    ]
-  },
+    {
+        question: "Which kind of person would you distrust most?",
+        answers: [
+            { text: "Someone who refuses to act.", house: "G" },
+            { text: "Someone who refuses to think.", house: "R" },
+            { text: "Someone who abandons people when things get difficult.", house: "H" },
+            { text: "Someone who pretends to be harmless while manipulating everyone.", house: "S" }
+        ]
+    },
 
-  {
-    category: "FORGIVENESS",
-    text: "Someone who betrayed you sincerely changes. What happens to your relationship?",
-    answers: [
-      {
-        text: "I can forgive them and eventually rebuild trust.",
-        score: { G: 3 }
-      },
-      {
-        text: "I need to see consistent evidence of change.",
-        score: { R: 3, S: 2 }
-      },
-      {
-        text: "I can forgive them without giving them the same place in my life.",
-        score: { H: 4 }
-      },
-      {
-        text: "The relationship is over unless their actions prove otherwise over time.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "You are competing against someone you admire. You...",
+        answers: [
+            { text: "Give everything you have.", house: "G" },
+            { text: "Study how they approach the challenge.", house: "R" },
+            { text: "Enjoy the experience regardless of who wins.", house: "H" },
+            { text: "Find the strategy that gives you the edge.", house: "S" }
+        ]
+    },
 
-  {
-    category: "RESPONSIBILITY",
-    text: "You are exhausted, but someone you love desperately needs your help. What do you do?",
-    answers: [
-      {
-        text: "Help them. I'll deal with my exhaustion afterward.",
-        score: { G: 3, H: 3 }
-      },
-      {
-        text: "Work out what help is actually necessary and what I can realistically do.",
-        score: { R: 3 }
-      },
-      {
-        text: "Put their serious need first.",
-        score: { H: 5 }
-      },
-      {
-        text: "Help if the situation is genuinely serious, otherwise find another solution.",
-        score: { S: 3, R: 2 }
-      }
-    ]
-  },
+    {
+        question: "What kind of legacy would satisfy you?",
+        answers: [
+            { text: "People remember that I was brave.", house: "G" },
+            { text: "People build on something I discovered.", house: "R" },
+            { text: "People remember that I made their lives better.", house: "H" },
+            { text: "People remember what I achieved.", house: "S" }
+        ]
+    },
 
-  {
-    category: "MORAL COURAGE",
-    text: "Everyone around you supports a decision that you believe is seriously immoral. What do you do?",
-    answers: [
-      {
-        text: "Stand against them, even if I stand alone.",
-        score: { G: 5 }
-      },
-      {
-        text: "Present evidence and try to change their minds.",
-        score: { R: 4, G: 1 }
-      },
-      {
-        text: "Protect the people who may be hurt while trying to resolve the disagreement.",
-        score: { H: 4, G: 1 }
-      },
-      {
-        text: "Find the most effective way to stop the decision.",
-        score: { S: 4, G: 1 }
-      }
-    ]
-  },
+    {
+        question: "When you are hurt emotionally, you tend to...",
+        answers: [
+            { text: "Confront the situation.", house: "G" },
+            { text: "Analyze every detail.", house: "R" },
+            { text: "Seek comfort from someone trusted.", house: "H" },
+            { text: "Become more guarded.", house: "S" }
+        ]
+    },
 
-  {
-    category: "LIMITS",
-    text: "You discover that an extremely powerful spell could save many people, but using it carries a serious moral cost. What do you do?",
-    answers: [
-      {
-        text: "Use it if the alternative is allowing innocent people to die.",
-        score: { G: 4 }
-      },
-      {
-        text: "Determine exactly what the moral cost is before deciding.",
-        score: { R: 5 }
-      },
-      {
-        text: "Exhaust every other option before accepting that cost.",
-        score: { H: 4, R: 1 }
-      },
-      {
-        text: "Accept the cost if the final outcome justifies it.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Which would you choose for your Hogwarts common room?",
+        answers: [
+            { text: "A roaring fireplace and legendary stories.", house: "G" },
+            { text: "Books, telescopes and quiet corners.", house: "R" },
+            { text: "Plants, warm lights and comfortable chairs.", house: "H" },
+            { text: "Ancient stone, mystery and privacy.", house: "S" }
+        ]
+    },
 
-  {
-    category: "REGRET",
-    text: "Which regret would haunt you most?",
-    answers: [
-      {
-        text: "Not standing up when I knew I should have.",
-        score: { G: 5 }
-      },
-      {
-        text: "Never learning what I could have become.",
-        score: { R: 5 }
-      },
-      {
-        text: "Letting someone I loved feel alone when they needed me.",
-        score: { H: 5 }
-      },
-      {
-        text: "Playing small when I had the chance to become exceptional.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "If you could ask the Sorting Hat one question, what would it be?",
+        answers: [
+            { text: "What am I capable of when I am brave?", house: "G" },
+            { text: "What does it know that I don't?", house: "R" },
+            { text: "Where will I find people who truly belong with me?", house: "H" },
+            { text: "What could I become if I stopped holding myself back?", house: "S" }
+        ]
+    },
 
-  {
-    category: "FREEDOM",
-    text: "What would make you feel most trapped?",
-    answers: [
-      {
-        text: "Being unable to speak or act when something is wrong.",
-        score: { G: 4 }
-      },
-      {
-        text: "Being forbidden from asking questions or learning.",
-        score: { R: 5 }
-      },
-      {
-        text: "Being separated from the people I love.",
-        score: { H: 5 }
-      },
-      {
-        text: "Having my future controlled by someone else.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Someone challenges your beliefs. Your response is to...",
+        answers: [
+            { text: "Defend what you believe.", house: "G" },
+            { text: "Question whether your beliefs are correct.", house: "R" },
+            { text: "Listen and understand where they are coming from.", house: "H" },
+            { text: "Decide whether their opinion actually matters to you.", house: "S" }
+        ]
+    },
 
-  {
-    category: "STRATEGY",
-    text: "You have to solve a difficult problem with limited information. What do you do first?",
-    answers: [
-      {
-        text: "Make the best decision possible and adjust later.",
-        score: { G: 4 }
-      },
-      {
-        text: "Identify assumptions and determine which missing facts matter most.",
-        score: { R: 5 }
-      },
-      {
-        text: "Ask the people affected what they need.",
-        score: { H: 4 }
-      },
-      {
-        text: "Find the action that gives me the most leverage.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "Which magical creature would you most want as a companion?",
+        answers: [
+            { text: "A loyal Hippogriff.", house: "G" },
+            { text: "An intelligent Raven.", house: "R" },
+            { text: "A gentle Niffler.", house: "H" },
+            { text: "A mysterious Serpent.", house: "S" }
+        ]
+    },
 
-  {
-    category: "LOYALTY",
-    text: "A person you love has made a life decision you believe will ruin their future. What do you do?",
-    answers: [
-      {
-        text: "Tell them honestly that I think they're making a mistake.",
-        score: { G: 3, H: 2 }
-      },
-      {
-        text: "Research the situation and show them the strongest evidence.",
-        score: { R: 5 }
-      },
-      {
-        text: "Make my case but stay beside them even if they choose differently.",
-        score: { H: 5 }
-      },
-      {
-        text: "Help them understand the risks and identify alternatives.",
-        score: { S: 3, R: 2 }
-      }
-    ]
-  },
+    {
+        question: "What is more important: being liked or being respected?",
+        answers: [
+            { text: "Respected.", house: "G" },
+            { text: "It depends on the person.", house: "R" },
+            { text: "Liked.", house: "H" },
+            { text: "Respected by the right people.", house: "S" }
+        ]
+    },
 
-  {
-    category: "VALUES",
-    text: "Which statement feels closest to your philosophy?",
-    answers: [
-      {
-        text: "It is better to fail while doing what I believe is right.",
-        score: { G: 5 }
-      },
-      {
-        text: "Understanding something deeply is more valuable than being certain.",
-        score: { R: 5 }
-      },
-      {
-        text: "A meaningful life is built through the people we love.",
-        score: { H: 5 }
-      },
-      {
-        text: "Potential means little unless you have the courage to use it.",
-        score: { S: 5 }
-      }
-    ]
-  },
+    {
+        question: "When you imagine your ideal future, what matters most?",
+        answers: [
+            { text: "Adventure and meaningful experiences.", house: "G" },
+            { text: "Freedom to explore and learn.", house: "R" },
+            { text: "A loving home and close relationships.", house: "H" },
+            { text: "Success on your own terms.", house: "S" }
+        ]
+    },
 
-  {
-    category: "TRUST",
-    text: "Someone has earned your complete trust over many years. They ask you to follow them into an uncertain situation. What do you do?",
-    answers: [
-      {
-        text: "Go. Their character matters more than my certainty.",
-        score: { G: 3, H: 2 }
-      },
-      {
-        text: "Ask what they know and why they believe it is necessary.",
-        score: { R: 4 }
-      },
-      {
-        text: "Go because I know they wouldn't knowingly put me in danger.",
-        score: { H: 5 }
-      },
-      {
-        text: "Go if their judgment has consistently produced good outcomes.",
-        score: { S: 4 }
-      }
-    ]
-  },
+    {
+        question: "If you had to choose one word to guide your life, it would be...",
+        answers: [
+            { text: "Courage.", house: "G" },
+            { text: "Truth.", house: "R" },
+            { text: "Loyalty.", house: "H" },
+            { text: "Ambition.", house: "S" }
+        ]
+    },
 
-  {
-    category: "CHOICE",
-    text: "If you could choose only one quality to define your life, which would you choose?",
-    answers: [
-      {
-        text: "Courage.",
-        score: { G: 6 }
-      },
-      {
-        text: "Wisdom.",
-        score: { R: 6 }
-      },
-      {
-        text: "Loyalty.",
-        score: { H: 6 }
-      },
-      {
-        text: "Ambition.",
-        score: { S: 6 }
-      }
-    ]
-  },
+    {
+        question: "You discover that someone powerful has been lying to everyone. You...",
+        answers: [
+            { text: "Expose them.", house: "G" },
+            { text: "Collect proof first.", house: "R" },
+            { text: "Think about who could be harmed by exposing them.", house: "H" },
+            { text: "Decide how the information could be used strategically.", house: "S" }
+        ]
+    },
 
-  {
-    category: "THE HAT",
-    text: "The Sorting Hat offers to place you in the House you most naturally belong to, rather than the House you think you should want. What do you tell it?",
-    answers: [
-      {
-        text: "Place me where my courage and convictions naturally lead.",
-        score: { G: 5 }
-      },
-      {
-        text: "Place me where my curiosity and way of thinking naturally lead.",
-        score: { R: 5 }
-      },
-      {
-        text: "Place me where my loyalty and heart naturally lead.",
-        score: { H: 5 }
-      },
-      {
-        text: "Place me where my ambition and drive naturally lead.",
-        score: { S: 5 }
-      }
-    ]
-  }
+    {
+        question: "What kind of magic would you never want to use?",
+        answers: [
+            { text: "Magic that requires harming an innocent person.", house: "G" },
+            { text: "Magic that destroys knowledge.", house: "R" },
+            { text: "Magic that permanently damages someone you love.", house: "H" },
+            { text: "Magic that makes you completely powerless.", house: "S" }
+        ]
+    },
+
+    {
+        question: "Your greatest temptation would probably be...",
+        answers: [
+            { text: "Proving yourself.", house: "G" },
+            { text: "Knowing everything.", house: "R" },
+            { text: "Keeping everyone happy.", house: "H" },
+            { text: "Having complete control.", house: "S" }
+        ]
+    },
+
+    {
+        question: "Which statement describes you best?",
+        answers: [
+            { text: "I can be impulsive, but I care deeply.", house: "G" },
+            { text: "My mind rarely stops asking questions.", house: "R" },
+            { text: "I remember how people make me feel.", house: "H" },
+            { text: "I rarely show people everything I am thinking.", house: "S" }
+        ]
+    },
+
+    {
+        question: "If you could master one area of magic, what would you choose?",
+        answers: [
+            { text: "Defence Against the Dark Arts.", house: "G" },
+            { text: "Transfiguration.", house: "R" },
+            { text: "Herbology and healing.", house: "H" },
+            { text: "Potions and advanced magical strategy.", house: "S" }
+        ]
+    },
+
+    {
+        question: "At your core, what do you want most?",
+        answers: [
+            { text: "To be brave enough to live fully.", house: "G" },
+            { text: "To understand who you really are.", house: "R" },
+            { text: "To love and be loved deeply.", house: "H" },
+            { text: "To become everything you know you could be.", house: "S" }
+        ]
+    }
 
 ];
 
 
-/* =========================================================
-   HOUSE INFORMATION
-========================================================= */
+/* =========================================
+   HOUSE DATA
+========================================= */
 
 const houses = {
 
-  G: {
-    name: "GRYFFINDOR",
-    motto: "Where courage meets conviction.",
-    title: "The Conviction-Driven Gryffindor",
-    traits: [
-      "Courage",
-      "Moral conviction",
-      "Protective",
-      "Independent",
-      "Bold",
-      "Resilient"
-    ]
-  },
+    G: {
+        name: "GRYFFINDOR",
+        title: "The Courageous Heart",
+        secondary: "Ravenclaw",
+        colour: "var(--gryffindor)"
+    },
 
-  R: {
-    name: "RAVENCLAW",
-    motto: "Where curiosity becomes wisdom.",
-    title: "The Analytical Ravenclaw",
-    traits: [
-      "Curious",
-      "Analytical",
-      "Independent thinker",
-      "Adaptable",
-      "Perceptive",
-      "Thoughtful"
-    ]
-  },
+    R: {
+        name: "RAVENCLAW",
+        title: "The Searching Mind",
+        secondary: "Slytherin",
+        colour: "var(--ravenclaw)"
+    },
 
-  H: {
-    name: "HUFFLEPUFF",
-    motto: "Where loyalty becomes strength.",
-    title: "The Fiercely Loyal Hufflepuff",
-    traits: [
-      "Loyal",
-      "Compassionate",
-      "Protective",
-      "Steadfast",
-      "Patient",
-      "Warm"
-    ]
-  },
+    H: {
+        name: "HUFFLEPUFF",
+        title: "The Loyal Heart",
+        secondary: "Gryffindor",
+        colour: "var(--hufflepuff)"
+    },
 
-  S: {
-    name: "SLYTHERIN",
-    motto: "Where ambition becomes power.",
-    title: "The Principled Slytherin",
-    traits: [
-      "Ambitious",
-      "Strategic",
-      "Resourceful",
-      "Independent",
-      "Determined",
-      "Perceptive"
-    ]
-  }
+    S: {
+        name: "SLYTHERIN",
+        title: "The Determined Mind",
+        secondary: "Ravenclaw",
+        colour: "var(--slytherin)"
+    }
 
 };
 
 
-/* =========================================================
+/* =========================================
    STATE
-========================================================= */
+========================================= */
 
 let selectedMode = 50;
+
 let currentQuestion = 0;
+
 let answersGiven = [];
 
 let scores = {
-  G: 0,
-  R: 0,
-  H: 0,
-  S: 0
+    G: 0,
+    R: 0,
+    H: 0,
+    S: 0
 };
 
 
-/* =========================================================
-   DOM HELPERS
-========================================================= */
+/* =========================================
+   HELPERS
+========================================= */
 
 function $(id) {
-  return document.getElementById(id);
+
+    return document.getElementById(id);
+
 }
 
 
 function showScreen(id) {
 
-  document.querySelectorAll(".screen").forEach(screen => {
-    screen.classList.remove("active");
-  });
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
 
-  $(id).classList.add("active");
+            screen.classList.remove("active");
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+        });
+
+
+    const screen = $(id);
+
+    if (screen) {
+
+        screen.classList.add("active");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    }
+
 }
 
 
-/* =========================================================
+/* =========================================
+   INITIAL PAGE STATE
+========================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const hogwartsIntro = $("hogwartsIntro");
+
+    const enterHogwartsBtn =
+        $("enterHogwartsBtn");
+
+    const letterScreen =
+        $("letterScreen");
+
+
+    /*
+        Hide every normal screen at startup.
+        This guarantees Hogwarts is the first
+        visible screen.
+    */
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
+
+
+    /*
+        Make Hogwarts visible.
+    */
+
+    if (hogwartsIntro) {
+
+        hogwartsIntro.classList.remove("hidden");
+
+    }
+
+
+    /*
+        ENTER HOGWARTS
+    */
+
+    if (enterHogwartsBtn) {
+
+        enterHogwartsBtn.addEventListener(
+            "click",
+            () => {
+
+                hogwartsIntro.classList.add("hidden");
+
+
+                /*
+                    Wait for the Hogwarts fade-out.
+                */
+
+                setTimeout(() => {
+
+                    if (letterScreen) {
+
+                        letterScreen.classList.add("active");
+
+                    }
+
+                }, 1000);
+
+            }
+        );
+
+    }
+
+});
+
+
+/* =========================================
    LETTER
-========================================================= */
+========================================= */
 
-$("openLetter").addEventListener("click", () => {
+const openLetter =
+    $("openLetter");
 
-  $("envelope").classList.add("hidden");
-  $("envelopePrompt").classList.add("hidden");
-  $("letter").classList.remove("hidden");
+const envelope =
+    $("envelope");
 
-});
+const letterPrompt =
+    $("letterPrompt");
 
-
-$("openSorting").addEventListener("click", () => {
-
-  showScreen("modeScreen");
-
-});
+const letterReveal =
+    $("letterReveal");
 
 
-/* =========================================================
+if (openLetter) {
+
+    openLetter.addEventListener(
+        "click",
+        () => {
+
+            if (envelope) {
+
+                envelope.classList.add("opened");
+
+            }
+
+
+            if (letterPrompt) {
+
+                letterPrompt.textContent =
+                    "The letter has been opened.";
+
+            }
+
+
+            openLetter.classList.add("hidden");
+
+
+            if (letterReveal) {
+
+                letterReveal.classList.remove("hidden");
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   BEGIN SORTING
+========================================= */
+
+const openSorting =
+    $("openSorting");
+
+
+if (openSorting) {
+
+    openSorting.addEventListener(
+        "click",
+        () => {
+
+            showScreen("modeScreen");
+
+        }
+    );
+
+}
+
+
+/* =========================================
    MODE SELECTION
-========================================================= */
+========================================= */
 
-document.querySelectorAll(".mode-card").forEach(card => {
+const modeCards =
+    document.querySelectorAll(".mode-card");
 
-  card.addEventListener("click", () => {
 
-    selectedMode = Number(card.dataset.mode);
+modeCards.forEach(card => {
 
-    currentQuestion = 0;
-    answersGiven = [];
+    card.addEventListener(
+        "click",
+        () => {
 
-    scores = {
-      G: 0,
-      R: 0,
-      H: 0,
-      S: 0
-    };
+            selectedMode =
+                Number(card.dataset.mode);
 
-    $("totalNumber").textContent = selectedMode;
 
-    showScreen("quizScreen");
+            currentQuestion = 0;
 
-    renderQuestion();
+            answersGiven = [];
 
-  });
+
+            scores = {
+                G: 0,
+                R: 0,
+                H: 0,
+                S: 0
+            };
+
+
+            showScreen("quizScreen");
+
+            renderQuestion();
+
+        }
+    );
 
 });
 
 
-/* =========================================================
-   QUESTION RENDERING
-========================================================= */
+/* =========================================
+   RENDER QUESTION
+========================================= */
 
 function renderQuestion() {
 
-  const question = questions[currentQuestion];
-
-  $("currentNumber").textContent = currentQuestion + 1;
-
-  $("totalNumber").textContent = selectedMode;
-
-  $("questionCategory").textContent = question.category;
-
-  $("questionText").textContent = question.text;
-
-  const percentage =
-    ((currentQuestion) / selectedMode) * 100;
-
-  $("progressBar").style.width = percentage + "%";
+    const question =
+        questions[currentQuestion];
 
 
-  const answersContainer = $("answers");
+    if (!question) {
 
-  answersContainer.innerHTML = "";
+        finishSorting();
 
+        return;
 
-  question.answers.forEach((answer, index) => {
-
-    const button = document.createElement("button");
-
-    button.className = "answer";
-
-    if (answersGiven[currentQuestion] === index) {
-      button.classList.add("selected");
     }
 
-    const letter = document.createElement("span");
 
-    letter.className = "answer-letter";
-
-    letter.textContent =
-      String.fromCharCode(65 + index);
-
-    button.appendChild(letter);
-
-    const text = document.createTextNode(answer.text);
-
-    button.appendChild(text);
+    const number =
+        currentQuestion + 1;
 
 
-    button.addEventListener("click", () => {
-
-      selectAnswer(index);
-
-    });
+    $("questionNumber").textContent =
+        `Question ${number} of ${selectedMode}`;
 
 
-    answersContainer.appendChild(button);
-
-  });
-
-
-  $("backButton").style.visibility =
-    currentQuestion === 0 ? "hidden" : "visible";
-
-}
+    $("progressBar").style.width =
+        `${(number / selectedMode) * 100}%`;
 
 
-/* =========================================================
-   ANSWER SELECTION
-========================================================= */
-
-function selectAnswer(index) {
-
-  answersGiven[currentQuestion] = index;
+    $("questionText").textContent =
+        question.question;
 
 
-  document.querySelectorAll(".answer").forEach((button, i) => {
+    const answersContainer =
+        $("answersContainer");
 
-    button.classList.toggle(
-      "selected",
-      i === index
+
+    answersContainer.innerHTML = "";
+
+
+    question.answers.forEach(
+        (answer, index) => {
+
+            const button =
+                document.createElement("button");
+
+
+            button.className =
+                "answer-button";
+
+
+            button.textContent =
+                answer.text;
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    selectAnswer(
+                        answer,
+                        index
+                    );
+
+                }
+            );
+
+
+            answersContainer.appendChild(
+                button
+            );
+
+        }
     );
 
-  });
 
-
-  setTimeout(() => {
-
-    if (currentQuestion < selectedMode - 1) {
-
-      currentQuestion++;
-
-      renderQuestion();
-
-    } else {
-
-      finishSorting();
-
-    }
-
-  }, 350);
+    $("backButton").style.visibility =
+        currentQuestion === 0
+            ? "hidden"
+            : "visible";
 
 }
 
 
-/* =========================================================
-   BACK BUTTON
-========================================================= */
+/* =========================================
+   SELECT ANSWER
+========================================= */
 
-$("backButton").addEventListener("click", () => {
+function selectAnswer(answer, index) {
 
-  if (currentQuestion > 0) {
+    answersGiven[currentQuestion] = {
+        answer: answer,
+        index: index
+    };
 
-    currentQuestion--;
+
+    scores[answer.house]++;
+
+
+    currentQuestion++;
+
+
+    if (currentQuestion >= selectedMode) {
+
+        finishSorting();
+
+        return;
+
+    }
+
 
     renderQuestion();
 
-  }
-
-});
+}
 
 
-/* =========================================================
-   CALCULATE SCORE
-========================================================= */
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+const backButton =
+    $("backButton");
+
+
+if (backButton) {
+
+    backButton.addEventListener(
+        "click",
+        () => {
+
+            if (currentQuestion <= 0) {
+
+                return;
+
+            }
+
+
+            /*
+                Remove the previous answer's score.
+            */
+
+            const previous =
+                answersGiven[currentQuestion - 1];
+
+
+            if (previous) {
+
+                scores[
+                    previous.answer.house
+                ]--;
+
+            }
+
+
+            currentQuestion--;
+
+
+            renderQuestion();
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   CALCULATE SCORES
+========================================= */
 
 function calculateScores() {
 
-  scores = {
-    G: 0,
-    R: 0,
-    H: 0,
-    S: 0
-  };
+    scores = {
+        G: 0,
+        R: 0,
+        H: 0,
+        S: 0
+    };
 
 
-  for (
-    let i = 0;
-    i < selectedMode;
-    i++
-  ) {
+    answersGiven.forEach(item => {
 
-    const answerIndex = answersGiven[i];
+        if (item && item.answer) {
 
-    if (answerIndex === undefined) {
-      continue;
-    }
+            scores[item.answer.house]++;
 
-    const answer =
-      questions[i].answers[answerIndex];
-
-    Object.keys(answer.score).forEach(house => {
-
-      scores[house] += answer.score[house];
+        }
 
     });
-
-  }
 
 }
 
 
-/* =========================================================
+/* =========================================
    DETERMINE HOUSE
-========================================================= */
+========================================= */
 
 function determineHouse() {
 
-  const entries = Object.entries(scores);
-
-  entries.sort((a, b) => b[1] - a[1]);
-
-  const highest = entries[0][1];
-
-  const tied = entries.filter(
-    entry => entry[1] === highest
-  );
+    calculateScores();
 
 
-  if (tied.length === 1) {
-    return tied[0][0];
-  }
+    const order = [
+        "G",
+        "R",
+        "H",
+        "S"
+    ];
 
 
-  /*
-    Deterministic tie breaker.
+    let winningHouse = order[0];
 
-    Later questions are intentionally used as
-    stronger personality signals.
-  */
 
-  const tiePriority = ["G", "R", "H", "S"];
+    order.forEach(house => {
 
-  for (let i = questions.length - 1; i >= 0; i--) {
+        if (
+            scores[house] >
+            scores[winningHouse]
+        ) {
 
-    const answerIndex = answersGiven[i];
+            winningHouse = house;
 
-    if (answerIndex === undefined) {
-      continue;
-    }
+        }
 
-    const answer =
-      questions[i].answers[answerIndex];
+    });
 
-    for (const house of tiePriority) {
 
-      if (
-        tied.some(item => item[0] === house) &&
-        answer.score[house]
-      ) {
-        return house;
-      }
-
-    }
-
-  }
-
-  return tied[0][0];
+    return winningHouse;
 
 }
 
 
-/* =========================================================
-   PERSONALITY ANALYSIS
-========================================================= */
+/* =========================================
+   SECONDARY HOUSE
+========================================= */
 
-function getSecondaryHouse(mainHouse) {
+function determineSecondary(primary) {
 
-  return Object.entries(scores)
-    .filter(([house]) => house !== mainHouse)
-    .sort((a, b) => b[1] - a[1])[0][0];
-
-}
-
-
-function getPersonality(mainHouse, secondaryHouse) {
-
-  const difference =
-    scores[mainHouse] - scores[secondaryHouse];
+    const order = [
+        "G",
+        "R",
+        "H",
+        "S"
+    ];
 
 
-  if (mainHouse === "G") {
-
-    if (secondaryHouse === "R") {
-
-      return {
-        title: "The Strategist Gryffindor",
-        text:
-          "The Hat found something interesting in you. " +
-          "Your courage is not reckless. You think, question, " +
-          "research and calculate — but when conviction finally " +
-          "speaks, you are willing to act. You have a strong " +
-          "analytical streak, yet knowledge is ultimately a tool " +
-          "for deciding what should be done. You want an " +
-          "extraordinary life, but not one emptied of meaning.",
-        traits: [
-          "Calculated courage",
-          "Moral conviction",
-          "Analytical",
-          "Protective",
-          "Independent",
-          "Ambitious"
-        ]
-      };
-
-    }
-
-    if (secondaryHouse === "H") {
-
-      return {
-        title: "The Guardian Gryffindor",
-        text:
-          "Your bravery is deeply personal. You are most likely " +
-          "to become courageous when someone or something you love " +
-          "needs protecting. You do not seek danger for its own sake. " +
-          "You simply find it difficult to stand aside when your " +
-          "conscience tells you that you should act.",
-        traits: [
-          "Protective courage",
-          "Loyal",
-          "Principled",
-          "Resilient",
-          "Compassionate",
-          "Bold"
-        ]
-      };
-
-    }
-
-    return {
-      title: "The Defiant Gryffindor",
-      text:
-        "You have a strong internal line between what you believe " +
-        "is right and what you believe is wrong. When that line is " +
-        "crossed, comfort becomes less important than conviction. " +
-        "You may think carefully before acting, but once you decide " +
-        "something matters, you are difficult to stop.",
-      traits: houses.G.traits
-    };
-
-  }
+    const remaining =
+        order.filter(
+            house => house !== primary
+        );
 
 
-  if (mainHouse === "R") {
-
-    if (secondaryHouse === "G") {
-
-      return {
-        title: "The Fearless Scholar",
-        text:
-          "Your mind is your first instrument, but not your only one. " +
-          "You question assumptions, search for evidence and dislike " +
-          "pretending certainty where none exists. Yet when knowledge " +
-          "points toward action, you have the courage to follow it.",
-        traits: [
-          "Intellectual courage",
-          "Curious",
-          "Analytical",
-          "Open-minded",
-          "Independent",
-          "Perceptive"
-        ]
-      };
-
-    }
-
-    return {
-      title: houses.R.title,
-      text:
-        "You are naturally drawn toward understanding. You want to " +
-        "know why something works, what everyone else has missed and " +
-        "whether your own assumptions survive scrutiny. You are not " +
-        "afraid of changing your mind when the evidence demands it.",
-      traits: houses.R.traits
-    };
-
-  }
+    remaining.sort(
+        (a, b) =>
+            scores[b] - scores[a]
+    );
 
 
-  if (mainHouse === "H") {
-
-    if (secondaryHouse === "G") {
-
-      return {
-        title: "The Fierce Protector",
-        text:
-          "Your loyalty is not weakness. It is one of your strongest " +
-          "sources of courage. You care intensely about the people " +
-          "you let close, and when they need you, your willingness " +
-          "to stand beside them can become formidable.",
-        traits: [
-          "Fiercely loyal",
-          "Protective",
-          "Emotionally strong",
-          "Courageous",
-          "Compassionate",
-          "Steadfast"
-        ]
-      };
-
-    }
-
-    return {
-      title: houses.H.title,
-      text:
-        "The Hat sees someone who measures a life not only by what " +
-        "they accomplish, but by who was beside them when they did it. " +
-        "You value genuine relationships over crowds, and forgiveness " +
-        "does not necessarily mean forgetting. Your loyalty has weight.",
-      traits: houses.H.traits
-    };
-
-  }
-
-
-  if (mainHouse === "S") {
-
-    if (secondaryHouse === "R") {
-
-      return {
-        title: "The Calculating Slytherin",
-        text:
-          "You do not merely want things. You want to understand how " +
-          "to get them. You naturally think several moves ahead, " +
-          "recognize leverage and value competence. Your intelligence " +
-          "gives your ambition precision.",
-        traits: [
-          "Strategic",
-          "Ambitious",
-          "Intelligent",
-          "Resourceful",
-          "Independent",
-          "Determined"
-        ]
-      };
-
-    }
-
-    return {
-      title: houses.S.title,
-      text:
-        "The Hat detects ambition without necessarily detecting " +
-        "cruelty. You want freedom, capability and the chance to make " +
-        "your own choices. You understand that power itself is neither " +
-        "good nor evil; what matters is what you choose to do with it.",
-      traits: houses.S.traits
-    };
-
-  }
+    return remaining[0];
 
 }
 
 
-/* =========================================================
+/* =========================================
+   PERSONALITY
+========================================= */
+
+function getPersonality(house) {
+
+    const personalities = {
+
+        G:
+            "You are driven by courage, instinct and the refusal to stand quietly when something matters.",
+
+        R:
+            "You possess a restless mind, a hunger for understanding and a tendency to notice what others overlook.",
+
+        H:
+            "You value loyalty, emotional connection and the quiet strength of being there when people need you.",
+
+        S:
+            "You are determined, strategic and deeply aware of what you want. You rarely reveal your entire hand."
+
+    };
+
+
+    return personalities[house];
+
+}
+
+
+/* =========================================
    SORTING HAT MONOLOGUE
-========================================================= */
+========================================= */
 
-function generateSpeech(mainHouse, secondaryHouse) {
+function getMonologue(
+    house,
+    secondary
+) {
 
-  const g = scores.G;
-  const r = scores.R;
-  const h = scores.H;
-  const s = scores.S;
+    const monologues = {
 
+        G: `
+            Ahhh... now this is interesting.
 
-  let opening = "";
-  let middle = "";
-  let ending = "";
+            There is fire here. Not merely the loud,
+            reckless sort of courage, but the kind that
+            appears when something truly matters.
 
+            You may doubt yourself. You may hesitate.
+            But when the moment finally arrives, some part
+            of you still wants to stand up.
 
-  const highest =
-    Math.max(g, r, h, s);
+            You value people. You value meaning.
+            And somewhere beneath everything else,
+            there is a stubborn refusal to let fear
+            make your decisions for you.
 
+            Yes... I know exactly where to put you.
 
-  if (mainHouse === "G") {
+            <strong>GRYFFINDOR!</strong>
+        `,
 
-    opening =
-      "Hmmmm... now THIS is interesting. " +
-      "I have looked into your choices, your instincts, " +
-      "your loyalties and the things you would rather not admit " +
-      "about yourself.";
+        R: `
+            Hmm...
 
+            A fascinating mind.
 
-    if (r >= h && r >= s) {
+            You do not simply accept the world as it is.
+            You question it. Examine it. Turn it around
+            until you understand another side.
 
-      middle =
-        "There is a remarkably sharp mind beneath that courage. " +
-        "You do not rush toward danger simply because danger is there. " +
-        "You investigate. You question. You look for the flaw in the " +
-        "argument and the hidden piece of the puzzle. " +
-        "But knowledge, for you, is rarely the destination. " +
-        "Eventually you want to KNOW what should be done — and then DO it.";
+            Curiosity is not merely an interest for you.
+            It is part of how you navigate life.
 
-    } else if (h >= r && h >= s) {
+            And yet there is more here than intelligence.
+            There is independence. A desire to understand
+            yourself as much as the world around you.
 
-      middle =
-        "And yet your strongest secret is your heart. " +
-        "You care deeply about the people you allow into your life. " +
-        "You may forgive without forgetting, and loyalty matters to " +
-        "you far more than popularity. When someone you love needs you, " +
-        "your courage becomes almost automatic.";
+            Yes...
 
-    } else {
+            <strong>RAVENCLAW!</strong>
+        `,
 
-      middle =
-        "There is ambition here too. You want to become capable. " +
-        "You want your life to amount to something extraordinary. " +
-        "But ambition is not sitting in the driver's seat. " +
-        "You are willing to sacrifice comfort for achievement, " +
-        "yet you still care deeply about what — and who — that achievement is for.";
+        H: `
+            Ahhh...
 
-    }
+            What a heart.
 
+            You notice people. You remember what they said,
+            what they needed, and sometimes even what they
+            never managed to say.
 
-    ending =
-      "You are not fearless. That would be far too simple. " +
-      "You understand risk, you understand consequences, and you " +
-      "understand that sometimes the safest choice is the wiser one. " +
-      "But when something truly matters, you have a troublesome habit " +
-      "of standing up anyway. " +
-      "\n\n" +
-      "The question was never whether you could be brave. " +
-      "The question was whether your courage would survive " +
-      "when courage became inconvenient." +
-      "\n\n" +
-      "Oh yes... I know where you belong." +
-      "\n\n" +
-      "GRYFFINDOR!";
+            There is strength in that, although you may
+            occasionally underestimate it.
 
+            Loyalty matters enormously to you.
+            You want people to feel safe with you,
+            and you want somewhere in this enormous world
+            where you can feel safe too.
 
-  } else if (mainHouse === "R") {
+            There is no question.
 
-    opening =
-      "Ahhh... a mind that refuses to sit quietly. " +
-      "Questions everywhere. Assumptions being dismantled. " +
-      "You would probably interrogate the Hat itself if given enough time.";
+            <strong>HUFFLEPUFF!</strong>
+        `,
 
+        S: `
+            Well, well...
 
-    middle =
-      "You do not seem particularly frightened of being wrong. " +
-      "What bothers you more is remaining wrong because your pride " +
-      "would not let you reconsider. You gather evidence, test ideas, " +
-      "adapt when circumstances change and look beneath the obvious.";
+            Now here is someone who knows there is more
+            waiting for them.
 
+            You possess ambition, but it is not simply
+            about collecting power. You want freedom,
+            achievement and the ability to shape your
+            own life.
 
-    ending =
-      "There is courage here too, and perhaps ambition, but neither " +
-      "quite overrules your hunger to understand. " +
-      "You do not merely want answers. " +
-      "You want to know whether the answers deserve to be believed." +
-      "\n\n" +
-      "RAVENCLAW!";
+            You understand that the world does not always
+            reward innocence. You observe. You remember.
+            And when necessary, you adapt.
 
+            There is determination here.
 
-  } else if (mainHouse === "H") {
+            Quite unmistakable.
 
-    opening =
-      "Ohhh... I see. You have made this Hat's work rather difficult. " +
-      "There is more strength in you than you seem inclined to advertise.";
+            <strong>SLYTHERIN!</strong>
+        `
+
+    };
 
 
-    middle =
-      "You measure people by what they do when nobody is watching. " +
-      "You value a small number of genuine relationships over a room " +
-      "full of acquaintances. And when someone you love needs you, " +
-      "your own exhaustion can become strangely unimportant.";
-
-
-    ending =
-      "Do not mistake that tenderness for weakness. " +
-      "Loyalty is one of the oldest forms of courage. " +
-      "You can forgive someone without handing them your trust again. " +
-      "You can love someone without agreeing with them. " +
-      "And when your people are threatened, there is a rather formidable " +
-      "side of you that comes awake." +
-      "\n\n" +
-      "HUFFLEPUFF!";
-
-
-  } else {
-
-    opening =
-      "Now then... ambition. " +
-      "Not the shallow sort, either. You have thought about what " +
-      "you could become, and there is a part of you that refuses " +
-      "to settle for ordinary merely because ordinary is comfortable.";
-
-
-    middle =
-      "You understand leverage. You think about consequences. " +
-      "You would rather find the clever route than waste energy " +
-      "charging directly into a locked door. " +
-      "And importantly, you understand that power is useful precisely " +
-      "because of what it allows you to change.";
-
-
-    ending =
-      "But I shall give you this warning: ambition can become a cage " +
-      "if you forget why you wanted freedom in the first place. " +
-      "You have enough conscience to avoid that fate — if you choose " +
-      "to listen to it." +
-      "\n\n" +
-      "SLYTHERIN!";
-  }
-
-
-  return opening + "\n\n" + middle + "\n\n" + ending;
+    return monologues[house];
 
 }
 
 
-/* =========================================================
+/* =========================================
    FINISH SORTING
-========================================================= */
+========================================= */
 
 function finishSorting() {
 
-  calculateScores();
-
-  $("progressBar").style.width = "100%";
-
-  showScreen("thinkingScreen");
+    showScreen("thinkingScreen");
 
 
-  const thinkingLines = [
-    "Hmm... fascinating.",
-    "There is more here than first appeared.",
-    "The Hat sees several possibilities...",
-    "Your loyalties tell me something.",
-    "And your choices under pressure tell me even more.",
-    "Almost there...",
-    "Yes. I know."
-  ];
+    const thinkingTitle =
+        $("thinkingTitle");
+
+    const thinkingText =
+        $("thinkingText");
 
 
-  let index = 0;
+    const messages = [
 
-  $("thinkingLine").textContent =
-    thinkingLines[index];
+        [
+            "Hmm...",
+            "Interesting..."
+        ],
+
+        [
+            "Very interesting...",
+            "There is rather more to you than first appears."
+        ],
+
+        [
+            "I see...",
+            "Your choices are beginning to tell me something."
+        ],
+
+        [
+            "Oh my...",
+            "This is becoming quite clear."
+        ]
+
+    ];
 
 
-  const interval = setInterval(() => {
-
-    index++;
-
-    if (index < thinkingLines.length) {
-
-      $("thinkingLine").textContent =
-        thinkingLines[index];
-
-    }
-
-  }, 700);
+    let index = 0;
 
 
-  setTimeout(() => {
+    const interval =
+        setInterval(
+            () => {
 
-    clearInterval(interval);
+                thinkingTitle.textContent =
+                    messages[index][0];
 
-    revealResult();
+                thinkingText.textContent =
+                    messages[index][1];
 
-  }, 5000);
+                index++;
+
+
+                if (index >= messages.length) {
+
+                    clearInterval(interval);
+
+                }
+
+            },
+            900
+        );
+
+
+    setTimeout(
+        () => {
+
+            clearInterval(interval);
+
+            revealResult();
+
+        },
+        5000
+    );
 
 }
 
 
-/* =========================================================
-   RESULT
-========================================================= */
+/* =========================================
+   REVEAL RESULT
+========================================= */
 
 function revealResult() {
 
-  const mainHouse = determineHouse();
-
-  const secondaryHouse =
-    getSecondaryHouse(mainHouse);
-
-  const personality =
-    getPersonality(
-      mainHouse,
-      secondaryHouse
-    );
-
-  const speech =
-    generateSpeech(
-      mainHouse,
-      secondaryHouse
-    );
+    const primary =
+        determineHouse();
 
 
-  document.body.classList.remove(
-    "house-gryffindor",
-    "house-ravenclaw",
-    "house-hufflepuff",
-    "house-slytherin"
-  );
+    const secondary =
+        determineSecondary(primary);
 
 
-  document.body.classList.add(
-    "house-" +
-    houses[mainHouse].name.toLowerCase()
-  );
+    const house =
+        houses[primary];
 
 
-  $("hatSpeechTitle").textContent =
-    "So... that is who you are.";
+    $("resultHouse").textContent =
+        house.name;
 
 
-  $("hatSpeech").textContent =
-    speech;
+    $("resultPersonality").textContent =
+        house.title;
 
 
-  $("houseName").textContent =
-    houses[mainHouse].name;
+    $("resultSecondary").textContent =
+        `Your secondary house is ${houses[secondary].name}.`;
 
 
-  $("houseMotto").textContent =
-    houses[mainHouse].motto;
+    $("hatMonologue").innerHTML =
+        getMonologue(
+            primary,
+            secondary
+        );
 
 
-  $("personalityTitle").textContent =
-    personality.title;
+    /*
+        Personality sentence
+        appears above the Hat monologue.
+    */
+
+    const personality =
+        getPersonality(primary);
 
 
-  $("personalityText").textContent =
-    personality.text;
+    $("resultPersonality").textContent =
+        personality;
 
 
-  const traitGrid =
-    $("traitGrid");
-
-  traitGrid.innerHTML = "";
-
-  personality.traits.forEach(trait => {
-
-    const el =
-      document.createElement("span");
-
-    el.className = "trait";
-
-    el.textContent = trait;
-
-    traitGrid.appendChild(el);
-
-  });
+    const total =
+        selectedMode;
 
 
-  renderScores();
+    const percentages = {
+
+        G:
+            Math.round(
+                (scores.G / total) * 100
+            ),
+
+        R:
+            Math.round(
+                (scores.R / total) * 100
+            ),
+
+        H:
+            Math.round(
+                (scores.H / total) * 100
+            ),
+
+        S:
+            Math.round(
+                (scores.S / total) * 100
+            )
+
+    };
 
 
-  showScreen("resultScreen");
+    $("scoreG").style.width =
+        `${percentages.G}%`;
 
-}
+    $("scoreR").style.width =
+        `${percentages.R}%`;
 
+    $("scoreH").style.width =
+        `${percentages.H}%`;
 
-/* =========================================================
-   SCORE BARS
-========================================================= */
-
-function renderScores() {
-
-  const container =
-    $("scoreBars");
-
-  container.innerHTML = "";
+    $("scoreS").style.width =
+        `${percentages.S}%`;
 
 
-  const maxScore =
-    Math.max(
-      scores.G,
-      scores.R,
-      scores.H,
-      scores.S
-    );
+    $("scoreGText").textContent =
+        `${percentages.G}%`;
+
+    $("scoreRText").textContent =
+        `${percentages.R}%`;
+
+    $("scoreHText").textContent =
+        `${percentages.H}%`;
+
+    $("scoreSText").textContent =
+        `${percentages.S}%`;
 
 
-  const labels = {
-    G: "Gryffindor",
-    R: "Ravenclaw",
-    H: "Hufflepuff",
-    S: "Slytherin"
-  };
-
-
-  const classes = {
-    G: "gryffindor",
-    R: "ravenclaw",
-    H: "hufflepuff",
-    S: "slytherin"
-  };
-
-
-  ["G", "R", "H", "S"].forEach(house => {
-
-    const row =
-      document.createElement("div");
-
-    row.className = "score-row";
-
-
-    const percentage =
-      Math.round(
-        (scores[house] / maxScore) * 100
-      );
-
-
-    row.innerHTML = `
-      <div class="score-label">
-        <span>${labels[house]}</span>
-        <span>${percentage}%</span>
-      </div>
-
-      <div class="score-track">
-        <div
-          class="score-fill ${classes[house]}"
-          style="width:${percentage}%"
-        ></div>
-      </div>
-    `;
-
-
-    container.appendChild(row);
-
-  });
+    showScreen("resultScreen");
 
 }
 
 
-/* =========================================================
-   SHARE
-========================================================= */
-
-$("shareButton").addEventListener("click", async () => {
-
-  const house =
-    $("houseName").textContent;
-
-
-  const text =
-    `The Sorting Hat has placed me in ${house}. ` +
-    `Where would Hogwarts place you?`;
-
-
-  if (
-    navigator.share
-  ) {
-
-    try {
-
-      await navigator.share({
-        title: "My Hogwarts Sorting",
-        text: text,
-        url: window.location.href
-      });
-
-    } catch (error) {
-
-      // User cancelled sharing.
-
-    }
-
-  } else {
-
-    try {
-
-      await navigator.clipboard.writeText(
-        text + "\n" + window.location.href
-      );
-
-      $("shareButton").textContent =
-        "Copied to Clipboard";
-
-      setTimeout(() => {
-
-        $("shareButton").textContent =
-          "Share My Sorting";
-
-      }, 2000);
-
-    } catch (error) {
-
-      alert(text);
-
-    }
-
-  }
-
-});
-
-
-/* =========================================================
-   RESTART
-========================================================= */
-
-$("restartButton").addEventListener("click", () => {
-
-  currentQuestion = 0;
-
-  answersGiven = [];
-
-  scores = {
-    G: 0,
-    R: 0,
-    H: 0,
-    S: 0
-  };
-
-
-  document.body.classList.remove(
-    "house-gryffindor",
-    "house-ravenclaw",
-    "house-hufflepuff",
-    "house-slytherin"
-  );
-
-
-  showScreen("modeScreen");
-
-});
-
-
-/* =========================================================
-   PREVENT ACCIDENTAL PAGE EXIT
-========================================================= */
-
-window.addEventListener("beforeunload", event => {
-
-  if (
-    $("quizScreen").classList.contains("active") &&
-    answersGiven.length > 0 &&
-    currentQuestion > 0
-  ) {
-
-    event.preventDefault();
-
-  }
-
-});
 /* =========================================
-   HOGWARTS INTRO
-   ========================================= */
+   SHARE RESULT
+========================================= */
 
-const hogwartsIntro = document.getElementById("hogwartsIntro");
-const enterHogwartsBtn = document.getElementById("enterHogwartsBtn");
+const shareResult =
+    $("shareResult");
 
-if (enterHogwartsBtn) {
-    enterHogwartsBtn.addEventListener("click", () => {
-        hogwartsIntro.classList.add("hidden");
 
-        // Show the existing Hogwarts letter
-        const letterScreen = document.getElementById("letterScreen");
+if (shareResult) {
 
-        if (letterScreen) {
-            letterScreen.classList.add("active");
+    shareResult.addEventListener(
+        "click",
+        async () => {
+
+            const house =
+                $("resultHouse").textContent;
+
+
+            const text =
+                `The Sorting Hat has placed me in ${house}! ✨\n\nTake the Hogwarts Sorting Ceremony yourself.`;
+
+
+            if (
+                navigator.share
+            ) {
+
+                try {
+
+                    await navigator.share({
+                        title:
+                            "My Hogwarts Sorting",
+                        text:
+                            text
+                    });
+
+                }
+                catch (error) {
+
+                    /*
+                        User cancelled sharing.
+                    */
+
+                }
+
+            }
+            else {
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        text
+                    );
+
+                    shareResult.textContent =
+                        "Copied!";
+
+                    setTimeout(
+                        () => {
+
+                            shareResult.textContent =
+                                "Share My Sorting";
+
+                        },
+                        1800
+                    );
+
+                }
+                catch (error) {
+
+                    alert(text);
+
+                }
+
+            }
+
         }
-    });
+    );
+
 }
+
+
+/* =========================================
+   RESTART
+========================================= */
+
+const restartSorting =
+    $("restartSorting");
+
+
+if (restartSorting) {
+
+    restartSorting.addEventListener(
+        "click",
+        () => {
+
+            currentQuestion = 0;
+
+            answersGiven = [];
+
+            scores = {
+                G: 0,
+                R: 0,
+                H: 0,
+                S: 0
+            };
+
+
+            showScreen("modeScreen");
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   PREVENT ACCIDENTAL PAGE LEAVE
+========================================= */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        /*
+            Intentionally left empty.
+            This keeps the application simple
+            and compatible with GitHub Pages.
+        */
+
+    }
+);
