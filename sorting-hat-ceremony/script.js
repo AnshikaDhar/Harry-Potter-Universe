@@ -24,11 +24,11 @@ const questions = [
     text: "You see someone being publicly humiliated by a popular student. What do you do?",
     answers: [
       {
-        text: "Step in immediately, even if it makes you a target.",
+        text: "Step in immediately, even if it makes me a target.",
         score: { G: 4 }
       },
       {
-        text: "Intervene calmly, using the strongest argument you can find.",
+        text: "Intervene calmly, using the strongest argument I can find.",
         score: { R: 3, G: 2 }
       },
       {
@@ -36,7 +36,7 @@ const questions = [
         score: { H: 4 }
       },
       {
-        text: "Find a way to stop the situation without putting yourself unnecessarily at risk.",
+        text: "Find a way to stop the situation without putting myself unnecessarily at risk.",
         score: { S: 3, R: 1 }
       }
     ]
@@ -55,11 +55,11 @@ const questions = [
         score: { R: 4 }
       },
       {
-        text: "Confront your friend privately and try to make them correct it themselves.",
+        text: "Confront my friend privately and try to make them correct it themselves.",
         score: { H: 3, G: 2 }
       },
       {
-        text: "Protect your friend unless the consequences for the innocent person become severe.",
+        text: "Protect my friend unless the consequences for the innocent person become severe.",
         score: { S: 2, H: 2 }
       }
     ]
@@ -74,7 +74,7 @@ const questions = [
         score: { H: 4 }
       },
       {
-        text: "Keep it private, but remember what it tells you about them.",
+        text: "Keep it private, but remember what it tells me about them.",
         score: { R: 3 }
       },
       {
@@ -101,7 +101,7 @@ const questions = [
         score: { R: 4 }
       },
       {
-        text: "A deeply loving life surrounded by people who genuinely matter to you.",
+        text: "A deeply loving life surrounded by people who genuinely matter to me.",
         score: { H: 4 }
       },
       {
@@ -1054,24 +1054,136 @@ const questions = [
     ]
   },
 
+  /* =======================================================
+     Q46
+  ======================================================= */
+
   {
-    category: "THE HAT",
-    text: "The Sorting Hat offers to place you in the House you most naturally belong to, rather than the House you think you should want. What do you tell it?",
+    category: "SELF-CONTROL",
+    text: "You are given the opportunity to do something you desperately want, but taking it would seriously hurt someone who does not deserve it. What do you do?",
     answers: [
       {
-        text: "Place me where my courage and convictions naturally lead.",
-        score: { G: 5 }
+        text: "Walk away. Wanting something does not make harming someone right.",
+        score: { G: 4, H: 1 }
       },
       {
-        text: "Place me where my curiosity and way of thinking naturally lead.",
-        score: { R: 5 }
+        text: "Examine whether there is another way to achieve what I want.",
+        score: { R: 4, S: 1 }
       },
       {
-        text: "Place me where my loyalty and heart naturally lead.",
+        text: "Look for a solution where neither person has to lose.",
         score: { H: 5 }
       },
       {
-        text: "Place me where my ambition and drive naturally lead.",
+        text: "Find a way to achieve my goal without giving the other person unnecessary power over the outcome.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q47
+  ======================================================= */
+
+  {
+    category: "LOYALTY",
+    text: "A close friend asks you to keep supporting them after you realize their choices are hurting themselves. What matters most?",
+    answers: [
+      {
+        text: "Having the courage to tell them the truth, even if they become angry.",
+        score: { G: 4 }
+      },
+      {
+        text: "Understanding why they are making these choices before deciding how to respond.",
+        score: { R: 4 }
+      },
+      {
+        text: "Making sure they know I will stay beside them while encouraging them to change.",
+        score: { H: 5 }
+      },
+      {
+        text: "Helping them find a practical way out of the situation.",
+        score: { S: 3, R: 2 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q48
+  ======================================================= */
+
+  {
+    category: "LEGACY",
+    text: "Years from now, what would you most want people to say about the life you lived?",
+    answers: [
+      {
+        text: "They stood up for what mattered, even when it was difficult.",
+        score: { G: 5 }
+      },
+      {
+        text: "They understood things deeply and made people see the world differently.",
+        score: { R: 5 }
+      },
+      {
+        text: "They made the people around them feel loved, safe and valued.",
+        score: { H: 5 }
+      },
+      {
+        text: "They built something extraordinary and became the person they were capable of becoming.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q49
+  ======================================================= */
+
+  {
+    category: "INNER SELF",
+    text: "When nobody is watching and there is nothing to prove, what do you naturally seek?",
+    answers: [
+      {
+        text: "Something that makes me feel alive.",
+        score: { G: 4 }
+      },
+      {
+        text: "Something that makes me think.",
+        score: { R: 4 }
+      },
+      {
+        text: "Something that makes me feel connected.",
+        score: { H: 4 }
+      },
+      {
+        text: "Something that makes me feel capable and free.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q50 — THE FINAL SORTING HAT QUESTION
+  ======================================================= */
+
+  {
+    category: "THE HAT",
+    text: "The Sorting Hat pauses before making its final decision. It asks: when you strip away what others expect of you, what do you most want your life to feel like?",
+    answers: [
+      {
+        text: "Brave — like I lived honestly and never abandoned what I believed.",
+        score: { G: 5 }
+      },
+      {
+        text: "Meaningful — like I understood the world and kept discovering more of it.",
+        score: { R: 5 }
+      },
+      {
+        text: "Loved — like I built a life filled with genuine connection and belonging.",
+        score: { H: 5 }
+      },
+      {
+        text: "Free — like I became capable enough to choose my own path.",
         score: { S: 5 }
       }
     ]
@@ -1153,6 +1265,16 @@ let selectedMode = 50;
 let currentQuestion = 0;
 let answersGiven = [];
 
+/*
+   shuffledAnswers stores the randomized answer order
+   for the current quiz attempt.
+
+   IMPORTANT:
+   The score travels with the answer object, so shuffling
+   the visible position does NOT change the Sorting logic.
+*/
+let shuffledAnswers = [];
+
 let scores = {
   G: 0,
   R: 0,
@@ -1182,6 +1304,63 @@ function showScreen(id) {
     top: 0,
     behavior: "smooth"
   });
+
+}
+
+
+/* =========================================================
+   SHUFFLE
+========================================================= */
+
+/*
+   Fisher-Yates shuffle.
+
+   Every quiz attempt gets a fresh randomized order.
+   This means:
+   A/B/C/D do NOT permanently correspond to
+   Gryffindor/Ravenclaw/Hufflepuff/Slytherin.
+*/
+
+function shuffleArray(array) {
+
+  const shuffled = [...array];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+
+    const j =
+      Math.floor(Math.random() * (i + 1));
+
+    [
+      shuffled[i],
+      shuffled[j]
+    ] = [
+      shuffled[j],
+      shuffled[i]
+    ];
+
+  }
+
+  return shuffled;
+
+}
+
+
+/*
+   Create the shuffled answer sets for the current quiz.
+
+   This is done once when a sorting mode is selected,
+   so going back to a previous question does NOT reshuffle
+   that question again.
+*/
+
+function prepareShuffledAnswers() {
+
+  shuffledAnswers = questions.map(question => {
+
+    return shuffleArray(question.answers);
+
+  });
+
 }
 
 
@@ -1213,9 +1392,11 @@ document.querySelectorAll(".mode-card").forEach(card => {
 
   card.addEventListener("click", () => {
 
-    selectedMode = Number(card.dataset.mode);
+    selectedMode =
+      Number(card.dataset.mode);
 
     currentQuestion = 0;
+
     answersGiven = [];
 
     scores = {
@@ -1225,7 +1406,15 @@ document.querySelectorAll(".mode-card").forEach(card => {
       S: 0
     };
 
-    $("totalNumber").textContent = selectedMode;
+    /*
+       NEW:
+       Randomize answer positions for every new
+       Basic, Standard AND Deepest sorting attempt.
+    */
+    prepareShuffledAnswers();
+
+    $("totalNumber").textContent =
+      selectedMode;
 
     showScreen("quizScreen");
 
@@ -1242,54 +1431,123 @@ document.querySelectorAll(".mode-card").forEach(card => {
 
 function renderQuestion() {
 
-  const question = questions[currentQuestion];
+  const question =
+    questions[currentQuestion];
 
-  $("currentNumber").textContent = currentQuestion + 1;
 
-  $("totalNumber").textContent = selectedMode;
+  /*
+     Safety check.
+     If the question doesn't exist, stop here instead
+     of producing a JavaScript error.
+  */
 
-  $("questionCategory").textContent = question.category;
+  if (!question) {
 
-  $("questionText").textContent = question.text;
+    console.error(
+      `Question ${currentQuestion + 1} does not exist. ` +
+      `Total questions available: ${questions.length}`
+    );
+
+    alert(
+      "There was an error loading this question. Please refresh the page."
+    );
+
+    return;
+
+  }
+
+
+  $("currentNumber").textContent =
+    currentQuestion + 1;
+
+  $("totalNumber").textContent =
+    selectedMode;
+
+  $("questionCategory").textContent =
+    question.category;
+
+  $("questionText").textContent =
+    question.text;
+
+
+  /*
+     Progress now represents the current question.
+
+     Q1 = 2%
+     Q25 = 50%
+     Q50 = 100%
+  */
 
   const percentage =
-    ((currentQuestion) / selectedMode) * 100;
+    ((currentQuestion + 1) / selectedMode) * 100;
 
-  $("progressBar").style.width = percentage + "%";
+  $("progressBar").style.width =
+    percentage + "%";
 
 
-  const answersContainer = $("answers");
+  const answersContainer =
+    $("answers");
 
   answersContainer.innerHTML = "";
 
 
-  question.answers.forEach((answer, index) => {
+  /*
+     IMPORTANT:
+     For Basic / Standard / Deepest, only the answers
+     actually used by that question are shown.
 
-    const button = document.createElement("button");
+     The order comes from shuffledAnswers.
+  */
 
-    button.className = "answer";
+  const answers =
+    shuffledAnswers[currentQuestion] ||
+    question.answers;
 
-    if (answersGiven[currentQuestion] === index) {
+
+  answers.forEach((answer, index) => {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "answer";
+
+
+    /*
+       answersGiven stores the actual answer object
+       rather than relying on its original A/B/C/D position.
+    */
+
+    if (
+      answersGiven[currentQuestion] === answer
+    ) {
+
       button.classList.add("selected");
+
     }
 
-    const letter = document.createElement("span");
 
-    letter.className = "answer-letter";
+    const letter =
+      document.createElement("span");
+
+    letter.className =
+      "answer-letter";
 
     letter.textContent =
       String.fromCharCode(65 + index);
 
     button.appendChild(letter);
 
-    const text = document.createTextNode(answer.text);
+
+    const text =
+      document.createTextNode(answer.text);
 
     button.appendChild(text);
 
 
     button.addEventListener("click", () => {
 
-      selectAnswer(index);
+      selectAnswer(answer);
 
     });
 
@@ -1300,7 +1558,9 @@ function renderQuestion() {
 
 
   $("backButton").style.visibility =
-    currentQuestion === 0 ? "hidden" : "visible";
+    currentQuestion === 0
+      ? "hidden"
+      : "visible";
 
 }
 
@@ -1309,24 +1569,37 @@ function renderQuestion() {
    ANSWER SELECTION
 ========================================================= */
 
-function selectAnswer(index) {
+function selectAnswer(answer) {
 
-  answersGiven[currentQuestion] = index;
+  /*
+     Store the actual answer object.
+
+     This is important because the answers are shuffled.
+     We cannot store only A/B/C/D anymore.
+  */
+
+  answersGiven[currentQuestion] =
+    answer;
 
 
-  document.querySelectorAll(".answer").forEach((button, i) => {
+  document
+    .querySelectorAll(".answer")
+    .forEach(button => {
 
-    button.classList.toggle(
-      "selected",
-      i === index
-    );
+      button.classList.toggle(
+        "selected",
+        button.textContent.includes(answer.text)
+      );
 
-  });
+    });
 
 
   setTimeout(() => {
 
-    if (currentQuestion < selectedMode - 1) {
+    if (
+      currentQuestion <
+      selectedMode - 1
+    ) {
 
       currentQuestion++;
 
@@ -1380,18 +1653,19 @@ function calculateScores() {
     i++
   ) {
 
-    const answerIndex = answersGiven[i];
+    const answer =
+      answersGiven[i];
 
-    if (answerIndex === undefined) {
+
+    if (!answer) {
       continue;
     }
 
-    const answer =
-      questions[i].answers[answerIndex];
 
     Object.keys(answer.score).forEach(house => {
 
-      scores[house] += answer.score[house];
+      scores[house] +=
+        answer.score[house];
 
     });
 
@@ -1406,54 +1680,77 @@ function calculateScores() {
 
 function determineHouse() {
 
-  const entries = Object.entries(scores);
+  const entries =
+    Object.entries(scores);
 
-  entries.sort((a, b) => b[1] - a[1]);
-
-  const highest = entries[0][1];
-
-  const tied = entries.filter(
-    entry => entry[1] === highest
+  entries.sort(
+    (a, b) => b[1] - a[1]
   );
+
+  const highest =
+    entries[0][1];
+
+  const tied =
+    entries.filter(
+      entry => entry[1] === highest
+    );
 
 
   if (tied.length === 1) {
+
     return tied[0][0];
+
   }
 
 
   /*
-    Deterministic tie breaker.
+     Deterministic tie breaker.
 
-    Later questions are intentionally used as
-    stronger personality signals.
+     Later questions are intentionally stronger
+     personality signals.
+
+     Because the final Hat question is now Q50,
+     it can also participate in the tie breaker.
   */
 
-  const tiePriority = ["G", "R", "H", "S"];
+  const tiePriority =
+    ["G", "R", "H", "S"];
 
-  for (let i = questions.length - 1; i >= 0; i--) {
 
-    const answerIndex = answersGiven[i];
+  for (
+    let i = questions.length - 1;
+    i >= 0;
+    i--
+  ) {
 
-    if (answerIndex === undefined) {
+    const answer =
+      answersGiven[i];
+
+
+    if (!answer) {
       continue;
     }
 
-    const answer =
-      questions[i].answers[answerIndex];
 
-    for (const house of tiePriority) {
+    for (
+      const house of tiePriority
+    ) {
 
       if (
-        tied.some(item => item[0] === house) &&
+        tied.some(
+          item => item[0] === house
+        ) &&
         answer.score[house]
       ) {
+
         return house;
+
       }
 
     }
 
   }
+
 
   return tied[0][0];
 
@@ -1467,17 +1764,20 @@ function determineHouse() {
 function getSecondaryHouse(mainHouse) {
 
   return Object.entries(scores)
-    .filter(([house]) => house !== mainHouse)
-    .sort((a, b) => b[1] - a[1])[0][0];
+    .filter(
+      ([house]) => house !== mainHouse
+    )
+    .sort(
+      (a, b) => b[1] - a[1]
+    )[0][0];
 
 }
 
 
-function getPersonality(mainHouse, secondaryHouse) {
-
-  const difference =
-    scores[mainHouse] - scores[secondaryHouse];
-
+function getPersonality(
+  mainHouse,
+  secondaryHouse
+) {
 
   if (mainHouse === "G") {
 
@@ -1505,6 +1805,7 @@ function getPersonality(mainHouse, secondaryHouse) {
 
     }
 
+
     if (secondaryHouse === "H") {
 
       return {
@@ -1526,6 +1827,7 @@ function getPersonality(mainHouse, secondaryHouse) {
       };
 
     }
+
 
     return {
       title: "The Defiant Gryffindor",
@@ -1564,6 +1866,7 @@ function getPersonality(mainHouse, secondaryHouse) {
 
     }
 
+
     return {
       title: houses.R.title,
       text:
@@ -1599,6 +1902,7 @@ function getPersonality(mainHouse, secondaryHouse) {
       };
 
     }
+
 
     return {
       title: houses.H.title,
@@ -1636,6 +1940,7 @@ function getPersonality(mainHouse, secondaryHouse) {
 
     }
 
+
     return {
       title: houses.S.title,
       text:
@@ -1655,7 +1960,10 @@ function getPersonality(mainHouse, secondaryHouse) {
    SORTING HAT MONOLOGUE
 ========================================================= */
 
-function generateSpeech(mainHouse, secondaryHouse) {
+function generateSpeech(
+  mainHouse,
+  secondaryHouse
+) {
 
   const g = scores.G;
   const r = scores.R;
@@ -1666,10 +1974,6 @@ function generateSpeech(mainHouse, secondaryHouse) {
   let opening = "";
   let middle = "";
   let ending = "";
-
-
-  const highest =
-    Math.max(g, r, h, s);
 
 
   if (mainHouse === "G") {
@@ -1804,7 +2108,13 @@ function generateSpeech(mainHouse, secondaryHouse) {
   }
 
 
-  return opening + "\n\n" + middle + "\n\n" + ending;
+  return (
+    opening +
+    "\n\n" +
+    middle +
+    "\n\n" +
+    ending
+  );
 
 }
 
@@ -1835,22 +2145,28 @@ function finishSorting() {
 
   let index = 0;
 
+
   $("thinkingLine").textContent =
     thinkingLines[index];
 
 
-  const interval = setInterval(() => {
+  const interval =
+    setInterval(() => {
 
-    index++;
+      index++;
 
-    if (index < thinkingLines.length) {
 
-      $("thinkingLine").textContent =
-        thinkingLines[index];
+      if (
+        index <
+        thinkingLines.length
+      ) {
 
-    }
+        $("thinkingLine").textContent =
+          thinkingLines[index];
 
-  }, 700);
+      }
+
+    }, 700);
 
 
   setTimeout(() => {
@@ -1870,16 +2186,20 @@ function finishSorting() {
 
 function revealResult() {
 
-  const mainHouse = determineHouse();
+  const mainHouse =
+    determineHouse();
+
 
   const secondaryHouse =
     getSecondaryHouse(mainHouse);
+
 
   const personality =
     getPersonality(
       mainHouse,
       secondaryHouse
     );
+
 
   const speech =
     generateSpeech(
@@ -1929,16 +2249,20 @@ function revealResult() {
   const traitGrid =
     $("traitGrid");
 
+
   traitGrid.innerHTML = "";
+
 
   personality.traits.forEach(trait => {
 
     const el =
       document.createElement("span");
 
-    el.className = "trait";
+    el.className =
+      "trait";
 
-    el.textContent = trait;
+    el.textContent =
+      trait;
 
     traitGrid.appendChild(el);
 
@@ -1995,13 +2319,16 @@ function renderScores() {
     const row =
       document.createElement("div");
 
-    row.className = "score-row";
+    row.className =
+      "score-row";
 
 
     const percentage =
-      Math.round(
-        (scores[house] / maxScore) * 100
-      );
+      maxScore > 0
+        ? Math.round(
+            (scores[house] / maxScore) * 100
+          )
+        : 0;
 
 
     row.innerHTML = `
@@ -2030,109 +2357,122 @@ function renderScores() {
    SHARE
 ========================================================= */
 
-$("shareButton").addEventListener("click", async () => {
+$("shareButton").addEventListener(
+  "click",
+  async () => {
 
-  const house =
-    $("houseName").textContent;
-
-
-  const text =
-    `The Sorting Hat has placed me in ${house}. ` +
-    `Where would Hogwarts place you?`;
+    const house =
+      $("houseName").textContent;
 
 
-  if (
-    navigator.share
-  ) {
+    const text =
+      `The Sorting Hat has placed me in ${house}. ` +
+      `Where would Hogwarts place you?`;
 
-    try {
 
-      await navigator.share({
-        title: "My Hogwarts Sorting",
-        text: text,
-        url: window.location.href
-      });
+    if (navigator.share) {
 
-    } catch (error) {
+      try {
 
-      // User cancelled sharing.
+        await navigator.share({
+          title: "My Hogwarts Sorting",
+          text: text,
+          url: window.location.href
+        });
 
-    }
+      } catch (error) {
 
-  } else {
+        // User cancelled sharing.
 
-    try {
+      }
 
-      await navigator.clipboard.writeText(
-        text + "\n" + window.location.href
-      );
+    } else {
 
-      $("shareButton").textContent =
-        "Copied to Clipboard";
+      try {
 
-      setTimeout(() => {
+        await navigator.clipboard.writeText(
+          text +
+          "\n" +
+          window.location.href
+        );
+
 
         $("shareButton").textContent =
-          "Share My Sorting";
+          "Copied to Clipboard";
 
-      }, 2000);
 
-    } catch (error) {
+        setTimeout(() => {
 
-      alert(text);
+          $("shareButton").textContent =
+            "Share My Sorting";
+
+        }, 2000);
+
+      } catch (error) {
+
+        alert(text);
+
+      }
 
     }
 
   }
-
-});
+);
 
 
 /* =========================================================
    RESTART
 ========================================================= */
 
-$("restartButton").addEventListener("click", () => {
+$("restartButton").addEventListener(
+  "click",
+  () => {
 
-  currentQuestion = 0;
+    currentQuestion = 0;
 
-  answersGiven = [];
+    answersGiven = [];
 
-  scores = {
-    G: 0,
-    R: 0,
-    H: 0,
-    S: 0
-  };
+    shuffledAnswers = [];
 
-
-  document.body.classList.remove(
-    "house-gryffindor",
-    "house-ravenclaw",
-    "house-hufflepuff",
-    "house-slytherin"
-  );
+    scores = {
+      G: 0,
+      R: 0,
+      H: 0,
+      S: 0
+    };
 
 
-  showScreen("modeScreen");
+    document.body.classList.remove(
+      "house-gryffindor",
+      "house-ravenclaw",
+      "house-hufflepuff",
+      "house-slytherin"
+    );
 
-});
+
+    showScreen("modeScreen");
+
+  }
+);
 
 
 /* =========================================================
    PREVENT ACCIDENTAL PAGE EXIT
 ========================================================= */
 
-window.addEventListener("beforeunload", event => {
+window.addEventListener(
+  "beforeunload",
+  event => {
 
-  if (
-    $("quizScreen").classList.contains("active") &&
-    answersGiven.length > 0 &&
-    currentQuestion > 0
-  ) {
+    if (
+      $("quizScreen").classList.contains("active") &&
+      answersGiven.length > 0 &&
+      currentQuestion > 0
+    ) {
 
-    event.preventDefault();
+      event.preventDefault();
+
+    }
 
   }
-
-});
+);
