@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hogwarts Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="candlelight"></div>
+
+<!-- ============ SCREEN 1 : THE LETTER ============ -->
+<section id="screen-letter" class="screen screen--active">
+  <div class="letter-scene">
+    <div class="envelope" id="envelope">
+      <div class="envelope__seal"></div>
+      <p class="envelope__addr">To the one currently reading this screen</p>
+    </div>
+    <div class="letter" id="letter" hidden>
+      <h1 class="letter__title">THE HOGWARTS ARCHIVE</h1>
+      <p class="letter__body">
+        The Archive keeps every recorded fact of the wizarding world &mdash; from
+        first-year Charms to the darkest corners of the Restricted Section.
+        It has heard every question a witch or wizard might ask, and it is
+        ready to test what you remember.
+      </p>
+      <p class="letter__body letter__body--small">
+        Choose your trial below. Each is a different examination, drawn from
+        different depths of the Archive.
+      </p>
+      <button class="btn btn--gold" id="btn-reveal-modes">Enter the Archive</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN 2 : CHOOSE YOUR TRIAL ============ -->
+<section id="screen-modes" class="screen">
+  <header class="page-head">
+    <h2>Choose Your Examination</h2>
+    <p class="page-sub">Every trial is independently set. Harder trials draw on rarer, deeper knowledge &mdash; not just longer lists of the same questions.</p>
+  </header>
+
+  <div class="mode-grid" id="mode-grid"><!-- injected by script.js --></div>
+
+  <div class="mode-options">
+    <label class="toggle">
+      <input type="checkbox" id="toggle-timer">
+      <span>Time each question (adds a Dementor's countdown)</span>
+    </label>
+  </div>
+</section>
+
+<!-- ============ SCREEN 3 : QUIZ ============ -->
+<section id="screen-quiz" class="screen">
+  <div class="quiz-frame">
+    <div class="quiz-topbar">
+      <div class="quiz-mode-name" id="quiz-mode-name"></div>
+      <div class="quiz-progress">
+        <span id="quiz-progress-text">Question 1 of 20</span>
+        <div class="progress-rail"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="quiz-timer" id="quiz-timer" hidden>
+        <svg viewBox="0 0 36 36" class="timer-ring">
+          <circle class="timer-ring__bg" cx="18" cy="18" r="15.5"></circle>
+          <circle class="timer-ring__fg" id="timer-ring-fg" cx="18" cy="18" r="15.5"></circle>
+        </svg>
+        <span id="timer-seconds">30</span>
+      </div>
+    </div>
+
+    <div class="parchment-card" id="question-card">
+      <div class="tag-row">
+        <span class="tag tag--cat" id="q-category">Category</span>
+        <span class="tag tag--diff" id="q-difficulty">O.W.L.</span>
+      </div>
+      <h3 class="question-text" id="q-text">Question text goes here.</h3>
+      <div class="options" id="q-options"><!-- injected --></div>
+    </div>
+
+    <!-- Feedback overlay -->
+    <div class="feedback" id="feedback" hidden>
+      <div class="feedback-card" id="feedback-card">
+        <div class="feedback-verdict" id="feedback-verdict">CORRECT</div>
+        <p class="feedback-answer"><strong>Correct answer:</strong> <span id="feedback-answer-text"></span></p>
+        <p class="feedback-explain" id="feedback-explain"></p>
+        <div class="feedback-source" id="feedback-source"></div>
+        <button class="btn btn--gold" id="btn-continue">Turn the Page</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN 4 : FINAL REPORT ============ -->
+<section id="screen-results" class="screen">
+  <div class="report">
+    <h2 class="report__heading">Official Results of Your Examination</h2>
+
+    <div class="report__grade-block">
+      <div class="grade-seal" id="grade-seal">O</div>
+      <div class="grade-meta">
+        <div class="grade-name" id="grade-name">Outstanding</div>
+        <div class="grade-score" id="grade-score">18 / 20 correct &mdash; 90%</div>
+      </div>
+    </div>
+
+    <div class="report__section">
+      <h3>Category Breakdown</h3>
+      <div id="category-breakdown" class="cat-breakdown"><!-- injected --></div>
+    </div>
+
+    <div class="report__section report__two-col">
+      <div>
+        <h3>Strongest Knowledge</h3>
+        <p id="report-strongest">&mdash;</p>
+      </div>
+      <div>
+        <h3>Weakest Knowledge</h3>
+        <p id="report-weakest">&mdash;</p>
+      </div>
+    </div>
+
+    <div class="report__section">
+      <h3>Achievements Awarded</h3>
+      <div id="achievements" class="achievements"><!-- injected --></div>
+    </div>
+
+    <div class="report__actions">
+      <button class="btn btn--gold" id="btn-retry-mode">Retake This Trial</button>
+      <button class="btn btn--ghost" id="btn-choose-again">Choose a Different Trial</button>
+    </div>
+  </div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
