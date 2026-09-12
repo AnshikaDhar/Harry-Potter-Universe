@@ -1,1142 +1,2478 @@
-/* ==========================================================================
-   THE HOGWARTS ARCHIVE — engine
-   --------------------------------------------------------------------------
-   This file has two parts:
-     1. QUESTION BANK  — an array of question objects. Add more objects here
-        any time; nothing else needs to change. See README.md for the schema.
-     2. ENGINE          — mode config, quiz flow, scoring, results, DOM glue.
-   ========================================================================== */
-
-/* -------------------------------------------------------------------------
-   1. QUESTION BANK
-   Fields:
-     id         unique string
-     cat        category label (shown as a tag + used for the breakdown)
-     diff       1 = O.W.L., 2 = N.E.W.T., 3 = Headmaster's Trial
-     q          question text
-     options    array of 4 answer strings
-     answer     index (0-3) of the correct option, BEFORE shuffling
-     explain    1-3 sentences of story context / why the answer is correct
-     src        "book" | "film" | "both"  — where this detail is drawn from
-   ------------------------------------------------------------------------- */
-const QUESTIONS = [
-
-  /* ================= O.W.L. — difficulty 1 ================= */
-  { id:"o1", cat:"Characters", diff:1,
-    q:"What form does Hermione Granger's Patronus take?",
-    options:["An otter","A horse","A terrier","A swan"], answer:0,
-    explain:"Hermione's Patronus is an otter, first cast successfully in her fifth year during Dumbledore's Army meetings in the Room of Requirement.",
-    src:"both" },
-
-  { id:"o2", cat:"Spells & Charms", diff:1,
-    q:"Which spell is used to force an opponent to drop whatever they are holding?",
-    options:["Protego","Expelliarmus","Stupefy","Expecto Patronum"], answer:1,
-    explain:"Expelliarmus is the Disarming Charm. Harry becomes known for relying on it in duels, and it is famously the spell that saves his life against Voldemort in the graveyard and beyond.",
-    src:"both" },
-
-  { id:"o3", cat:"Potions", diff:1,
-    q:"In Polyjuice Potion, what must be added to make the drinker transform into a specific person?",
-    options:["A tear from that person","A piece of that person (such as a hair)","A drop of that person's blood","A photograph of that person"], answer:1,
-    explain:"A physical piece of the target — commonly a hair — is stirred into the potion so the drinker temporarily takes on that person's appearance.",
-    src:"both" },
-
-  { id:"o4", cat:"Creatures", diff:1,
-    q:"What is the name of Hagrid's giant, talking spider?",
-    options:["Norbert","Fang","Aragog","Buckbeak"], answer:2,
-    explain:"Aragog is the Acromantula Hagrid raised in secret as a student, later living deep in the Forbidden Forest with his own colony.",
-    src:"both" },
-
-  { id:"o5", cat:"History & Founders", diff:1,
-    q:"Which of the four founders established Gryffindor house?",
-    options:["Salazar Slytherin","Godric Gryffindor","Rowena Ravenclaw","Helga Hufflepuff"], answer:1,
-    explain:"Godric Gryffindor founded the house that famously prizes courage, and his sword later plays a key role in the series.",
-    src:"both" },
-
-  { id:"o6", cat:"Places & Objects", diff:1,
-    q:"What is the name of the bank run by goblins in Diagon Alley?",
-    options:["Gringotts","Flourish and Blotts","Ollivanders","Eeylops"], answer:0,
-    explain:"Gringotts Wizarding Bank, run by goblins, holds the vaults of most wizarding families, including the Potters' and the Lestranges'.",
-    src:"both" },
-
-  { id:"o7", cat:"Quidditch", diff:1,
-    q:"How many players make up a full Quidditch team?",
-    options:["6","7","8","11"], answer:1,
-    explain:"A Quidditch team has seven players: three Chasers, two Beaters, one Keeper, and one Seeker.",
-    src:"both" },
-
-  { id:"o8", cat:"Wizarding Culture", diff:1,
-    q:"What is the name of the wizarding world's most widely read newspaper?",
-    options:["The Quibbler","The Daily Prophet","Witch Weekly","The Evening Owl"], answer:1,
-    explain:"The Daily Prophet is the standard wizarding newspaper, whose reporting (and misreporting) shapes public opinion throughout the series.",
-    src:"both" },
-
-  { id:"o9", cat:"Characters", diff:1,
-    q:"Who is revealed to be the 'Half-Blood Prince'?",
-    options:["Voldemort","Horace Slughorn","Severus Snape","Albus Dumbledore"], answer:2,
-    explain:"Snape's mother, Eileen Prince, gives him the nickname he wrote in his old Potions textbook, which Harry uses in his sixth year.",
-    src:"both" },
-
-  { id:"o10", cat:"Spells & Charms", diff:1,
-    q:"Which of the three Unforgivable Curses causes excruciating pain without leaving a physical mark?",
-    options:["Avada Kedavra","Imperius Curse","Cruciatus Curse","Sectumsempra"], answer:2,
-    explain:"The Cruciatus Curse is one of the three Unforgivable Curses, used by Death Eaters (and briefly attempted by Harry) to inflict pure agony.",
-    src:"both" },
-
-  { id:"o11", cat:"Potions", diff:1,
-    q:"What potion grants the drinker extraordinary luck for a limited time?",
-    options:["Amortentia","Felix Felicis","Veritaserum","Draught of Living Death"], answer:1,
-    explain:"Felix Felicis, nicknamed 'liquid luck', is won by Harry in Slughorn's class and later used to help secure a crucial memory from him.",
-    src:"both" },
-
-  { id:"o12", cat:"Creatures", diff:1,
-    q:"What is distinctive about a Boggart's 'true' appearance?",
-    options:["It has no true form; it becomes the viewer's worst fear","It always appears as a black dog","It is invisible until struck","It looks like a shadow of the caster"], answer:0,
-    explain:"A Boggart has no shape of its own — it transforms into whatever the person facing it fears most, which is why the charm against it is 'Riddikulus'.",
-    src:"both" },
-
-  { id:"o13", cat:"Places & Objects", diff:1,
-    q:"What is the name of the dense forest bordering the Hogwarts grounds?",
-    options:["The Forbidden Forest","Wistman's Wood","The Whomping Wood","Dean Forest"], answer:0,
-    explain:"The Forbidden Forest is home to centaurs, Acromantulas, Thestrals, and other creatures, and is explicitly off-limits to students.",
-    src:"both" },
-
-  { id:"o14", cat:"Characters", diff:1,
-    q:"Who is Harry Potter's godfather?",
-    options:["Remus Lupin","Sirius Black","Severus Snape","Alastor Moody"], answer:1,
-    explain:"Sirius Black, James Potter's best friend, is Harry's godfather, escaping Azkaban in Harry's third year in part to protect him.",
-    src:"both" },
-
-  { id:"o15", cat:"Spells & Charms", diff:1,
-    q:"Which levitation charm is one of the first spells taught to first-years, memorably mispronounced by Ron Weasley?",
-    options:["Wingardium Leviosa","Locomotor","Alohomora","Mobiliarbus"], answer:0,
-    explain:"Wingardium Leviosa is the Levitation Charm, taught by Professor Flitwick, with the swish-and-flick technique Hermione corrects Ron on.",
-    src:"both" },
-
-  { id:"o16", cat:"Wizarding Culture", diff:1,
-    q:"What is the name of Harry's pet snowy owl?",
-    options:["Errol","Pigwidgeon","Hedwig","Trevor"], answer:2,
-    explain:"Hedwig is the snowy owl Hagrid buys Harry as an eleventh birthday present, and she serves as his messenger throughout the series.",
-    src:"both" },
-
-  { id:"o17", cat:"History & Founders", diff:1,
-    q:"Which Hogwarts house is traditionally associated with loyalty and hard work?",
-    options:["Ravenclaw","Slytherin","Hufflepuff","Gryffindor"], answer:2,
-    explain:"Hufflepuff, founded by Helga Hufflepuff, values hard work, patience, loyalty, and fair play above the traits prized by the other houses.",
-    src:"both" },
-
-  { id:"o18", cat:"Quidditch", diff:1,
-    q:"What is the name of the small, winged golden ball that ends a Quidditch match when caught?",
-    options:["The Quaffle","The Bludger","The Golden Snitch","The Golden Bludger"], answer:2,
-    explain:"Catching the Golden Snitch ends the match and earns the Seeker's team 150 points.",
-    src:"both" },
-
-  { id:"o19", cat:"Places & Objects", diff:1,
-    q:"Which platform at King's Cross Station do students use to board the Hogwarts Express?",
-    options:["Platform 9¾","Platform 13","Platform 6½","Platform 10¾"], answer:0,
-    explain:"Platform Nine and Three-Quarters is reached by walking through the barrier between platforms nine and ten.",
-    src:"both" },
-
-  { id:"o20", cat:"Creatures", diff:1,
-    q:"What magical creature does Hagrid illegally hatch from an egg in his first year teaching?",
-    options:["A dragon named Norbert","A Hippogriff named Buckbeak","A Thestral","A Basilisk"], answer:0,
-    explain:"Hagrid hatches a Norwegian Ridgeback he names Norbert, which Ron's brother Charlie later arranges to have collected and relocated to Romania.",
-    src:"both" },
-
-  { id:"o21", cat:"Characters", diff:1,
-    q:"What was the original name of Ron Weasley's pet rat, later revealed to be an Animagus in disguise?",
-    options:["Scabbers","Trevor","Errol","Pigwidgeon"], answer:0,
-    explain:"Scabbers turns out to be Peter Pettigrew, hiding as a rat for twelve years, exposed in Prisoner of Azkaban.",
-    src:"both" },
-
-  { id:"o22", cat:"Creatures", diff:1,
-    q:"What kind of creature is Fawkes, Dumbledore's companion?",
-    options:["A Hippogriff","A phoenix","A Basilisk","A Niffler"], answer:1,
-    explain:"Fawkes is a phoenix, a bird that bursts into flame and is reborn from its own ashes, and whose tears have healing powers.",
-    src:"both" },
-
-  { id:"o23", cat:"Wizarding Culture", diff:1,
-    q:"What tracks each Hogwarts house's standing in the House Cup competition throughout the year?",
-    options:["Four hourglasses filled with colored gems","A magical scoreboard in the Great Hall","The prefects' badges","The house ghosts' votes"], answer:0,
-    explain:"Four giant hourglasses in the entrance hall hold jewels that appear or vanish as points are awarded or lost, tallying the House Cup race.",
-    src:"both" },
-
-  { id:"o24", cat:"Spells & Charms", diff:1,
-    q:"Which spell unlocks non-magically sealed doors?",
-    options:["Reducto","Alohomora","Finite Incantatem","Colloportus"], answer:1,
-    explain:"Alohomora is the Unlocking Charm, used often by Hermione when the trio need to get through a locked door quickly.",
-    src:"both" },
-
-  { id:"o25", cat:"Places & Objects", diff:1,
-    q:"What magical mirror shows Harry his parents, and the deepest desire of his heart, in his first year?",
-    options:["The Foe-Glass","The Mirror of Erised","The Sorting Hat","The Pensieve"], answer:1,
-    explain:"The Mirror of Erised shows 'the deepest, most desperate desire of our hearts' — for Harry, that's his family, alive and together.",
-    src:"both" },
-
-  { id:"o26", cat:"Characters", diff:1,
-    q:"Who is the Head of Gryffindor House and teaches Transfiguration?",
-    options:["Pomona Sprout","Filius Flitwick","Minerva McGonagall","Sybill Trelawney"], answer:2,
-    explain:"Minerva McGonagall heads Gryffindor and is Hogwarts' formidable Transfiguration teacher (and later Headmistress).",
-    src:"both" },
-
-  { id:"o27", cat:"Quidditch", diff:1,
-    q:"What position does Harry Potter play on the Gryffindor Quidditch team?",
-    options:["Chaser","Keeper","Seeker","Beater"], answer:2,
-    explain:"Harry plays Seeker, the position responsible for catching the Golden Snitch — the youngest House player in a century when he joins.",
-    src:"both" },
-
-  { id:"o28", cat:"Places & Objects", diff:1,
-    q:"On what street in Little Whinging do the Dursleys live?",
-    options:["Spinner's End","Privet Drive","Diagon Alley","Wisteria Walk"], answer:1,
-    explain:"Number four, Privet Drive is the Dursleys' address, and Harry's home (in name only) for most of his childhood.",
-    src:"both" },
-
-  { id:"o29", cat:"Places & Objects", diff:1,
-    q:"How does the Sorting Hat decide which house a new student belongs in?",
-    options:["It measures their raw magical power","It reads their thoughts and qualities","It asks them ten trivia questions","It is chosen randomly by lottery"], answer:1,
-    explain:"The Sorting Hat looks into a student's mind and weighs their qualities and preferences before announcing a house — sometimes, as with Harry, even taking a request into account.",
-    src:"both" },
-
-  { id:"o30", cat:"Characters", diff:1,
-    q:"What are the names of Draco Malfoy's two large, dim-witted henchmen?",
-    options:["Crabbe and Goyle","Nott and Zabini","Flint and Bole","Pucey and Warrington"], answer:0,
-    explain:"Vincent Crabbe and Gregory Goyle follow Draco everywhere, more muscle than mind.",
-    src:"both" },
-
-  { id:"o31", cat:"Spells & Charms", diff:1,
-    q:"What does the spell 'Lumos' do?",
-    options:["Extinguishes a wand's light","Lights the tip of a wand","Locks a door","Levitates an object"], answer:1,
-    explain:"Lumos lights the wand's tip like a torch; its counter-spell, Nox, puts the light out again.",
-    src:"both" },
-
-  { id:"o32", cat:"Wizarding Culture", diff:1,
-    q:"What term describes a person with no magical ability, born to non-magical parents?",
-    options:["A Squib","A Muggle","A half-blood","A Metamorphmagus"], answer:1,
-    explain:"A Muggle is a non-magical person; the term 'Squib' is reserved for someone born to magical parents but lacking magical ability themselves.",
-    src:"both" },
-
-  { id:"o33", cat:"Places & Objects", diff:1,
-    q:"What hidden shopping street, reached through the Leaky Cauldron, is the main wizarding hub in London?",
-    options:["Knockturn Alley","Diagon Alley","Horizont Alley","Charing Cross Row"], answer:1,
-    explain:"Diagon Alley holds Gringotts, Ollivanders, Flourish and Blotts, and most of the shops wizarding families rely on.",
-    src:"both" },
-
-  { id:"o34", cat:"Creatures", diff:1,
-    q:"What kind of magical creature is Buckbeak?",
-    options:["A Griffin","A Thestral","A Hippogriff","A Phoenix"], answer:2,
-    explain:"Buckbeak is a Hippogriff — part eagle, part horse — first introduced in Hagrid's Care of Magical Creatures class.",
-    src:"both" },
-
-  { id:"o35", cat:"Places & Objects", diff:1,
-    q:"What does a Remembrall do when its owner has forgotten something?",
-    options:["It turns red","It plays a warning sound","It shatters","It whispers the forgotten thing aloud"], answer:0,
-    explain:"A Remembrall fills with red smoke to signal you've forgotten something — though famously, it can't tell you what.",
-    src:"both" },
-
-  { id:"o36", cat:"Quidditch", diff:1,
-    q:"Which Weasley brothers open a joke shop, Weasleys' Wizard Wheezes, in Diagon Alley?",
-    options:["Bill and Charlie","Percy and Ron","Fred and George","Fred and Ron"], answer:2,
-    explain:"Fred and George Weasley use their Triwizard winnings (given by Harry) to launch their famously successful joke shop.",
-    src:"both" },
-
-  { id:"o37", cat:"Spells & Charms", diff:1,
-    q:"Which Unforgivable Curse causes instant death?",
-    options:["Crucio","Imperio","Avada Kedavra","Sectumsempra"], answer:2,
-    explain:"Avada Kedavra, the Killing Curse, is instantly fatal and blocked by no known shield — it's the curse that killed Harry's parents.",
-    src:"both" },
-
-  { id:"o38", cat:"Places & Objects", diff:1,
-    q:"What is the name of Sirius Black's family home, later used as Order of the Phoenix headquarters?",
-    options:["The Burrow","12 Grimmauld Place","Malfoy Manor","Spinner's End"], answer:1,
-    explain:"Number twelve, Grimmauld Place — hidden by the Fidelius Charm — is the gloomy Black family townhouse Sirius inherits and later offers to the Order.",
-    src:"both" },
-
-  { id:"o39", cat:"Characters", diff:1,
-    q:"Who is the Hogwarts groundskeeper and Care of Magical Creatures professor?",
-    options:["Argus Filch","Rubeus Hagrid","Remus Lupin","Alastor Moody"], answer:1,
-    explain:"Rubeus Hagrid is Hogwarts' gamekeeper, later also its Care of Magical Creatures teacher, and a loyal friend to Harry from the very start.",
-    src:"both" },
-
-  { id:"o40", cat:"Creatures", diff:1,
-    q:"What species is Aragog, Hagrid's enormous pet from his school days?",
-    options:["Basilisk","Acromantula","Manticore","Runespoor"], answer:1,
-    explain:"Aragog is an Acromantula — a giant, talking spider — raised secretly by Hagrid before living out his days deep in the Forbidden Forest.",
-    src:"both" },
-
-  { id:"o41", cat:"Wizarding Culture", diff:1,
-    q:"What is the name of the wizarding prison guarded, for most of the series, by Dementors?",
-    options:["Nurmengard","Azkaban","The Ministry Holding Cells","Little Hangleton Vaults"], answer:1,
-    explain:"Azkaban, an island fortress, holds the wizarding world's most dangerous criminals — including, for a time, an innocent Sirius Black.",
-    src:"both" },
-
-  { id:"o42", cat:"Places & Objects", diff:1,
-    q:"What happens when a Howler is opened and not read quickly?",
-    options:["It shouts its message at full volume","It explodes harmlessly into confetti","It turns invisible","It repeats forever until destroyed"], answer:0,
-    explain:"A Howler bellows its sender's message at top volume — as Ron discovers to his horror when his mother sends one after his flying car incident.",
-    src:"both" },
-
-  { id:"o43", cat:"Characters", diff:1,
-    q:"What is the name of Neville Longbottom's toad, well known for wandering off?",
-    options:["Trevor","Scabbers","Crookshanks","Errol"], answer:0,
-    explain:"Trevor the toad goes missing so often that searching for him becomes a running joke throughout Neville's early years at Hogwarts.",
-    src:"both" },
-
-  { id:"o44", cat:"Spells & Charms", diff:1,
-    q:"Which spell fully immobilizes a target, locking their body rigid ('the full body-bind')?",
-    options:["Petrificus Totalus","Stupefy","Impedimenta","Immobulus"], answer:0,
-    explain:"Petrificus Totalus is the Full Body-Bind Curse — Hermione uses it on Neville in the trio's first year to stop him getting in their way.",
-    src:"both" },
-
-  /* ================= N.E.W.T. — difficulty 2 ================= */
-  { id:"n1", cat:"Characters", diff:2,
-    q:"What creature provided the core of Harry Potter's original wand?",
-    options:["Dragon heartstring","Unicorn tail hair","Phoenix feather","Veela hair"], answer:2,
-    explain:"Harry's holly wand contains a phoenix feather — and, significantly, the same phoenix (Fawkes) also gave the feather in Voldemort's wand.",
-    src:"both" },
-
-  { id:"n2", cat:"Spells & Charms", diff:2,
-    q:"What is the incantation for the curse Snape invented, which Harry uses on Draco Malfoy in the sixth-year bathroom duel?",
-    options:["Levicorpus","Sectumsempra","Confringo","Diffindo"], answer:1,
-    explain:"Sectumsempra, found scrawled in the Half-Blood Prince's old textbook, slashes the target as if with an invisible sword; only Snape's own counter-spell can close the wounds.",
-    src:"both" },
-
-  { id:"n3", cat:"Potions", diff:2,
-    q:"What is distinctive about the smell of Amortentia to each person who encounters it?",
-    options:["It smells the same to everyone","It has no smell at all","It smells different to each person, based on what attracts them","It smells like the drinker's own blood"], answer:2,
-    explain:"Amortentia, the most powerful love potion, smells different to everyone who catches its scent, reflecting what that person finds most attractive.",
-    src:"both" },
-
-  { id:"n4", cat:"Creatures", diff:2,
-    q:"What is the title of the textbook, written by Newt Scamander, that lists magical creatures for Care of Magical Creatures students?",
-    options:["The Monster Book of Monsters","Fantastic Beasts and Where to Find Them","Magical Theory","The Dark Forces: A Guide to Self-Protection"], answer:1,
-    explain:"Fantastic Beasts and Where to Find Them is Newt Scamander's standard reference work, required reading at Hogwarts.",
-    src:"both" },
-
-  { id:"n5", cat:"History & Founders", diff:2,
-    q:"The 'Bloody Baron' is the resident ghost of which Hogwarts house?",
-    options:["Gryffindor","Hufflepuff","Ravenclaw","Slytherin"], answer:3,
-    explain:"The Bloody Baron haunts Slytherin house and is the only figure said to be able to control Peeves the Poltergeist.",
-    src:"both" },
-
-  { id:"n6", cat:"Places & Objects", diff:2,
-    q:"What is the name of the Weasley family's home?",
-    options:["The Burrow","Shell Cottage","Grimmauld Place","Ottery St Catchpole Hall"], answer:0,
-    explain:"The Burrow is the Weasleys' ramshackle, much-loved house near Ottery St Catchpole, held together as much by magic as by carpentry.",
-    src:"both" },
-
-  { id:"n7", cat:"Quidditch", diff:2,
-    q:"What position does Viktor Krum play for both Durmstrang and Bulgaria's national team?",
-    options:["Chaser","Keeper","Seeker","Beater"], answer:2,
-    explain:"Krum is an internationally renowned Seeker, famous enough that his presence at Hogwarts during the Triwizard Tournament causes a stir.",
-    src:"both" },
-
-  { id:"n8", cat:"Wizarding Culture", diff:2,
-    q:"What must a witch or wizard legally do after successfully learning to become an Animagus?",
-    options:["Take a NEWT examination in Transfiguration","Register with the Ministry of Magic","Notify the Muggle Prime Minister","Nothing; no registration is required"], answer:1,
-    explain:"Animagi are required to register with the Ministry; Rita Skeeter's unregistered beetle form is a crime that Hermione later uses as leverage against her.",
-    src:"book" },
-
-  { id:"n9", cat:"Characters", diff:2,
-    q:"What was the name of Severus Snape's mother, from whom his 'Prince' nickname derives?",
-    options:["Merope Gaunt","Eileen Prince","Andromeda Black","Bathilda Bagshot"], answer:1,
-    explain:"Eileen Prince was a witch from the Prince family who married the Muggle Tobias Snape; their son took her maiden name for his self-styled title.",
-    src:"book" },
-
-  { id:"n10", cat:"Spells & Charms", diff:2,
-    q:"What is required to successfully cast a corporeal Patronus?",
-    options:["A single strong, happy memory","Intense anger at the target","A wand made of holly","A lock of hair from a loved one"], answer:0,
-    explain:"The Patronus Charm demands total concentration on one genuinely happy memory; without it, the charm fails or produces only a weak, incorporeal shield.",
-    src:"both" },
-
-  { id:"n11", cat:"Potions", diff:2,
-    q:"According to the recipe referenced in the books, how long must lacewing flies stew before Polyjuice Potion is ready?",
-    options:["7 days","14 days","21 days","30 days"], answer:2,
-    explain:"Hermione notes the lacewing flies need three weeks to stew, which is why the trio's second-year plan to interrogate Malfoy takes so long to prepare.",
-    src:"book" },
-
-  { id:"n12", cat:"Creatures", diff:2,
-    q:"What must a wizard do before approaching a Hippogriff, according to Hagrid's first lesson?",
-    options:["Offer it food", "Bow, and wait for it to bow back", "Avoid eye contact entirely", "Speak to it only in Mermish"], answer:1,
-    explain:"Hippogriffs are proud creatures; you must bow and wait for the Hippogriff to bow back before it's safe to approach, as Buckbeak demonstrates with Harry.",
-    src:"both" },
-
-  { id:"n13", cat:"History & Founders", diff:2,
-    q:"Which object belonging to Rowena Ravenclaw was turned into one of Voldemort's Horcruxes?",
-    options:["Her locket","Her diadem","Her wand","Her cup"], answer:1,
-    explain:"Ravenclaw's lost diadem, said to grant wisdom to its wearer, is hidden in the Room of Requirement and turned into a Horcrux.",
-    src:"both" },
-
-  { id:"n14", cat:"Places & Objects", diff:2,
-    q:"What is the name of the rough, less reputable pub in Hogsmeade, distinct from the Three Broomsticks?",
-    options:["Madam Puddifoot's","The Leaky Cauldron","The Hog's Head","The Hanged Man"], answer:2,
-    explain:"The Hog's Head, run by Aberforth Dumbledore, is a grimier alternative to the Three Broomsticks and hosts the first meeting of Dumbledore's Army.",
-    src:"both" },
-
-  { id:"n15", cat:"Quidditch", diff:2,
-    q:"In the 1994 Quidditch World Cup Final, which team won the match even though the opposing Seeker caught the Snitch?",
-    options:["Bulgaria","Ireland","England","France"], answer:1,
-    explain:"Krum catches the Snitch for Bulgaria, ending the match, but Ireland has already scored enough points to win overall.",
-    src:"both" },
-
-  { id:"n16", cat:"Wizarding Culture", diff:2,
-    q:"What is the minimum age requirement to enter the Triwizard Tournament as established in Goblet of Fire?",
-    options:["Sixteen","Seventeen (of age)","Eighteen","Fifteen"], answer:1,
-    explain:"An age line set by Dumbledore restricts entry to students who are seventeen or older, which is why Fred and George's attempt fails.",
-    src:"both" },
-
-  { id:"n17", cat:"Characters", diff:2,
-    q:"Who originally gives Harry the Marauder's Map?",
-    options:["Sirius Black and Remus Lupin","Fred and George Weasley","Argus Filch","Professor McGonagall"], answer:1,
-    explain:"Fred and George, having 'borrowed' the map from Filch's office, pass it to Harry in his third year, telling him it once belonged to Filch.",
-    src:"both" },
-
-  { id:"n18", cat:"Spells & Charms", diff:2,
-    q:"What does the (fictional) Homorphus Charm claim to do, according to Gilderoy Lockhart's boastful account?",
-    options:["Detect hidden objects","Reverse a werewolf's transformation","Unlock any door","Silence an opponent"], answer:1,
-    explain:"Lockhart falsely claims to have used the Homorphus Charm to force a village werewolf back into human form — one of his many fabricated exploits.",
-    src:"book" },
-
-  { id:"n19", cat:"Potions", diff:2,
-    q:"What is said to allow a sufficiently skilled wizard to resist the effects of Veritaserum?",
-    options:["A strong will and skill at Occlumency","Drinking a bezoar beforehand","Casting Protego silently","Nothing can resist it"], answer:0,
-    explain:"Snape notes that a talented Occlumens can shield their mind well enough to resist even Veritaserum, though the potion is otherwise extremely reliable.",
-    src:"book" },
-
-  { id:"n20", cat:"Creatures", diff:2,
-    q:"What does a Dementor's Kiss do to its victim?",
-    options:["Removes all their memories","Sucks out their soul, leaving them alive but empty","Turns them into a Dementor","Freezes them permanently"], answer:1,
-    explain:"The Dementor's Kiss is considered a fate worse than death: the soul is extracted, leaving the body alive but empty of self.",
-    src:"both" },
-
-  { id:"n21", cat:"Creatures", diff:2,
-    q:"What is the name of Hagrid's giant half-brother, whom he brings to live in the Forbidden Forest?",
-    options:["Golgomath","Grawp","Karkus","Norbert"], answer:1,
-    explain:"Grawp is Hagrid's half-brother on his mother's side — a giant Hagrid brings back from his mission to the giants and hides in the Forbidden Forest.",
-    src:"book" },
-
-  { id:"n22", cat:"Spells & Charms", diff:2,
-    q:"What is the incantation for the Summoning Charm, used by Harry to call his broom in the Triwizard Tournament's First Task?",
-    options:["Accio","Wingardium Leviosa","Alohomora","Expelliarmus"], answer:0,
-    explain:"'Accio Firebolt!' brings Harry's broom soaring to him during the First Task, letting him outfly a Hungarian Horntail.",
-    src:"both" },
-
-  { id:"n23", cat:"Potions", diff:2,
-    q:"What potion must a werewolf take in the days around the full moon to keep their mind while transformed?",
-    options:["Skele-Gro","Pepperup Potion","Wolfsbane Potion","Girding Potion"], answer:2,
-    explain:"The Wolfsbane Potion, brewed for Remus Lupin by Snape in Prisoner of Azkaban, doesn't stop the transformation but lets the werewolf keep their human mind.",
-    src:"both" },
-
-  { id:"n24", cat:"Creatures", diff:2,
-    q:"What creature guards the deepest vaults at Gringotts, as seen when the trio break in during Deathly Hallows?",
-    options:["A Basilisk","A partially blinded dragon","An Acromantula","A Sphinx"], answer:1,
-    explain:"A dragon, kept half-blind and conditioned with pain to guard the high-security vaults, is what the trio ultimately free and escape on.",
-    src:"both" },
-
-  { id:"n25", cat:"Characters", diff:2,
-    q:"What subject did Dolores Umbridge teach at Hogwarts before becoming High Inquisitor?",
-    options:["Muggle Studies","History of Magic","Defence Against the Dark Arts","Divination"], answer:2,
-    explain:"Umbridge is installed as the Ministry's Defence Against the Dark Arts teacher in Order of the Phoenix, deliberately teaching no practical spellwork.",
-    src:"both" },
-
-  { id:"n26", cat:"Places & Objects", diff:2,
-    q:"What Hogwarts room only appears to someone who walks past its hidden location three times while thinking of what they need?",
-    options:["The Chamber of Secrets","The Room of Requirement","The Astronomy Tower","The Shrieking Shack"], answer:1,
-    explain:"The Room of Requirement, also called the Come and Go Room, transforms to fit the seeker's need — from Dumbledore's Army's training hall to a hiding place for the lost Diadem Horcrux.",
-    src:"both" },
-
-  { id:"n27", cat:"Wizarding Culture", diff:2,
-    q:"Who is the Minister for Magic through most of Order of the Phoenix, in denial about Voldemort's return?",
-    options:["Rufus Scrimgeour","Cornelius Fudge","Pius Thicknesse","Kingsley Shacklebolt"], answer:1,
-    explain:"Cornelius Fudge's refusal to accept Voldemort's return — and his attempts to discredit Harry and Dumbledore instead — defines the Ministry's failures that year.",
-    src:"both" },
-
-  { id:"n28", cat:"Places & Objects", diff:2,
-    q:"What device allows Hermione to attend more classes than fit into a normal timetable during her third year?",
-    options:["A Time-Turner","The Marauder's Map","A Portkey","A Pensieve"], answer:0,
-    explain:"McGonagall lends Hermione a Time-Turner so she can double up on classes — which later proves crucial to saving Sirius and Buckbeak.",
-    src:"both" },
-
-  { id:"n29", cat:"Creatures", diff:2,
-    q:"What creatures pull the Hogwarts carriages, visible only to those who have witnessed death?",
-    options:["Hippogriffs","Abraxan horses","Thestrals","Nifflers"], answer:2,
-    explain:"Thestrals are skeletal, winged horses invisible to anyone who hasn't seen death — which is why Harry only sees them starting in his fifth year.",
-    src:"both" },
-
-  { id:"n30", cat:"Wizarding Culture", diff:2,
-    q:"What organization does Hermione found to campaign for house-elf rights?",
-    options:["D.A. (Dumbledore's Army)","S.P.E.W. (Society for the Promotion of Elfish Welfare)","The Elf Liberation Front","The Ministry Office for Elf Affairs"], answer:1,
-    explain:"S.P.E.W. is Hermione's (largely unsuccessful) campaign to win rights and fair treatment for house-elves, badges and all.",
-    src:"book" },
-
-  { id:"n31", cat:"Characters", diff:2,
-    q:"Who is appointed Minister for Magic near the very end of the series, after the Battle of Hogwarts?",
-    options:["Arthur Weasley","Percy Weasley","Kingsley Shacklebolt","Rufus Scrimgeour"], answer:2,
-    explain:"Kingsley Shacklebolt, a level-headed Order member and Auror, becomes Minister for Magic in the aftermath of Voldemort's defeat.",
-    src:"both" },
-
-  { id:"n32", cat:"Places & Objects", diff:2,
-    q:"What does the Deluminator, left to Ron in Dumbledore's will, do?",
-    options:["Removes and can later restore light from a source","Reveals invisible ink","Detects nearby Dark magic","Silently disables surveillance spells"], answer:0,
-    explain:"The Deluminator sucks light out of its surroundings with a click — and, Ron discovers, can also guide him back to Harry and Hermione by following a swallowed ball of light.",
-    src:"both" },
-
-  { id:"n33", cat:"Characters", diff:2,
-    q:"What is the name of Neville Longbottom's toad, notorious for repeatedly going missing?",
-    options:["Scabbers","Trevor","Crookshanks","Errol"], answer:1,
-    explain:"Trevor the toad's constant disappearances become a running joke through Neville's early years at Hogwarts.",
-    src:"both" },
-
-  { id:"n34", cat:"Spells & Charms", diff:2,
-    q:"What shield-conjuring spell does Dumbledore's Army practice extensively under Harry's teaching?",
-    options:["Protego","Sectumsempra","Legilimens","Finite Incantatem"], answer:0,
-    explain:"Protego, the Shield Charm, is one of the defensive spells the D.A. drills most, giving members real protection when the Ministry offers none.",
-    src:"both" },
-
-  { id:"n35", cat:"Places & Objects", diff:2,
-    q:"In which village do the Riddle House and the ruined Gaunt family shack both stand?",
-    options:["Godric's Hollow","Little Hangleton","Ottery St Catchpole","Upper Flagley"], answer:1,
-    explain:"Little Hangleton is home to both the grand Riddle House and the squalid Gaunt shack nearby — the two sides of Voldemort's parentage.",
-    src:"both" },
-
-  { id:"n36", cat:"History & Founders", diff:2,
-    q:"Why, according to Hogwarts history, did Salazar Slytherin ultimately leave the school he helped found?",
-    options:["He believed only pure-blood students should be admitted","He wanted to found a rival school","He was expelled for practicing Dark magic","He died in battle defending Hogwarts"], answer:0,
-    explain:"Slytherin's insistence on admitting only pure-blood students put him at odds with the other three founders, leading to his departure — and, secretly, the hidden Chamber.",
-    src:"both" },
-
-  { id:"n37", cat:"Wizarding Culture", diff:2,
-    q:"What term describes a witch or wizard born to non-magical (Muggle) parents?",
-    options:["Half-blood","Muggle-born","Squib","Pure-blood"], answer:1,
-    explain:"Muggle-born describes someone with magical ability born to two non-magical parents — a term Death Eaters twist into the slur 'Mudblood.'",
-    src:"both" },
-
-  { id:"n38", cat:"Places & Objects", diff:2,
-    q:"What map, created by four student friends nicknamed Prongs, Padfoot, Moony, and Wormtail, reveals everyone's location in Hogwarts?",
-    options:["The Pensieve","The Foe-Glass","The Marauder's Map","The Sorting Hat"], answer:2,
-    explain:"The Marauder's Map shows every person moving through Hogwarts in real time, made by James Potter, Sirius Black, Remus Lupin, and Peter Pettigrew as students.",
-    src:"both" },
-
-  { id:"n39", cat:"Characters", diff:2,
-    q:"Which four students, by their animal-themed nicknames, created the Marauder's Map?",
-    options:["James Potter, Sirius Black, Remus Lupin, and Peter Pettigrew","James Potter, Remus Lupin, Frank Longbottom, and Peter Pettigrew","Sirius Black, Regulus Black, Remus Lupin, and James Potter","James Potter, Sirius Black, Severus Snape, and Peter Pettigrew"], answer:0,
-    explain:"Prongs (James), Padfoot (Sirius), Moony (Remus), and Wormtail (Peter) — the Marauders — made the map during their own school years.",
-    src:"both" },
-
-  { id:"n40", cat:"Quidditch", diff:2,
-    q:"What broom does Harry receive as an anonymous gift in his third year, later confirmed to be from Sirius Black?",
-    options:["Nimbus 2000","Comet 260","Firebolt","Cleansweep Eleven"], answer:2,
-    explain:"The Firebolt, an unbeatable racing broom, arrives with no note, is confiscated for safety checks, and turns out to be a gift from Sirius.",
-    src:"both" },
-
-  { id:"n41", cat:"Places & Objects", diff:2,
-    q:"What is the name of Argus Filch's cat, an unpopular fixture of Hogwarts corridors?",
-    options:["Crookshanks","Mrs. Norris","Fang","Trevor"], answer:1,
-    explain:"Mrs. Norris patrols the corridors alongside Filch, seemingly always ready to catch students out of bed.",
-    src:"both" },
-
-  { id:"n42", cat:"History & Founders", diff:2,
-    q:"Who teaches History of Magic at Hogwarts, notable for being the only teacher who is also a ghost?",
-    options:["The Bloody Baron","Nearly Headless Nick","Professor Cuthbert Binns","The Grey Lady"], answer:2,
-    explain:"Professor Binns is so absent-minded he simply got up and left his body behind one day, and has taught History of Magic as a ghost ever since.",
-    src:"both" },
-
-  { id:"n43", cat:"Characters", diff:2,
-    q:"Who becomes Hogwarts Headmistress after the Battle of Hogwarts, having long served as Deputy Headmistress?",
-    options:["Pomona Sprout","Filius Flitwick","Minerva McGonagall","Horace Slughorn"], answer:2,
-    explain:"Minerva McGonagall steps into the Headmistress role after years as Deputy Headmistress and Head of Gryffindor.",
-    src:"both" },
-
-  { id:"n44", cat:"Potions", diff:2,
-    q:"What potion did Harry win from Slughorn's class and later slip to Ron before a Quidditch match, letting Ron believe (wrongly) he'd been dosed?",
-    options:["Felix Felicis","Amortentia","Veritaserum","Draught of Peace"], answer:0,
-    explain:"Harry pretends to spike Ron's drink with Felix Felicis before a match; Ron plays brilliantly purely on the placebo confidence of believing he has.",
-    src:"both" },
-
-  /* ================= HEADMASTER'S TRIAL — difficulty 3 ================= */
-  { id:"t1", cat:"Characters", diff:3,
-    q:"What is the name of Albus Dumbledore's younger brother?",
-    options:["Percival Dumbledore","Aberforth Dumbledore","Ariana Dumbledore","Elphias Doge"], answer:1,
-    explain:"Aberforth Dumbledore, keeper of the Hog's Head, is Albus's estranged younger brother, with their sister Ariana at the centre of the family's tragedy.",
-    src:"both" },
-
-  { id:"t2", cat:"History & Founders", diff:3,
-    q:"Which headmaster of Hogwarts served in the role immediately before Albus Dumbledore?",
-    options:["Phineas Nigellus Black","Armando Dippet","Everard","Dilys Derwent"], answer:1,
-    explain:"Armando Dippet was headmaster of Hogwarts before Dumbledore, and it was Dippet who declined to close the school when the Chamber of Secrets first opened.",
-    src:"book" },
-
-  { id:"t3", cat:"Characters", diff:3,
-    q:"What was the name of Voldemort's Muggle father?",
-    options:["Marvolo Gaunt","Morfin Gaunt","Tom Riddle Sr.","Frank Bryce"], answer:2,
-    explain:"Tom Riddle Sr. was the wealthy Muggle whom Merope Gaunt enchanted and married; he abandoned her upon the charm's failure, and Voldemort later murders him.",
-    src:"both" },
-
-  { id:"t4", cat:"Places & Objects", diff:3,
-    q:"What sets the Sword of Gryffindor apart from most magical objects, as demonstrated when Harry pulls it from the Sorting Hat?",
-    options:["It can only be wielded by a Gryffindor by blood","It takes in only that which makes it stronger","It can only be summoned with Parseltongue","It cannot be used to destroy Horcruxes"], answer:1,
-    explain:"The Sorting Hat explains the sword 'takes in only that which makes it stronger' — which is how it absorbs Basilisk venom and becomes able to destroy Horcruxes.",
-    src:"both" },
-
-  { id:"t5", cat:"History & Founders", diff:3,
-    q:"In the Tale of the Three Brothers, which brother received the wand that would become known as the Elder Wand?",
-    options:["Antioch Peverell","Cadmus Peverell","Ignotus Peverell","There is no eldest brother in the tale"], answer:0,
-    explain:"Antioch, the eldest of the three Peverell brothers, requests an unbeatable wand from Death and is the first owner of what becomes the Elder Wand.",
-    src:"both" },
-
-  { id:"t6", cat:"Potions", diff:3,
-    q:"What potion does Dumbledore drink to fake a deathlike state as part of the plan involving Snape in Half-Blood Prince?",
-    options:["Dreamless Sleep Potion","Draught of Living Death","Draught of Peace","Elixir to Induce Euphoria"], answer:1,
-    explain:"The Draught of Living Death, the same near-fatal sleeping potion Harry is examined on in class, is central to the arrangement between Dumbledore and Snape.",
-    src:"book" },
-
-  { id:"t7", cat:"Characters", diff:3,
-    q:"Which goblin assists Harry, Ron, and Hermione in breaking into Gringotts during Deathly Hallows?",
-    options:["Bogrod","Ragnok","Griphook","Gornuk"], answer:2,
-    explain:"Griphook, once employed at Gringotts, agrees to help the trio break into the Lestranges' vault in exchange for the Sword of Gryffindor.",
-    src:"both" },
-
-  { id:"t8", cat:"Characters", diff:3,
-    q:"Who is Bellatrix Lestrange's husband?",
-    options:["Rabastan Lestrange","Rodolphus Lestrange","Barty Crouch Jr.","Lucius Malfoy"], answer:1,
-    explain:"Rodolphus Lestrange is Bellatrix's husband; his brother Rabastan is imprisoned in Azkaban alongside them both after the first war.",
-    src:"book" },
-
-  { id:"t9", cat:"Creatures", diff:3,
-    q:"What is the terrible cost of drinking unicorn blood to survive, according to Firenze's warning to Harry?",
-    options:["The drinker is cursed with bad luck forever","The drinker will live, but with a half-life, a cursed life","The drinker turns permanently silver-haired","The drinker loses the ability to cast Patronuses"], answer:1,
-    explain:"Firenze explains that killing a unicorn for its blood keeps you alive even at the point of death, but at a terrible price: 'a half-life, a cursed life'.",
-    src:"both" },
-
-  { id:"t10", cat:"Spells & Charms", diff:3,
-    q:"What form does Severus Snape's Patronus take, revealing a key connection to Lily Potter?",
-    options:["A stag","A doe","An otter","A phoenix"], answer:1,
-    explain:"Snape's Patronus is a doe, matching Lily's, silently confirming to Harry (and the reader) the depth and endurance of Snape's love for her.",
-    src:"both" },
-
-  { id:"t11", cat:"Places & Objects", diff:3,
-    q:"What magical object does Dumbledore use to store and later revisit memories?",
-    options:["The Mirror of Erised","The Pensieve","The Marauder's Map","The Sorting Hat"], answer:1,
-    explain:"The Pensieve allows memories to be extracted from the mind, stored, and viewed again, as Harry does repeatedly to learn about Voldemort's past.",
-    src:"both" },
-
-  { id:"t12", cat:"History & Founders", diff:3,
-    q:"In the Tale of the Three Brothers, what did the second brother ask Death for?",
-    options:["An unbeatable wand","A stone to bring back the dead","A cloak of invisibility","Eternal life"], answer:1,
-    explain:"The second brother requests a stone with the power to recall the dead — what eventually becomes the Resurrection Stone.",
-    src:"both" },
-
-  { id:"t13", cat:"Characters", diff:3,
-    q:"Which real Hogwarts professor did Barty Crouch Jr. impersonate for an entire school year using Polyjuice Potion?",
-    options:["Severus Snape","Remus Lupin","Alastor 'Mad-Eye' Moody","Gilderoy Lockhart"], answer:2,
-    explain:"Crouch Jr. kept the real Moody imprisoned and impersonated him as 'Mad-Eye Moody' throughout Goblet of Fire, secretly working to help Voldemort return.",
-    src:"both" },
-
-  { id:"t14", cat:"Wizarding Culture", diff:3,
-    q:"Whose prophecy, made years before Harry's birth, named 'the one with the power to vanquish the Dark Lord'?",
-    options:["Firenze","Sybill Trelawney","Cassandra Trelawney","Albus Dumbledore"], answer:1,
-    explain:"Sybill Trelawney delivered the prophecy about Harry and Voldemort to Dumbledore during her job interview, unaware Snape overheard part of it.",
-    src:"both" },
-
-  { id:"t15", cat:"Creatures", diff:3,
-    q:"What is the name of Voldemort's snake, kept close for most of the series and eventually revealed as a Horcrux?",
-    options:["Nagaina","Nagini","Basilisco","Nini"], answer:1,
-    explain:"Nagini serves Voldemort as both companion and living Horcrux, ultimately killed by Neville Longbottom during the Battle of Hogwarts.",
-    src:"both" },
-
-  { id:"t16", cat:"Creatures", diff:3,
-    q:"What creature did Salazar Slytherin secretly leave sealed within the Chamber of Secrets?",
-    options:["A Basilisk","An Acromantula","A Dementor","A Thestral"], answer:0,
-    explain:"A giant Basilisk lies hidden in the Chamber, meant by Slytherin to be unleashed by his 'true heir' to purge the school of Muggle-borns.",
-    src:"both" },
-
-  { id:"t17", cat:"Characters", diff:3,
-    q:"What is Professor 'Mad-Eye' Moody's actual first name?",
-    options:["Alphard","Alastor","Aberforth","Amos"], answer:1,
-    explain:"Alastor Moody is the real Auror impersonated for a year by Barty Crouch Jr. using Polyjuice Potion.",
-    src:"both" },
-
-  { id:"t18", cat:"History & Founders", diff:3,
-    q:"How many objects (not counting Voldemort's own body) did Voldemort deliberately turn into Horcruxes?",
-    options:["Four","Five","Six","Seven"], answer:2,
-    explain:"Voldemort deliberately created six Horcruxes — the diary, ring, locket, cup, diadem, and Nagini — splitting his soul across each in his quest for immortality.",
-    src:"both" },
-
-  { id:"t19", cat:"Places & Objects", diff:3,
-    q:"In which village were James and Lily Potter killed, and where their graves — and Harry's childhood home — can still be found?",
-    options:["Little Hangleton","Godric's Hollow","Ottery St Catchpole","Spinner's End"], answer:1,
-    explain:"Godric's Hollow is where the Potters lived and died, and where Harry and Hermione visit the family graves in Deathly Hallows.",
-    src:"both" },
-
-  { id:"t20", cat:"Characters", diff:3,
-    q:"What is Petunia Dursley's maiden name, shared with her sister Lily?",
-    options:["Prince","Evans","Prewett","Fawley"], answer:1,
-    explain:"Petunia and Lily were both born Evans; Petunia's bitterness toward magic stems partly from being the sister left behind as a Muggle.",
-    src:"both" },
-
-  { id:"t21", cat:"Characters", diff:3,
-    q:"Which Weasley sibling is secretly possessed via Tom Riddle's diary during her first year at Hogwarts?",
-    options:["Ginny Weasley","Percy Weasley","Fred Weasley","Ron Weasley"], answer:0,
-    explain:"Ginny, given the diary by Lucius Malfoy, is gradually possessed by the memory of Tom Riddle preserved within it, and later opens the Chamber unknowingly.",
-    src:"both" },
-
-  { id:"t22", cat:"Characters", diff:3,
-    q:"Which Hogwarts professor and Death Eater is ultimately revealed to have remained secretly loyal to Dumbledore all along?",
-    options:["Igor Karkaroff","Severus Snape","Peter Pettigrew","Lucius Malfoy"], answer:1,
-    explain:"Snape's true loyalty to Dumbledore — rooted in his love for Lily — is only fully revealed through his memories after his death.",
-    src:"both" },
-
-  { id:"t23", cat:"Places & Objects", diff:3,
-    q:"What does the Resurrection Stone, one of the three Deathly Hallows, allow its holder to do?",
-    options:["Turn completely invisible","Summon the shades of the dead","Win any duel automatically","Heal any fatal wound"], answer:1,
-    explain:"The Resurrection Stone can call back the shades of the dead to speak with the living — as Harry uses it to summon his parents, Sirius, and Lupin before walking into the forest.",
-    src:"both" },
-
-  { id:"t24", cat:"History & Founders", diff:3,
-    q:"Which Peverell brother, owner of the Invisibility Cloak in the Tale of the Three Brothers, is considered an ancestor of Harry Potter?",
-    options:["Antioch Peverell","Cadmus Peverell","Ignotus Peverell","Cygnus Peverell"], answer:2,
-    explain:"Ignotus Peverell, the humble youngest brother who asked Death for a means to hide rather than power, is the Potter family's ancestor.",
-    src:"both" },
-
-  { id:"t25", cat:"Characters", diff:3,
-    q:"What is the name of the house-elf who serves the Malfoy family before Harry tricks Lucius into freeing him?",
-    options:["Kreacher","Dobby","Winky","Hokey"], answer:1,
-    explain:"Dobby serves the Malfoys until Harry slips a sock into a book handed back to Lucius, forcing his unwitting master to free him.",
-    src:"both" },
-
-  { id:"t26", cat:"Characters", diff:3,
-    q:"What is the name of the house-elf bound for generations to the Black family, later inherited by Harry?",
-    options:["Dobby","Winky","Kreacher","Hokey"], answer:2,
-    explain:"Kreacher serves the Black family at Grimmauld Place, passing to Harry after Sirius's death, and eventually becoming a loyal ally.",
-    src:"both" },
-
-  { id:"t27", cat:"History & Founders", diff:3,
-    q:"What is the name of Dumbledore's close friend in his youth, with whom he shared dangerous ideas about wizard dominance before a bitter falling-out?",
-    options:["Igor Karkaroff","Newt Scamander","Gellert Grindelwald","Nicolas Flamel"], answer:2,
-    explain:"Gellert Grindelwald and a young Dumbledore plotted together as teenagers, before a duel involving Dumbledore's sister Ariana ended their friendship in tragedy.",
-    src:"both" },
-
-  { id:"t28", cat:"Places & Objects", diff:3,
-    q:"What legendary object, sought after in the first book, can transform any metal into gold and produce the Elixir of Life?",
-    options:["The Resurrection Stone","The Mirror of Erised","The Philosopher's (Sorcerer's) Stone","The Goblet of Fire"], answer:2,
-    explain:"The Philosopher's Stone, created by Nicolas Flamel, is what Quirrell (possessed by Voldemort) attempts to steal in Harry's first year.",
-    src:"both" },
-
-  { id:"t29", cat:"Characters", diff:3,
-    q:"Who is Nicolas Flamel's wife, mentioned as co-owner of the Philosopher's Stone?",
-    options:["Bathilda Bagshot","Perenelle Flamel","Augusta Longbottom","Griselda Marchbanks"], answer:1,
-    explain:"Perenelle Flamel shares ownership of the Stone with her husband Nicolas, and both agree to see it destroyed to keep it from Voldemort.",
-    src:"book" },
-
-  { id:"t30", cat:"History & Founders", diff:3,
-    q:"Who is the author of 'Hogwarts, A History' and Dumbledore's own neighbor in Godric's Hollow, later a source Rita Skeeter exploits?",
-    options:["Griselda Marchbanks","Cuthbert Binns","Bathilda Bagshot","Adalbert Waffling"], answer:2,
-    explain:"Bathilda Bagshot, an elderly historian living in Godric's Hollow, is manipulated by Rita Skeeter into a tell-all book about Dumbledore's past.",
-    src:"book" },
-
-  { id:"t31", cat:"Creatures", diff:3,
-    q:"What is the name of the three-headed dog guarding the trapdoor to the Philosopher's Stone in Harry's first year?",
-    options:["Fluffy","Fang","Norbert","Aragog"], answer:0,
-    explain:"Fluffy, purchased by Hagrid from 'a Greek chappie,' guards the trapdoor and can be lulled to sleep with music.",
-    src:"both" },
-
-  { id:"t32", cat:"History & Founders", diff:3,
-    q:"What rallying phrase did the young Dumbledore and Grindelwald use to justify wizard rule over Muggles?",
-    options:["Toujours Pur","For the Greater Good","Magic is Might","Fidelity, Bravery, Chastity"], answer:1,
-    explain:"'For the Greater Good' was the phrase Dumbledore and Grindelwald used as teenagers to justify their plans — later engraved, with dark irony, above Nurmengard's gate.",
-    src:"both" },
-
-  { id:"t33", cat:"Places & Objects", diff:3,
-    q:"What manor house, owned by the Malfoy family, becomes a Death Eater stronghold and prison in Deathly Hallows?",
-    options:["Riddle House","Malfoy Manor","Grimmauld Place","Spinner's End"], answer:1,
-    explain:"Malfoy Manor becomes Voldemort's base of operations and a holding cell for prisoners, including Ollivander, Luna, and briefly Harry's friends.",
-    src:"both" },
-
-  { id:"t34", cat:"Places & Objects", diff:3,
-    q:"What is the name of Snape's childhood home, later used as a Death Eater base in Deathly Hallows?",
-    options:["Malfoy Manor","Spinner's End","Godric's Hollow","Little Whinging"], answer:1,
-    explain:"Spinner's End, a house on a run-down street, is where Snape grew up and where Voldemort's inner circle meets at the start of Half-Blood Prince.",
-    src:"both" },
-
-  { id:"t35", cat:"Characters", diff:3,
-    q:"Which member of the Order of the Phoenix is a Metamorphmagus, able to change her appearance at will?",
-    options:["Emmeline Vance","Hestia Jones","Nymphadora Tonks","Mundungus Fletcher"], answer:2,
-    explain:"Tonks can reshape her own face and body at will, a rare and highly prized magical talent, though it deserts her briefly during a bout of depression.",
-    src:"both" },
-
-  { id:"t36", cat:"Creatures", diff:3,
-    q:"What does a Metamorphmagus not need in order to change their appearance, unlike other witches and wizards?",
-    options:["A wand or potion","Sunlight","A full moon","A mirror"], answer:0,
-    explain:"A Metamorphmagus changes shape purely through will and innate talent, with no wand-work or Polyjuice Potion required.",
-    src:"book" },
-
-  { id:"t37", cat:"Wizarding Culture", diff:3,
-    q:"What is the general name for the Ministry law restricting underage witches and wizards from performing magic outside school?",
-    options:["The International Statute of Secrecy","The Decree for the Reasonable Restriction of Underage Sorcery","The Wizengamot Charter","The Ministry Registration Act"], answer:1,
-    explain:"This decree is what nearly gets Harry expelled after the incident with Dobby's hovering cake, and again after casting a Patronus in front of Dudley.",
-    src:"book" },
-
-  { id:"t38", cat:"Characters", diff:3,
-    q:"Who was Head of Slytherin House and Potions Master before Snape took over the Defence Against the Dark Arts post in Half-Blood Prince?",
-    options:["Horace Slughorn (returning to the role)","Severus Snape himself, throughout","Igor Karkaroff","Amycus Carrow"], answer:0,
-    explain:"Slughorn is coaxed out of retirement to teach Potions again in Half-Blood Prince, freeing Snape to finally take the Defence Against the Dark Arts post he'd long wanted.",
-    src:"both" },
+/* =========================================================
+   HOGWARTS SORTING CEREMONY
+   CLIENT-SIDE SORTING ENGINE
+========================================================= */
+
+
+/* =========================================================
+   QUESTIONS
+
+   Every answer has explicit deterministic House points.
+
+   G = Gryffindor
+   R = Ravenclaw
+   H = Hufflepuff
+   S = Slytherin
+
+   The user never sees these scores.
+========================================================= */
+
+const questions = [
+
+  {
+    category: "COURAGE",
+    text: "You see someone being publicly humiliated by a popular student. What do you do?",
+    answers: [
+      {
+        text: "Step in immediately, even if it makes me a target.",
+        score: { G: 4 }
+      },
+      {
+        text: "Intervene calmly, using the strongest argument I can find.",
+        score: { R: 3, G: 2 }
+      },
+      {
+        text: "Stay beside the person being humiliated and make sure they aren't alone.",
+        score: { H: 4 }
+      },
+      {
+        text: "Find a way to stop the situation without putting myself unnecessarily at risk.",
+        score: { S: 3, R: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "TRUTH",
+    text: "Your closest friend has done something seriously wrong, and an innocent person may take the blame. What do you do?",
+    answers: [
+      {
+        text: "Tell the truth, even if it destroys the friendship.",
+        score: { G: 4, R: 1 }
+      },
+      {
+        text: "First establish exactly what happened before deciding what to reveal.",
+        score: { R: 4 }
+      },
+      {
+        text: "Confront my friend privately and try to make them correct it themselves.",
+        score: { H: 3, G: 2 }
+      },
+      {
+        text: "Protect my friend unless the consequences for the innocent person become severe.",
+        score: { S: 2, H: 2 }
+      }
+    ]
+  },
+
+  {
+    category: "LOYALTY",
+    text: "Someone you dislike trusts you with a deeply damaging secret. What do you do?",
+    answers: [
+      {
+        text: "Keep it completely private. Their trust is still their trust.",
+        score: { H: 4 }
+      },
+      {
+        text: "Keep it private, but remember what it tells me about them.",
+        score: { R: 3 }
+      },
+      {
+        text: "Use the information only if they later seriously threaten someone.",
+        score: { S: 3, G: 1 }
+      },
+      {
+        text: "Tell someone if keeping the secret would allow serious harm.",
+        score: { G: 3, H: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "AMBITION",
+    text: "Which future would tempt you most?",
+    answers: [
+      {
+        text: "A life remembered for extraordinary courage and meaningful deeds.",
+        score: { G: 4 }
+      },
+      {
+        text: "A life of exceptional knowledge, mastery and intellectual achievement.",
+        score: { R: 4 }
+      },
+      {
+        text: "A deeply loving life surrounded by people who genuinely matter to me.",
+        score: { H: 4 }
+      },
+      {
+        text: "A life of extraordinary achievement, influence and independence.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "POWER",
+    text: "You discover a spell powerful enough to reshape society. What would you do?",
+    answers: [
+      {
+        text: "Use it to fight injustice, even if the consequences are uncertain.",
+        score: { G: 4 }
+      },
+      {
+        text: "Study it thoroughly before deciding whether it should ever be used.",
+        score: { R: 4 }
+      },
+      {
+        text: "Use it only if it can protect ordinary people from suffering.",
+        score: { H: 4 }
+      },
+      {
+        text: "Use it strategically to repair broken systems and gain the influence needed to maintain them.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "FAILURE",
+    text: "You work hard for something and someone else succeeds effortlessly. What is your first instinct?",
+    answers: [
+      {
+        text: "Try again. I refuse to let one failure define me.",
+        score: { G: 4 }
+      },
+      {
+        text: "Study exactly why they succeeded and where my approach failed.",
+        score: { R: 4 }
+      },
+      {
+        text: "Accept it and keep improving without turning it into a rivalry.",
+        score: { H: 3, R: 1 }
+      },
+      {
+        text: "Figure out what they did differently and use that knowledge to surpass the result.",
+        score: { S: 3, R: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "MORALITY",
+    text: "A Hogwarts rule is clearly unfair and prevents you from helping someone who has been wronged. What do you do?",
+    answers: [
+      {
+        text: "Break the rule and help them.",
+        score: { G: 4 }
+      },
+      {
+        text: "Find evidence proving the rule is unjust and challenge it properly.",
+        score: { R: 4 }
+      },
+      {
+        text: "Help the person while minimizing the risk to everyone involved.",
+        score: { H: 4 }
+      },
+      {
+        text: "Find a legitimate loophole that gets the result without openly breaking the rule.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "RELATIONSHIPS",
+    text: "What kind of friendships do you value most?",
+    answers: [
+      {
+        text: "Friends who would stand beside me when everything goes wrong.",
+        score: { G: 4 }
+      },
+      {
+        text: "Friends with whom I can discuss ideas for hours.",
+        score: { R: 4 }
+      },
+      {
+        text: "A small circle of people who genuinely know and love me.",
+        score: { H: 4 }
+      },
+      {
+        text: "Friends who challenge me, understand my ambitions and help me grow.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "DECISIONS",
+    text: "You have a major decision to make. What is your natural approach?",
+    answers: [
+      {
+        text: "Listen to my instincts and commit.",
+        score: { G: 4 }
+      },
+      {
+        text: "Gather information and analyze every important factor.",
+        score: { R: 4 }
+      },
+      {
+        text: "Consider how the decision will affect the people I care about.",
+        score: { H: 4 }
+      },
+      {
+        text: "Compare the possible outcomes and choose the option with the strongest advantage.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "RISK",
+    text: "A rare opportunity has a 30% chance of changing your life. What do you do?",
+    answers: [
+      {
+        text: "Take it. I'd rather risk failure than wonder what could have happened.",
+        score: { G: 4 }
+      },
+      {
+        text: "Calculate whether the 30% is realistic before committing.",
+        score: { R: 4 }
+      },
+      {
+        text: "Take it only if failure won't seriously hurt the people depending on me.",
+        score: { H: 4 }
+      },
+      {
+        text: "Look for a way to increase the odds before taking the opportunity.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "KNOWLEDGE",
+    text: "You accidentally discover a secret piece of information about someone. What is your instinct?",
+    answers: [
+      {
+        text: "If it could protect someone from harm, I would act.",
+        score: { G: 4 }
+      },
+      {
+        text: "Understand exactly what the information means before doing anything.",
+        score: { R: 4 }
+      },
+      {
+        text: "It isn't mine to discuss unless someone is genuinely at risk.",
+        score: { H: 4 }
+      },
+      {
+        text: "Remember it. Information can become important later.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "CONFLICT",
+    text: "Someone who hurt you sincerely apologizes. What does forgiveness mean to you?",
+    answers: [
+      {
+        text: "I can forgive them, but I will still stand up for myself.",
+        score: { G: 4 }
+      },
+      {
+        text: "I need to understand why they did it before I can truly forgive.",
+        score: { R: 4 }
+      },
+      {
+        text: "I can forgive without necessarily trusting them again.",
+        score: { H: 4 }
+      },
+      {
+        text: "Forgiveness is fine, but trust must be earned again through actions.",
+        score: { S: 3, H: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "PRESSURE",
+    text: "Everything is going wrong during an important crisis. What happens inside your head?",
+    answers: [
+      {
+        text: "I force myself forward and deal with whatever is in front of me.",
+        score: { G: 4 }
+      },
+      {
+        text: "I immediately start identifying why everything went wrong.",
+        score: { R: 4 }
+      },
+      {
+        text: "I make sure everyone is safe and emotionally stable first.",
+        score: { H: 4 }
+      },
+      {
+        text: "I look for the fastest strategic way to regain control.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "LOYALTY",
+    text: "Your best friend asks you to support them, but you know they are making a terrible decision. What do you say?",
+    answers: [
+      {
+        text: "The truth. Real friendship means saying what they need to hear.",
+        score: { G: 3, H: 2 }
+      },
+      {
+        text: "I would show them the evidence and explain exactly why I disagree.",
+        score: { R: 4 }
+      },
+      {
+        text: "I'd be honest but make sure they know I won't abandon them.",
+        score: { H: 4 }
+      },
+      {
+        text: "I'd explain the risks and help them find a better route to what they want.",
+        score: { S: 3, R: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "INTEGRITY",
+    text: "You and a friend contribute equally to something, but you receive almost all the credit. What do you do?",
+    answers: [
+      {
+        text: "Correct the mistake immediately and make sure my friend receives equal credit.",
+        score: { G: 3, H: 3 }
+      },
+      {
+        text: "Explain the evidence of each person's contribution.",
+        score: { R: 4 }
+      },
+      {
+        text: "Give my friend the recognition privately and publicly.",
+        score: { H: 4 }
+      },
+      {
+        text: "Keep the recognition only if it helps both of us achieve something important.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "BRAVERY",
+    text: "Which person do you consider the bravest?",
+    answers: [
+      {
+        text: "Someone who stands against everyone because they believe something is morally wrong.",
+        score: { G: 5 }
+      },
+      {
+        text: "Someone who walks knowingly into intellectual uncertainty to discover the truth.",
+        score: { R: 3, G: 1 }
+      },
+      {
+        text: "Someone terrified but willing to protect another person.",
+        score: { H: 3, G: 3 }
+      },
+      {
+        text: "Someone who remains composed and takes control during a dangerous crisis.",
+        score: { S: 3, G: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "BELONGING",
+    text: "You have one extraordinary talent but nobody with whom to share your life. How would you feel?",
+    answers: [
+      {
+        text: "Accomplishment matters, but I would eventually fight to build meaningful connections.",
+        score: { G: 2, H: 2 }
+      },
+      {
+        text: "The achievement and mastery themselves would still be deeply satisfying.",
+        score: { R: 4 }
+      },
+      {
+        text: "The loneliness would eventually outweigh almost everything else.",
+        score: { H: 5 }
+      },
+      {
+        text: "I would accept the sacrifice if the achievement made my life extraordinary.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "POWER",
+    text: "You are offered enormous magical power, but using too much could slowly make you emotionally detached. What do you do?",
+    answers: [
+      {
+        text: "Use it only when I have no other way to protect what matters.",
+        score: { G: 4, H: 1 }
+      },
+      {
+        text: "Study exactly how the power affects the mind before using it.",
+        score: { R: 4 }
+      },
+      {
+        text: "Set strict limits so I can protect people without losing myself.",
+        score: { H: 3, R: 2 }
+      },
+      {
+        text: "Accept the risk if the power gives me the ability to accomplish something extraordinary.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "KNOWLEDGE",
+    text: "You discover dangerous magical knowledge. What is your response?",
+    answers: [
+      {
+        text: "Learn enough to know whether it can be used against people.",
+        score: { G: 3, R: 1 }
+      },
+      {
+        text: "Study it carefully and slowly, understanding every risk first.",
+        score: { R: 5 }
+      },
+      {
+        text: "Avoid it unless learning it is necessary to protect someone.",
+        score: { H: 4 }
+      },
+      {
+        text: "Master it before someone else does.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "AMBITION",
+    text: "Someone gets a prestigious position through favoritism rather than merit. What do you do?",
+    answers: [
+      {
+        text: "Challenge the injustice openly.",
+        score: { G: 4 }
+      },
+      {
+        text: "Gather evidence and use the proper channels to challenge the decision.",
+        score: { R: 3, G: 2 }
+      },
+      {
+        text: "Focus first on whether anyone is actually being harmed.",
+        score: { H: 4 }
+      },
+      {
+        text: "Find the most effective way to change the outcome.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "INSTINCT",
+    text: "You enter the Forbidden Forest and sense something dangerous nearby. What is your first move?",
+    answers: [
+      {
+        text: "Prepare to face it. Running blindly would be worse.",
+        score: { G: 4 }
+      },
+      {
+        text: "Figure out what the creature is and how it behaves.",
+        score: { R: 4 }
+      },
+      {
+        text: "Make sure everyone with me is safe before doing anything.",
+        score: { H: 4 }
+      },
+      {
+        text: "Assess the terrain and find the safest tactical advantage.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "FRIENDSHIP",
+    text: "You discover information that could give you and your closest friends a major advantage. What do you do?",
+    answers: [
+      {
+        text: "Tell them. I don't want an advantage that leaves my people behind.",
+        score: { G: 2, H: 3 }
+      },
+      {
+        text: "Verify the information first before telling anyone.",
+        score: { R: 4 }
+      },
+      {
+        text: "Share it with the people I genuinely trust.",
+        score: { H: 4 }
+      },
+      {
+        text: "Use it carefully and tell only the people who can help execute the plan.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "JUDGMENT",
+    text: "Two intelligent people present completely opposite arguments. What do you do?",
+    answers: [
+      {
+        text: "Listen, then choose the position I believe is right.",
+        score: { G: 3 }
+      },
+      {
+        text: "Research both positions before deciding.",
+        score: { R: 5 }
+      },
+      {
+        text: "Consider how each position affects real people.",
+        score: { H: 4 }
+      },
+      {
+        text: "Look at which position produces the strongest practical outcome.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "IDENTITY",
+    text: "Someone tells you that your opinion is wrong. What is your response?",
+    answers: [
+      {
+        text: "I'll defend it if I believe it is right.",
+        score: { G: 4 }
+      },
+      {
+        text: "I'll explain my reasoning and listen to theirs.",
+        score: { R: 4 }
+      },
+      {
+        text: "I'll make sure disagreement doesn't damage the relationship.",
+        score: { H: 4 }
+      },
+      {
+        text: "I'll decide whether their opinion contains something useful to me.",
+        score: { S: 3, R: 2 }
+      }
+    ]
+  },
+
+  {
+    category: "SELF-KNOWLEDGE",
+    text: "You discover a flaw in an argument you made publicly. What do you do?",
+    answers: [
+      {
+        text: "Admit it. Being wrong is better than defending something false.",
+        score: { G: 3, R: 2 }
+      },
+      {
+        text: "Change my position and explain why.",
+        score: { R: 5 }
+      },
+      {
+        text: "Admit it and apologize to anyone affected.",
+        score: { H: 4 }
+      },
+      {
+        text: "Correct it quietly if the mistake has no meaningful consequences.",
+        score: { S: 3 }
+      }
+    ]
+  },
+
+  {
+    category: "RECOGNITION",
+    text: "You earn an award entirely through your own work. How do you feel about accepting it?",
+    answers: [
+      {
+        text: "Proud. Recognition for something earned is deserved.",
+        score: { G: 3 }
+      },
+      {
+        text: "Satisfied because it confirms mastery.",
+        score: { R: 4 }
+      },
+      {
+        text: "Happy, especially if people who supported me can share the moment.",
+        score: { H: 4 }
+      },
+      {
+        text: "Pleased because recognition opens doors to greater opportunities.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "AUTHORITY",
+    text: "A teacher you completely trust gives you an instruction without explanation. What do you do?",
+    answers: [
+      {
+        text: "Follow them. Trust means something.",
+        score: { G: 3, H: 2 }
+      },
+      {
+        text: "Ask why before committing.",
+        score: { R: 4 }
+      },
+      {
+        text: "Follow if I know they genuinely have my safety in mind.",
+        score: { H: 4 }
+      },
+      {
+        text: "Follow if their judgment has consistently produced good outcomes.",
+        score: { S: 3, R: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "SACRIFICE",
+    text: "You can save one person from immediate danger. The choices are a stranger, a talented person who could change the world, or someone you love.",
+    answers: [
+      {
+        text: "The person who is most vulnerable and needs saving immediately.",
+        score: { G: 3, H: 2 }
+      },
+      {
+        text: "The person whose survival has the greatest potential consequences.",
+        score: { R: 3, S: 2 }
+      },
+      {
+        text: "Someone I love. I cannot abandon them.",
+        score: { H: 5 }
+      },
+      {
+        text: "The person whose survival prevents the greatest future harm.",
+        score: { S: 4, R: 2 }
+      }
+    ]
+  },
+
+  {
+    category: "FEAR",
+    text: "What kind of fear would be hardest for you to live with?",
+    answers: [
+      {
+        text: "Knowing I stayed silent when I should have spoken.",
+        score: { G: 5 }
+      },
+      {
+        text: "Knowing I believed something false and never discovered it.",
+        score: { R: 5 }
+      },
+      {
+        text: "Knowing someone I love needed me and I wasn't there.",
+        score: { H: 5 }
+      },
+      {
+        text: "Knowing I wasted my potential.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "THE FUTURE",
+    text: "The Mirror of Erised shows you one perfect future. What dominates the image?",
+    answers: [
+      {
+        text: "Me doing something extraordinary that I can be proud of.",
+        score: { G: 3, S: 2 }
+      },
+      {
+        text: "A life of extraordinary knowledge, achievement and mastery.",
+        score: { R: 5 }
+      },
+      {
+        text: "My loved ones happy, safe and close to me.",
+        score: { H: 5 }
+      },
+      {
+        text: "Success, independence and the freedom to live entirely on my own terms.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "ADAPTATION",
+    text: "A carefully prepared plan suddenly fails during a duel. What do you do?",
+    answers: [
+      {
+        text: "Keep fighting and improvise.",
+        score: { G: 4 }
+      },
+      {
+        text: "Identify what changed and redesign the plan.",
+        score: { R: 4 }
+      },
+      {
+        text: "Protect everyone involved before worrying about winning.",
+        score: { H: 4 }
+      },
+      {
+        text: "Use the environment, psychology and anything unexpected to gain an advantage.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "ADMIRATION",
+    text: "Which compliment would mean the most to you?",
+    answers: [
+      {
+        text: "You are the bravest person I know.",
+        score: { G: 5 }
+      },
+      {
+        text: "You see things nobody else sees.",
+        score: { R: 5 }
+      },
+      {
+        text: "You make people feel safe and loved.",
+        score: { H: 5 }
+      },
+      {
+        text: "You always know how to get where you want to go.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "CRISIS",
+    text: "Under intense pressure, what is your most natural response?",
+    answers: [
+      {
+        text: "Act. Thinking too long can make things worse.",
+        score: { G: 4 }
+      },
+      {
+        text: "Analyze exactly why things went wrong, then act.",
+        score: { R: 5 }
+      },
+      {
+        text: "Calm everyone down and make sure nobody is left behind.",
+        score: { H: 5 }
+      },
+      {
+        text: "Take control and create the fastest route out.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "LOYALTY",
+    text: "Your friend does something morally questionable but says nobody was harmed. What do you do?",
+    answers: [
+      {
+        text: "Tell them privately that I think it was wrong.",
+        score: { G: 4 }
+      },
+      {
+        text: "Ask questions before judging whether it was actually wrong.",
+        score: { R: 4 }
+      },
+      {
+        text: "Talk honestly with them while keeping the matter private.",
+        score: { H: 4 }
+      },
+      {
+        text: "Leave it alone unless their actions begin causing serious consequences.",
+        score: { S: 3 }
+      }
+    ]
+  },
+
+  {
+    category: "FORGIVENESS",
+    text: "Someone who betrayed you sincerely changes. What happens to your relationship?",
+    answers: [
+      {
+        text: "I can forgive them and eventually rebuild trust.",
+        score: { G: 3 }
+      },
+      {
+        text: "I need to see consistent evidence of change.",
+        score: { R: 3, S: 2 }
+      },
+      {
+        text: "I can forgive them without giving them the same place in my life.",
+        score: { H: 4 }
+      },
+      {
+        text: "The relationship is over unless their actions prove otherwise over time.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "RESPONSIBILITY",
+    text: "You are exhausted, but someone you love desperately needs your help. What do you do?",
+    answers: [
+      {
+        text: "Help them. I'll deal with my exhaustion afterward.",
+        score: { G: 3, H: 3 }
+      },
+      {
+        text: "Work out what help is actually necessary and what I can realistically do.",
+        score: { R: 3 }
+      },
+      {
+        text: "Put their serious need first.",
+        score: { H: 5 }
+      },
+      {
+        text: "Help if the situation is genuinely serious, otherwise find another solution.",
+        score: { S: 3, R: 2 }
+      }
+    ]
+  },
+
+  {
+    category: "MORAL COURAGE",
+    text: "Everyone around you supports a decision that you believe is seriously immoral. What do you do?",
+    answers: [
+      {
+        text: "Stand against them, even if I stand alone.",
+        score: { G: 5 }
+      },
+      {
+        text: "Present evidence and try to change their minds.",
+        score: { R: 4, G: 1 }
+      },
+      {
+        text: "Protect the people who may be hurt while trying to resolve the disagreement.",
+        score: { H: 4, G: 1 }
+      },
+      {
+        text: "Find the most effective way to stop the decision.",
+        score: { S: 4, G: 1 }
+      }
+    ]
+  },
+
+  {
+    category: "LIMITS",
+    text: "You discover that an extremely powerful spell could save many people, but using it carries a serious moral cost. What do you do?",
+    answers: [
+      {
+        text: "Use it if the alternative is allowing innocent people to die.",
+        score: { G: 4 }
+      },
+      {
+        text: "Determine exactly what the moral cost is before deciding.",
+        score: { R: 5 }
+      },
+      {
+        text: "Exhaust every other option before accepting that cost.",
+        score: { H: 4, R: 1 }
+      },
+      {
+        text: "Accept the cost if the final outcome justifies it.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "REGRET",
+    text: "Which regret would haunt you most?",
+    answers: [
+      {
+        text: "Not standing up when I knew I should have.",
+        score: { G: 5 }
+      },
+      {
+        text: "Never learning what I could have become.",
+        score: { R: 5 }
+      },
+      {
+        text: "Letting someone I loved feel alone when they needed me.",
+        score: { H: 5 }
+      },
+      {
+        text: "Playing small when I had the chance to become exceptional.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "FREEDOM",
+    text: "What would make you feel most trapped?",
+    answers: [
+      {
+        text: "Being unable to speak or act when something is wrong.",
+        score: { G: 4 }
+      },
+      {
+        text: "Being forbidden from asking questions or learning.",
+        score: { R: 5 }
+      },
+      {
+        text: "Being separated from the people I love.",
+        score: { H: 5 }
+      },
+      {
+        text: "Having my future controlled by someone else.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "STRATEGY",
+    text: "You have to solve a difficult problem with limited information. What do you do first?",
+    answers: [
+      {
+        text: "Make the best decision possible and adjust later.",
+        score: { G: 4 }
+      },
+      {
+        text: "Identify assumptions and determine which missing facts matter most.",
+        score: { R: 5 }
+      },
+      {
+        text: "Ask the people affected what they need.",
+        score: { H: 4 }
+      },
+      {
+        text: "Find the action that gives me the most leverage.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "LOYALTY",
+    text: "A person you love has made a life decision you believe will ruin their future. What do you do?",
+    answers: [
+      {
+        text: "Tell them honestly that I think they're making a mistake.",
+        score: { G: 3, H: 2 }
+      },
+      {
+        text: "Research the situation and show them the strongest evidence.",
+        score: { R: 5 }
+      },
+      {
+        text: "Make my case but stay beside them even if they choose differently.",
+        score: { H: 5 }
+      },
+      {
+        text: "Help them understand the risks and identify alternatives.",
+        score: { S: 3, R: 2 }
+      }
+    ]
+  },
+
+  {
+    category: "VALUES",
+    text: "Which statement feels closest to your philosophy?",
+    answers: [
+      {
+        text: "It is better to fail while doing what I believe is right.",
+        score: { G: 5 }
+      },
+      {
+        text: "Understanding something deeply is more valuable than being certain.",
+        score: { R: 5 }
+      },
+      {
+        text: "A meaningful life is built through the people we love.",
+        score: { H: 5 }
+      },
+      {
+        text: "Potential means little unless you have the courage to use it.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  {
+    category: "TRUST",
+    text: "Someone has earned your complete trust over many years. They ask you to follow them into an uncertain situation. What do you do?",
+    answers: [
+      {
+        text: "Go. Their character matters more than my certainty.",
+        score: { G: 3, H: 2 }
+      },
+      {
+        text: "Ask what they know and why they believe it is necessary.",
+        score: { R: 4 }
+      },
+      {
+        text: "Go because I know they wouldn't knowingly put me in danger.",
+        score: { H: 5 }
+      },
+      {
+        text: "Go if their judgment has consistently produced good outcomes.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  {
+    category: "CHOICE",
+    text: "If you could choose only one quality to define your life, which would you choose?",
+    answers: [
+      {
+        text: "Courage.",
+        score: { G: 6 }
+      },
+      {
+        text: "Wisdom.",
+        score: { R: 6 }
+      },
+      {
+        text: "Loyalty.",
+        score: { H: 6 }
+      },
+      {
+        text: "Ambition.",
+        score: { S: 6 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q46
+  ======================================================= */
+
+  {
+    category: "SELF-CONTROL",
+    text: "You are given the opportunity to do something you desperately want, but taking it would seriously hurt someone who does not deserve it. What do you do?",
+    answers: [
+      {
+        text: "Walk away. Wanting something does not make harming someone right.",
+        score: { G: 4, H: 1 }
+      },
+      {
+        text: "Examine whether there is another way to achieve what I want.",
+        score: { R: 4, S: 1 }
+      },
+      {
+        text: "Look for a solution where neither person has to lose.",
+        score: { H: 5 }
+      },
+      {
+        text: "Find a way to achieve my goal without giving the other person unnecessary power over the outcome.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q47
+  ======================================================= */
+
+  {
+    category: "LOYALTY",
+    text: "A close friend asks you to keep supporting them after you realize their choices are hurting themselves. What matters most?",
+    answers: [
+      {
+        text: "Having the courage to tell them the truth, even if they become angry.",
+        score: { G: 4 }
+      },
+      {
+        text: "Understanding why they are making these choices before deciding how to respond.",
+        score: { R: 4 }
+      },
+      {
+        text: "Making sure they know I will stay beside them while encouraging them to change.",
+        score: { H: 5 }
+      },
+      {
+        text: "Helping them find a practical way out of the situation.",
+        score: { S: 3, R: 2 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q48
+  ======================================================= */
+
+  {
+    category: "LEGACY",
+    text: "Years from now, what would you most want people to say about the life you lived?",
+    answers: [
+      {
+        text: "They stood up for what mattered, even when it was difficult.",
+        score: { G: 5 }
+      },
+      {
+        text: "They understood things deeply and made people see the world differently.",
+        score: { R: 5 }
+      },
+      {
+        text: "They made the people around them feel loved, safe and valued.",
+        score: { H: 5 }
+      },
+      {
+        text: "They built something extraordinary and became the person they were capable of becoming.",
+        score: { S: 5 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q49
+  ======================================================= */
+
+  {
+    category: "INNER SELF",
+    text: "When nobody is watching and there is nothing to prove, what do you naturally seek?",
+    answers: [
+      {
+        text: "Something that makes me feel alive.",
+        score: { G: 4 }
+      },
+      {
+        text: "Something that makes me think.",
+        score: { R: 4 }
+      },
+      {
+        text: "Something that makes me feel connected.",
+        score: { H: 4 }
+      },
+      {
+        text: "Something that makes me feel capable and free.",
+        score: { S: 4 }
+      }
+    ]
+  },
+
+  /* =======================================================
+     Q50 — THE FINAL SORTING HAT QUESTION
+  ======================================================= */
+
+  {
+    category: "THE HAT",
+    text: "The Sorting Hat pauses before making its final decision. It asks: when you strip away what others expect of you, what do you most want your life to feel like?",
+    answers: [
+      {
+        text: "Brave — like I lived honestly and never abandoned what I believed.",
+        score: { G: 5 }
+      },
+      {
+        text: "Meaningful — like I understood the world and kept discovering more of it.",
+        score: { R: 5 }
+      },
+      {
+        text: "Loved — like I built a life filled with genuine connection and belonging.",
+        score: { H: 5 }
+      },
+      {
+        text: "Free — like I became capable enough to choose my own path.",
+        score: { S: 5 }
+      }
+    ]
+  }
+
 ];
 
-/* -------------------------------------------------------------------------
-   2. MODE CONFIG
-   Each mode pulls only from its own difficulty tier, so the three trials are
-   genuinely different in content and toughness, not just different lengths
-   of the same list.
-   ------------------------------------------------------------------------- */
-const MODES = {
-  owl: {
-    key: "owl",
-    name: "O.W.L. Examination",
-    level: "Ordinary Wizarding Level",
-    desc: "A fair test of core knowledge every student should carry through their years at Hogwarts. Straightforward — but not obvious.",
-    diff: 1,
-    count: 20,
-    seconds: 45,
-    est: "8–10 min"
+
+/* =========================================================
+   HOUSE INFORMATION
+========================================================= */
+
+const houses = {
+
+  G: {
+    name: "GRYFFINDOR",
+    motto: "Where courage meets conviction.",
+    title: "The Conviction-Driven Gryffindor",
+    traits: [
+      "Courage",
+      "Moral conviction",
+      "Protective",
+      "Independent",
+      "Bold",
+      "Resilient"
+    ]
   },
-  newt: {
-    key: "newt",
-    name: "N.E.W.T. Examination",
-    level: "Nastily Exhausting Wizarding Test",
-    desc: "Advanced material for those who've done the reading closely. Expect finer detail, and questions with more than one plausible answer.",
-    diff: 2,
-    count: 50,
-    seconds: 35,
-    est: "20–25 min"
+
+  R: {
+    name: "RAVENCLAW",
+    motto: "Where curiosity becomes wisdom.",
+    title: "The Analytical Ravenclaw",
+    traits: [
+      "Curious",
+      "Analytical",
+      "Independent thinker",
+      "Adaptable",
+      "Perceptive",
+      "Thoughtful"
+    ]
   },
-  trial: {
-    key: "trial",
-    name: "Headmaster's Trial",
-    level: "Restricted Section clearance required",
-    desc: "The deepest questions in the Archive — obscure history, background characters, and details easy to miss even on a careful reading.",
-    diff: 3,
-    count: 100,
-    seconds: 25,
-    est: "35–45 min"
+
+  H: {
+    name: "HUFFLEPUFF",
+    motto: "Where loyalty becomes strength.",
+    title: "The Fiercely Loyal Hufflepuff",
+    traits: [
+      "Loyal",
+      "Compassionate",
+      "Protective",
+      "Steadfast",
+      "Patient",
+      "Warm"
+    ]
+  },
+
+  S: {
+    name: "SLYTHERIN",
+    motto: "Where ambition becomes power.",
+    title: "The Principled Slytherin",
+    traits: [
+      "Ambitious",
+      "Strategic",
+      "Resourceful",
+      "Independent",
+      "Determined",
+      "Perceptive"
+    ]
   }
+
 };
 
-const GRADES = [
-  { min: 0.90, grade: "O", name: "Outstanding" },
-  { min: 0.75, grade: "E", name: "Exceeds Expectations" },
-  { min: 0.60, grade: "A", name: "Acceptable" },
-  { min: 0.45, grade: "P", name: "Poor" },
-  { min: 0.25, grade: "D", name: "Dreadful" },
-  { min: 0,    grade: "T", name: "Troll" }
-];
 
-/* -------------------------------------------------------------------------
+/* =========================================================
    STATE
-   ------------------------------------------------------------------------- */
-let state = {
-  mode: null,
-  timerOn: false,
-  quizQuestions: [],   // the questions chosen for this run (with shuffled options)
-  index: 0,
-  correctCount: 0,
-  perCategory: {},      // cat -> {correct, total}
-  timerInterval: null,
-  timeLeft: 0,
-  answered: false
+========================================================= */
+
+let selectedMode = 50;
+let currentQuestion = 0;
+let answersGiven = [];
+
+/*
+   shuffledAnswers stores the randomized answer order
+   for the current quiz attempt.
+
+   IMPORTANT:
+   The score travels with the answer object, so shuffling
+   the visible position does NOT change the Sorting logic.
+*/
+let shuffledAnswers = [];
+
+let scores = {
+  G: 0,
+  R: 0,
+  H: 0,
+  S: 0
 };
 
-/* -------------------------------------------------------------------------
-   HELPERS
-   ------------------------------------------------------------------------- */
-function shuffle(arr){
-  const a = arr.slice();
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+
+/* =========================================================
+   DOM HELPERS
+========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
 }
 
-function buildQuizSet(mode){
-  const pool = shuffle(QUESTIONS.filter(q => q.diff === mode.diff));
-  let picked;
-  if(pool.length >= mode.count){
-    picked = pool.slice(0, mode.count);
-  } else {
-    // bank not yet large enough to fill the mode without repeats — cycle through
-    picked = [];
-    while(picked.length < mode.count){
-      const remaining = mode.count - picked.length;
-      picked = picked.concat(pool.slice(0, Math.min(remaining, pool.length)));
-    }
-  }
-  // shuffle each question's answer order, tracking the correct string
-  return picked.map(q => {
-    const correctText = q.options[q.answer];
-    const shuffledOptions = shuffle(q.options);
-    return { ...q, shuffledOptions, correctText };
+
+function showScreen(id) {
+
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
   });
+
+  $(id).classList.add("active");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
 }
 
-function diffLabel(diff){
-  return diff === 1 ? "O.W.L." : diff === 2 ? "N.E.W.T." : "Headmaster's Trial";
+
+/* =========================================================
+   SHUFFLE
+========================================================= */
+
+/*
+   Fisher-Yates shuffle.
+
+   Every quiz attempt gets a fresh randomized order.
+   This means:
+   A/B/C/D do NOT permanently correspond to
+   Gryffindor/Ravenclaw/Hufflepuff/Slytherin.
+*/
+
+function shuffleArray(array) {
+
+  const shuffled = [...array];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+
+    const j =
+      Math.floor(Math.random() * (i + 1));
+
+    [
+      shuffled[i],
+      shuffled[j]
+    ] = [
+      shuffled[j],
+      shuffled[i]
+    ];
+
+  }
+
+  return shuffled;
+
 }
 
-function sourceLabel(src){
-  if(src === "book") return "📖 From the books";
-  if(src === "film") return "🎬 From the films";
-  return "📖🎬 Books & films agree";
+
+/*
+   Create the shuffled answer sets for the current quiz.
+
+   This is done once when a sorting mode is selected,
+   so going back to a previous question does NOT reshuffle
+   that question again.
+*/
+
+function prepareShuffledAnswers() {
+
+  shuffledAnswers = questions.map(question => {
+
+    return shuffleArray(question.answers);
+
+  });
+
 }
 
-/* -------------------------------------------------------------------------
-   SCREEN SWITCHING
-   ------------------------------------------------------------------------- */
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("screen--active"));
-  document.getElementById(id).classList.add("screen--active");
-  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
-}
 
-/* -------------------------------------------------------------------------
-   SCREEN 1: LETTER
-   ------------------------------------------------------------------------- */
-document.getElementById("envelope").addEventListener("click", openLetter);
-document.getElementById("envelope").setAttribute("tabindex", "0");
-document.getElementById("envelope").addEventListener("keydown", e => {
-  if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openLetter(); }
+/* =========================================================
+   LETTER
+========================================================= */
+
+$("openLetter").addEventListener("click", () => {
+
+  $("envelope").classList.add("hidden");
+  $("envelopePrompt").classList.add("hidden");
+  $("letter").classList.remove("hidden");
+
 });
 
-function openLetter(){
-  const envelope = document.getElementById("envelope");
-  if(envelope.classList.contains("envelope--opening")) return;
-  envelope.classList.add("envelope--opening");
+
+$("openSorting").addEventListener("click", () => {
+
+  showScreen("modeScreen");
+
+});
+
+
+/* =========================================================
+   MODE SELECTION
+========================================================= */
+
+document.querySelectorAll(".mode-card").forEach(card => {
+
+  card.addEventListener("click", () => {
+
+    selectedMode =
+      Number(card.dataset.mode);
+
+    currentQuestion = 0;
+
+    answersGiven = [];
+
+    scores = {
+      G: 0,
+      R: 0,
+      H: 0,
+      S: 0
+    };
+
+    /*
+       NEW:
+       Randomize answer positions for every new
+       Basic, Standard AND Deepest sorting attempt.
+    */
+    prepareShuffledAnswers();
+
+    $("totalNumber").textContent =
+      selectedMode;
+
+    showScreen("quizScreen");
+
+    renderQuestion();
+
+  });
+
+});
+
+
+/* =========================================================
+   QUESTION RENDERING
+========================================================= */
+
+function renderQuestion() {
+
+  const question =
+    questions[currentQuestion];
+
+
+  /*
+     Safety check.
+     If the question doesn't exist, stop here instead
+     of producing a JavaScript error.
+  */
+
+  if (!question) {
+
+    console.error(
+      `Question ${currentQuestion + 1} does not exist. ` +
+      `Total questions available: ${questions.length}`
+    );
+
+    alert(
+      "There was an error loading this question. Please refresh the page."
+    );
+
+    return;
+
+  }
+
+
+  $("currentNumber").textContent =
+    currentQuestion + 1;
+
+  $("totalNumber").textContent =
+    selectedMode;
+
+  $("questionCategory").textContent =
+    question.category;
+
+  $("questionText").textContent =
+    question.text;
+
+
+  /*
+     Progress now represents the current question.
+
+     Q1 = 2%
+     Q25 = 50%
+     Q50 = 100%
+  */
+
+  const percentage =
+    ((currentQuestion + 1) / selectedMode) * 100;
+
+  $("progressBar").style.width =
+    percentage + "%";
+
+
+  const answersContainer =
+    $("answers");
+
+  answersContainer.innerHTML = "";
+
+
+  /*
+     IMPORTANT:
+     For Basic / Standard / Deepest, only the answers
+     actually used by that question are shown.
+
+     The order comes from shuffledAnswers.
+  */
+
+  const answers =
+    shuffledAnswers[currentQuestion] ||
+    question.answers;
+
+
+  answers.forEach((answer, index) => {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "answer";
+
+
+    /*
+       answersGiven stores the actual answer object
+       rather than relying on its original A/B/C/D position.
+    */
+
+    if (
+      answersGiven[currentQuestion] === answer
+    ) {
+
+      button.classList.add("selected");
+
+    }
+
+
+    const letter =
+      document.createElement("span");
+
+    letter.className =
+      "answer-letter";
+
+    letter.textContent =
+      String.fromCharCode(65 + index);
+
+    button.appendChild(letter);
+
+
+    const text =
+      document.createTextNode(answer.text);
+
+    button.appendChild(text);
+
+
+    button.addEventListener("click", () => {
+
+      selectAnswer(answer);
+
+    });
+
+
+    answersContainer.appendChild(button);
+
+  });
+
+
+  $("backButton").style.visibility =
+    currentQuestion === 0
+      ? "hidden"
+      : "visible";
+
+}
+
+
+/* =========================================================
+   ANSWER SELECTION
+========================================================= */
+
+function selectAnswer(answer) {
+
+  /*
+     Store the actual answer object.
+
+     This is important because the answers are shuffled.
+     We cannot store only A/B/C/D anymore.
+  */
+
+  answersGiven[currentQuestion] =
+    answer;
+
+
+  document
+    .querySelectorAll(".answer")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.textContent.includes(answer.text)
+      );
+
+    });
+
+
   setTimeout(() => {
-    envelope.hidden = true;
-    document.getElementById("letter").hidden = false;
-  }, 550);
+
+    if (
+      currentQuestion <
+      selectedMode - 1
+    ) {
+
+      currentQuestion++;
+
+      renderQuestion();
+
+    } else {
+
+      finishSorting();
+
+    }
+
+  }, 350);
+
 }
 
-document.getElementById("btn-reveal-modes").addEventListener("click", () => {
-  renderModeGrid();
-  showScreen("screen-modes");
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+$("backButton").addEventListener("click", () => {
+
+  if (currentQuestion > 0) {
+
+    currentQuestion--;
+
+    renderQuestion();
+
+  }
+
 });
 
-/* -------------------------------------------------------------------------
-   SCREEN 2: MODE SELECT
-   ------------------------------------------------------------------------- */
-function renderModeGrid(){
-  const grid = document.getElementById("mode-grid");
-  grid.innerHTML = "";
-  Object.values(MODES).forEach(mode => {
-    const card = document.createElement("div");
-    card.className = "mode-card";
-    card.tabIndex = 0;
-    card.innerHTML = `
-      <div class="mode-card__level">${mode.level}</div>
-      <h3 class="mode-card__name">${mode.name}</h3>
-      <p class="mode-card__desc">${mode.desc}</p>
-      <div class="mode-card__meta">
-        <span>${mode.count} questions</span>
-        <span>~${mode.est}</span>
+
+/* =========================================================
+   CALCULATE SCORE
+========================================================= */
+
+function calculateScores() {
+
+  scores = {
+    G: 0,
+    R: 0,
+    H: 0,
+    S: 0
+  };
+
+
+  for (
+    let i = 0;
+    i < selectedMode;
+    i++
+  ) {
+
+    const answer =
+      answersGiven[i];
+
+
+    if (!answer) {
+      continue;
+    }
+
+
+    Object.keys(answer.score).forEach(house => {
+
+      scores[house] +=
+        answer.score[house];
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   DETERMINE HOUSE
+========================================================= */
+
+function determineHouse() {
+
+  const entries =
+    Object.entries(scores);
+
+  entries.sort(
+    (a, b) => b[1] - a[1]
+  );
+
+  const highest =
+    entries[0][1];
+
+  const tied =
+    entries.filter(
+      entry => entry[1] === highest
+    );
+
+
+  if (tied.length === 1) {
+
+    return tied[0][0];
+
+  }
+
+
+  /*
+     Deterministic tie breaker.
+
+     Later questions are intentionally stronger
+     personality signals.
+
+     Because the final Hat question is now Q50,
+     it can also participate in the tie breaker.
+  */
+
+  const tiePriority =
+    ["G", "R", "H", "S"];
+
+
+  for (
+    let i = questions.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const answer =
+      answersGiven[i];
+
+
+    if (!answer) {
+      continue;
+    }
+
+
+    for (
+      const house of tiePriority
+    ) {
+
+      if (
+        tied.some(
+          item => item[0] === house
+        ) &&
+        answer.score[house]
+      ) {
+
+        return house;
+
+      }
+
+    }
+
+  }
+
+
+  return tied[0][0];
+
+}
+
+
+/* =========================================================
+   PERSONALITY ANALYSIS
+========================================================= */
+
+function getSecondaryHouse(mainHouse) {
+
+  return Object.entries(scores)
+    .filter(
+      ([house]) => house !== mainHouse
+    )
+    .sort(
+      (a, b) => b[1] - a[1]
+    )[0][0];
+
+}
+
+
+function getPersonality(
+  mainHouse,
+  secondaryHouse
+) {
+
+  if (mainHouse === "G") {
+
+    if (secondaryHouse === "R") {
+
+      return {
+        title: "The Strategist Gryffindor",
+        text:
+          "The Hat found something interesting in you. " +
+          "Your courage is not reckless. You think, question, " +
+          "research and calculate — but when conviction finally " +
+          "speaks, you are willing to act. You have a strong " +
+          "analytical streak, yet knowledge is ultimately a tool " +
+          "for deciding what should be done. You want an " +
+          "extraordinary life, but not one emptied of meaning.",
+        traits: [
+          "Calculated courage",
+          "Moral conviction",
+          "Analytical",
+          "Protective",
+          "Independent",
+          "Ambitious"
+        ]
+      };
+
+    }
+
+
+    if (secondaryHouse === "H") {
+
+      return {
+        title: "The Guardian Gryffindor",
+        text:
+          "Your bravery is deeply personal. You are most likely " +
+          "to become courageous when someone or something you love " +
+          "needs protecting. You do not seek danger for its own sake. " +
+          "You simply find it difficult to stand aside when your " +
+          "conscience tells you that you should act.",
+        traits: [
+          "Protective courage",
+          "Loyal",
+          "Principled",
+          "Resilient",
+          "Compassionate",
+          "Bold"
+        ]
+      };
+
+    }
+
+
+    return {
+      title: "The Defiant Gryffindor",
+      text:
+        "You have a strong internal line between what you believe " +
+        "is right and what you believe is wrong. When that line is " +
+        "crossed, comfort becomes less important than conviction. " +
+        "You may think carefully before acting, but once you decide " +
+        "something matters, you are difficult to stop.",
+      traits: houses.G.traits
+    };
+
+  }
+
+
+  if (mainHouse === "R") {
+
+    if (secondaryHouse === "G") {
+
+      return {
+        title: "The Fearless Scholar",
+        text:
+          "Your mind is your first instrument, but not your only one. " +
+          "You question assumptions, search for evidence and dislike " +
+          "pretending certainty where none exists. Yet when knowledge " +
+          "points toward action, you have the courage to follow it.",
+        traits: [
+          "Intellectual courage",
+          "Curious",
+          "Analytical",
+          "Open-minded",
+          "Independent",
+          "Perceptive"
+        ]
+      };
+
+    }
+
+
+    return {
+      title: houses.R.title,
+      text:
+        "You are naturally drawn toward understanding. You want to " +
+        "know why something works, what everyone else has missed and " +
+        "whether your own assumptions survive scrutiny. You are not " +
+        "afraid of changing your mind when the evidence demands it.",
+      traits: houses.R.traits
+    };
+
+  }
+
+
+  if (mainHouse === "H") {
+
+    if (secondaryHouse === "G") {
+
+      return {
+        title: "The Fierce Protector",
+        text:
+          "Your loyalty is not weakness. It is one of your strongest " +
+          "sources of courage. You care intensely about the people " +
+          "you let close, and when they need you, your willingness " +
+          "to stand beside them can become formidable.",
+        traits: [
+          "Fiercely loyal",
+          "Protective",
+          "Emotionally strong",
+          "Courageous",
+          "Compassionate",
+          "Steadfast"
+        ]
+      };
+
+    }
+
+
+    return {
+      title: houses.H.title,
+      text:
+        "The Hat sees someone who measures a life not only by what " +
+        "they accomplish, but by who was beside them when they did it. " +
+        "You value genuine relationships over crowds, and forgiveness " +
+        "does not necessarily mean forgetting. Your loyalty has weight.",
+      traits: houses.H.traits
+    };
+
+  }
+
+
+  if (mainHouse === "S") {
+
+    if (secondaryHouse === "R") {
+
+      return {
+        title: "The Calculating Slytherin",
+        text:
+          "You do not merely want things. You want to understand how " +
+          "to get them. You naturally think several moves ahead, " +
+          "recognize leverage and value competence. Your intelligence " +
+          "gives your ambition precision.",
+        traits: [
+          "Strategic",
+          "Ambitious",
+          "Intelligent",
+          "Resourceful",
+          "Independent",
+          "Determined"
+        ]
+      };
+
+    }
+
+
+    return {
+      title: houses.S.title,
+      text:
+        "The Hat detects ambition without necessarily detecting " +
+        "cruelty. You want freedom, capability and the chance to make " +
+        "your own choices. You understand that power itself is neither " +
+        "good nor evil; what matters is what you choose to do with it.",
+      traits: houses.S.traits
+    };
+
+  }
+
+}
+
+
+/* =========================================================
+   SORTING HAT MONOLOGUE
+========================================================= */
+
+function generateSpeech(
+  mainHouse,
+  secondaryHouse
+) {
+
+  const g = scores.G;
+  const r = scores.R;
+  const h = scores.H;
+  const s = scores.S;
+
+
+  let opening = "";
+  let middle = "";
+  let ending = "";
+
+
+  if (mainHouse === "G") {
+
+    opening =
+      "Hmmmm... now THIS is interesting. " +
+      "I have looked into your choices, your instincts, " +
+      "your loyalties and the things you would rather not admit " +
+      "about yourself.";
+
+
+    if (r >= h && r >= s) {
+
+      middle =
+        "There is a remarkably sharp mind beneath that courage. " +
+        "You do not rush toward danger simply because danger is there. " +
+        "You investigate. You question. You look for the flaw in the " +
+        "argument and the hidden piece of the puzzle. " +
+        "But knowledge, for you, is rarely the destination. " +
+        "Eventually you want to KNOW what should be done — and then DO it.";
+
+    } else if (h >= r && h >= s) {
+
+      middle =
+        "And yet your strongest secret is your heart. " +
+        "You care deeply about the people you allow into your life. " +
+        "You may forgive without forgetting, and loyalty matters to " +
+        "you far more than popularity. When someone you love needs you, " +
+        "your courage becomes almost automatic.";
+
+    } else {
+
+      middle =
+        "There is ambition here too. You want to become capable. " +
+        "You want your life to amount to something extraordinary. " +
+        "But ambition is not sitting in the driver's seat. " +
+        "You are willing to sacrifice comfort for achievement, " +
+        "yet you still care deeply about what — and who — that achievement is for.";
+
+    }
+
+
+    ending =
+      "You are not fearless. That would be far too simple. " +
+      "You understand risk, you understand consequences, and you " +
+      "understand that sometimes the safest choice is the wiser one. " +
+      "But when something truly matters, you have a troublesome habit " +
+      "of standing up anyway. " +
+      "\n\n" +
+      "The question was never whether you could be brave. " +
+      "The question was whether your courage would survive " +
+      "when courage became inconvenient." +
+      "\n\n" +
+      "Oh yes... I know where you belong." +
+      "\n\n" +
+      "GRYFFINDOR!";
+
+
+  } else if (mainHouse === "R") {
+
+    opening =
+      "Ahhh... a mind that refuses to sit quietly. " +
+      "Questions everywhere. Assumptions being dismantled. " +
+      "You would probably interrogate the Hat itself if given enough time.";
+
+
+    middle =
+      "You do not seem particularly frightened of being wrong. " +
+      "What bothers you more is remaining wrong because your pride " +
+      "would not let you reconsider. You gather evidence, test ideas, " +
+      "adapt when circumstances change and look beneath the obvious.";
+
+
+    ending =
+      "There is courage here too, and perhaps ambition, but neither " +
+      "quite overrules your hunger to understand. " +
+      "You do not merely want answers. " +
+      "You want to know whether the answers deserve to be believed." +
+      "\n\n" +
+      "RAVENCLAW!";
+
+
+  } else if (mainHouse === "H") {
+
+    opening =
+      "Ohhh... I see. You have made this Hat's work rather difficult. " +
+      "There is more strength in you than you seem inclined to advertise.";
+
+
+    middle =
+      "You measure people by what they do when nobody is watching. " +
+      "You value a small number of genuine relationships over a room " +
+      "full of acquaintances. And when someone you love needs you, " +
+      "your own exhaustion can become strangely unimportant.";
+
+
+    ending =
+      "Do not mistake that tenderness for weakness. " +
+      "Loyalty is one of the oldest forms of courage. " +
+      "You can forgive someone without handing them your trust again. " +
+      "You can love someone without agreeing with them. " +
+      "And when your people are threatened, there is a rather formidable " +
+      "side of you that comes awake." +
+      "\n\n" +
+      "HUFFLEPUFF!";
+
+
+  } else {
+
+    opening =
+      "Now then... ambition. " +
+      "Not the shallow sort, either. You have thought about what " +
+      "you could become, and there is a part of you that refuses " +
+      "to settle for ordinary merely because ordinary is comfortable.";
+
+
+    middle =
+      "You understand leverage. You think about consequences. " +
+      "You would rather find the clever route than waste energy " +
+      "charging directly into a locked door. " +
+      "And importantly, you understand that power is useful precisely " +
+      "because of what it allows you to change.";
+
+
+    ending =
+      "But I shall give you this warning: ambition can become a cage " +
+      "if you forget why you wanted freedom in the first place. " +
+      "You have enough conscience to avoid that fate — if you choose " +
+      "to listen to it." +
+      "\n\n" +
+      "SLYTHERIN!";
+  }
+
+
+  return (
+    opening +
+    "\n\n" +
+    middle +
+    "\n\n" +
+    ending
+  );
+
+}
+
+
+/* =========================================================
+   FINISH SORTING
+========================================================= */
+
+function finishSorting() {
+
+  calculateScores();
+
+  $("progressBar").style.width = "100%";
+
+  showScreen("thinkingScreen");
+
+
+  const thinkingLines = [
+    "Hmm... fascinating.",
+    "There is more here than first appeared.",
+    "The Hat sees several possibilities...",
+    "Your loyalties tell me something.",
+    "And your choices under pressure tell me even more.",
+    "Almost there...",
+    "Yes. I know."
+  ];
+
+
+  let index = 0;
+
+
+  $("thinkingLine").textContent =
+    thinkingLines[index];
+
+
+  const interval =
+    setInterval(() => {
+
+      index++;
+
+
+      if (
+        index <
+        thinkingLines.length
+      ) {
+
+        $("thinkingLine").textContent =
+          thinkingLines[index];
+
+      }
+
+    }, 700);
+
+
+  setTimeout(() => {
+
+    clearInterval(interval);
+
+    revealResult();
+
+  }, 5000);
+
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+function revealResult() {
+
+  const mainHouse =
+    determineHouse();
+
+
+  const secondaryHouse =
+    getSecondaryHouse(mainHouse);
+
+
+  const personality =
+    getPersonality(
+      mainHouse,
+      secondaryHouse
+    );
+
+
+  const speech =
+    generateSpeech(
+      mainHouse,
+      secondaryHouse
+    );
+
+
+  document.body.classList.remove(
+    "house-gryffindor",
+    "house-ravenclaw",
+    "house-hufflepuff",
+    "house-slytherin"
+  );
+
+
+  document.body.classList.add(
+    "house-" +
+    houses[mainHouse].name.toLowerCase()
+  );
+
+
+  $("hatSpeechTitle").textContent =
+    "So... that is who you are.";
+
+
+  $("hatSpeech").textContent =
+    speech;
+
+
+  $("houseName").textContent =
+    houses[mainHouse].name;
+
+
+  $("houseMotto").textContent =
+    houses[mainHouse].motto;
+
+
+  $("personalityTitle").textContent =
+    personality.title;
+
+
+  $("personalityText").textContent =
+    personality.text;
+
+
+  const traitGrid =
+    $("traitGrid");
+
+
+  traitGrid.innerHTML = "";
+
+
+  personality.traits.forEach(trait => {
+
+    const el =
+      document.createElement("span");
+
+    el.className =
+      "trait";
+
+    el.textContent =
+      trait;
+
+    traitGrid.appendChild(el);
+
+  });
+
+
+  renderScores();
+
+
+  showScreen("resultScreen");
+
+}
+
+
+/* =========================================================
+   SCORE BARS
+========================================================= */
+
+function renderScores() {
+
+  const container =
+    $("scoreBars");
+
+  container.innerHTML = "";
+
+
+  const maxScore =
+    Math.max(
+      scores.G,
+      scores.R,
+      scores.H,
+      scores.S
+    );
+
+
+  const labels = {
+    G: "Gryffindor",
+    R: "Ravenclaw",
+    H: "Hufflepuff",
+    S: "Slytherin"
+  };
+
+
+  const classes = {
+    G: "gryffindor",
+    R: "ravenclaw",
+    H: "hufflepuff",
+    S: "slytherin"
+  };
+
+
+  ["G", "R", "H", "S"].forEach(house => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "score-row";
+
+
+    const percentage =
+      maxScore > 0
+        ? Math.round(
+            (scores[house] / maxScore) * 100
+          )
+        : 0;
+
+
+    row.innerHTML = `
+      <div class="score-label">
+        <span>${labels[house]}</span>
+        <span>${percentage}%</span>
+      </div>
+
+      <div class="score-track">
+        <div
+          class="score-fill ${classes[house]}"
+          style="width:${percentage}%"
+        ></div>
       </div>
     `;
-    card.addEventListener("click", () => beginQuiz(mode));
-    card.addEventListener("keydown", e => { if(e.key === "Enter"){ beginQuiz(mode); } });
-    grid.appendChild(card);
-  });
-}
 
-/* -------------------------------------------------------------------------
-   SCREEN 3: QUIZ
-   ------------------------------------------------------------------------- */
-function beginQuiz(mode){
-  state.mode = mode;
-  state.timerOn = document.getElementById("toggle-timer").checked;
-  state.quizQuestions = buildQuizSet(mode);
-  state.index = 0;
-  state.correctCount = 0;
-  state.perCategory = {};
-  state.answered = false;
 
-  document.getElementById("quiz-mode-name").textContent = mode.name;
-  document.getElementById("quiz-timer").hidden = !state.timerOn;
+    container.appendChild(row);
 
-  showScreen("screen-quiz");
-  renderQuestion();
-}
-
-function renderQuestion(){
-  const total = state.quizQuestions.length;
-  const q = state.quizQuestions[state.index];
-  state.answered = false;
-
-  document.getElementById("quiz-progress-text").textContent = `Question ${state.index + 1} of ${total}`;
-  document.getElementById("progress-fill").style.width = `${(state.index / total) * 100}%`;
-
-  document.getElementById("q-category").textContent = q.cat;
-  document.getElementById("q-difficulty").textContent = diffLabel(q.diff);
-  document.getElementById("q-text").textContent = q.q;
-
-  const optionsWrap = document.getElementById("q-options");
-  optionsWrap.innerHTML = "";
-  q.shuffledOptions.forEach(optText => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.textContent = optText;
-    btn.addEventListener("click", () => handleAnswer(optText, btn));
-    optionsWrap.appendChild(btn);
   });
 
-  if(state.timerOn) startTimer(state.mode.seconds);
 }
 
-function startTimer(seconds){
-  clearInterval(state.timerInterval);
-  state.timeLeft = seconds;
-  const ring = document.getElementById("timer-ring-fg");
-  const label = document.getElementById("timer-seconds");
-  const circumference = 97.4;
-  const update = () => {
-    label.textContent = state.timeLeft;
-    const pct = state.timeLeft / seconds;
-    ring.style.strokeDashoffset = String(circumference * (1 - pct));
-    ring.style.stroke = pct < 0.25 ? "var(--maroon-bright)" : "var(--gold-bright)";
-  };
-  update();
-  state.timerInterval = setInterval(() => {
-    state.timeLeft -= 1;
-    if(state.timeLeft <= 0){
-      clearInterval(state.timerInterval);
-      if(!state.answered) handleAnswer(null, null); // time's up: counts as wrong
+
+/* =========================================================
+   SHARE
+========================================================= */
+
+$("shareButton").addEventListener(
+  "click",
+  async () => {
+
+    const house =
+      $("houseName").textContent;
+
+
+    const text =
+      `The Sorting Hat has placed me in ${house}. ` +
+      `Where would Hogwarts place you?`;
+
+
+    if (navigator.share) {
+
+      try {
+
+        await navigator.share({
+          title: "My Hogwarts Sorting",
+          text: text,
+          url: window.location.href
+        });
+
+      } catch (error) {
+
+        // User cancelled sharing.
+
+      }
+
     } else {
-      update();
+
+      try {
+
+        await navigator.clipboard.writeText(
+          text +
+          "\n" +
+          window.location.href
+        );
+
+
+        $("shareButton").textContent =
+          "Copied to Clipboard";
+
+
+        setTimeout(() => {
+
+          $("shareButton").textContent =
+            "Share My Sorting";
+
+        }, 2000);
+
+      } catch (error) {
+
+        alert(text);
+
+      }
+
     }
-  }, 1000);
-}
 
-function handleAnswer(chosenText, chosenBtn){
-  if(state.answered) return;
-  state.answered = true;
-  clearInterval(state.timerInterval);
+  }
+);
 
-  const q = state.quizQuestions[state.index];
-  const isCorrect = chosenText === q.correctText;
 
-  // lock all option buttons, mark correct/wrong/dimmed
-  document.querySelectorAll(".option-btn").forEach(btn => {
-    btn.disabled = true;
-    if(btn.textContent === q.correctText){
-      btn.classList.add("is-correct");
-    } else if(btn === chosenBtn){
-      btn.classList.add("is-wrong");
-    } else {
-      btn.classList.add("is-dimmed");
+/* =========================================================
+   RESTART
+========================================================= */
+
+$("restartButton").addEventListener(
+  "click",
+  () => {
+
+    currentQuestion = 0;
+
+    answersGiven = [];
+
+    shuffledAnswers = [];
+
+    scores = {
+      G: 0,
+      R: 0,
+      H: 0,
+      S: 0
+    };
+
+
+    document.body.classList.remove(
+      "house-gryffindor",
+      "house-ravenclaw",
+      "house-hufflepuff",
+      "house-slytherin"
+    );
+
+
+    showScreen("modeScreen");
+
+  }
+);
+
+
+/* =========================================================
+   PREVENT ACCIDENTAL PAGE EXIT
+========================================================= */
+
+window.addEventListener(
+  "beforeunload",
+  event => {
+
+    if (
+      $("quizScreen").classList.contains("active") &&
+      answersGiven.length > 0 &&
+      currentQuestion > 0
+    ) {
+
+      event.preventDefault();
+
     }
-  });
 
-  // tally
-  if(!state.perCategory[q.cat]) state.perCategory[q.cat] = { correct: 0, total: 0 };
-  state.perCategory[q.cat].total += 1;
-  if(isCorrect){
-    state.correctCount += 1;
-    state.perCategory[q.cat].correct += 1;
   }
-
-  // feedback overlay
-  const verdict = document.getElementById("feedback-verdict");
-  verdict.textContent = isCorrect ? "CORRECT" : "INCORRECT";
-  verdict.className = "feedback-verdict " + (isCorrect ? "correct" : "wrong");
-  document.getElementById("feedback-answer-text").textContent = q.correctText;
-  document.getElementById("feedback-explain").textContent = q.explain;
-  document.getElementById("feedback-source").textContent = sourceLabel(q.src);
-
-  const feedback = document.getElementById("feedback");
-  feedback.hidden = false;
-}
-
-document.getElementById("btn-continue").addEventListener("click", () => {
-  document.getElementById("feedback").hidden = true;
-  state.index += 1;
-  if(state.index >= state.quizQuestions.length){
-    showResults();
-  } else {
-    renderQuestion();
-  }
-});
-
-/* -------------------------------------------------------------------------
-   SCREEN 4: RESULTS
-   ------------------------------------------------------------------------- */
-function computeGrade(pct){
-  return GRADES.find(g => pct >= g.min);
-}
-
-function showResults(){
-  document.getElementById("progress-fill").style.width = "100%";
-  const total = state.quizQuestions.length;
-  const pct = total ? state.correctCount / total : 0;
-  const gradeInfo = computeGrade(pct);
-
-  document.getElementById("grade-seal").textContent = gradeInfo.grade;
-  document.getElementById("grade-name").textContent = gradeInfo.name;
-  document.getElementById("grade-score").textContent =
-    `${state.correctCount} / ${total} correct — ${Math.round(pct * 100)}%`;
-
-  // category breakdown
-  const breakdown = document.getElementById("category-breakdown");
-  breakdown.innerHTML = "";
-  const cats = Object.entries(state.perCategory).sort((a,b) => (b[1].correct/b[1].total) - (a[1].correct/a[1].total));
-  cats.forEach(([cat, stat]) => {
-    const catPct = Math.round((stat.correct / stat.total) * 100);
-    const row = document.createElement("div");
-    row.className = "cat-row";
-    row.innerHTML = `
-      <span>${cat}</span>
-      <span class="cat-row__bar"><span class="cat-row__fill" style="width:${catPct}%"></span></span>
-      <span>${catPct}%</span>
-    `;
-    breakdown.appendChild(row);
-  });
-
-  // strongest / weakest
-  if(cats.length){
-    const strongest = cats[0];
-    const weakest = cats[cats.length - 1];
-    document.getElementById("report-strongest").textContent =
-      `${strongest[0]} (${strongest[1].correct}/${strongest[1].total} correct) — the Archive is confident in your grasp of this subject.`;
-    document.getElementById("report-weakest").textContent =
-      `${weakest[0]} (${weakest[1].correct}/${weakest[1].total} correct) — worth another look before your next trial.`;
-  } else {
-    document.getElementById("report-strongest").textContent = "—";
-    document.getElementById("report-weakest").textContent = "—";
-  }
-
-  // achievements
-  const achievements = [];
-  if(pct === 1) achievements.push({icon:"🏆", text:"Perfect Memory — full marks, no notes"});
-  if(state.timerOn) achievements.push({icon:"⏳", text:"No Fear — completed under the countdown"});
-  cats.forEach(([cat, stat]) => {
-    if(stat.total >= 3 && stat.correct === stat.total){
-      achievements.push({icon:"✒️", text:`${cat} Specialist — perfect in this category`});
-    }
-  });
-  if(state.mode.key === "trial" && pct >= 0.5) achievements.push({icon:"🔑", text:"Restricted Section Cleared"});
-  if(pct < 0.25) achievements.push({icon:"🐴", text:"Back to the books — the Archive believes in you next time"});
-  if(!achievements.length) achievements.push({icon:"📜", text:"Trial Completed"});
-
-  const achWrap = document.getElementById("achievements");
-  achWrap.innerHTML = "";
-  achievements.forEach(a => {
-    const el = document.createElement("div");
-    el.className = "achievement";
-    el.innerHTML = `<span class="achievement__icon">${a.icon}</span><span>${a.text}</span>`;
-    achWrap.appendChild(el);
-  });
-
-  showScreen("screen-results");
-}
-
-document.getElementById("btn-retry-mode").addEventListener("click", () => beginQuiz(state.mode));
-document.getElementById("btn-choose-again").addEventListener("click", () => {
-  renderModeGrid();
-  showScreen("screen-modes");
-});
+);
