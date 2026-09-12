@@ -1,0 +1,8 @@
+{
+  "name": "The Hogwarts Archive",
+  "short_name": "Hogwarts",
+  "display": "standalone",
+  "start_url": "./",
+  "background_color": "#0f172a",
+  "theme_color": "#8b5cf6"
+}
