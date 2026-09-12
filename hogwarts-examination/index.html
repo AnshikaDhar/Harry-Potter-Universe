@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Hogwarts Archive</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =========================================
+     LETTER SCREEN
+========================================= -->
+<section id="letterScreen" class="screen active">
+
+  <div class="letter-container">
+
+    <div class="crest">⚡</div>
+
+    <h1>HOGWARTS ARCHIVE</h1>
+
+    <p class="subtitle">
+      Department of Magical Education
+    </p>
+
+    <div class="envelope" id="envelope">
+      <div class="seal">H</div>
+    </div>
+
+    <button id="openLetter" class="gold-btn">
+      Open Letter
+    </button>
+
+    <div id="letter" class="letter hidden">
+
+      <h2>Dear Witch or Wizard,</h2>
+
+      <p>
+        You are hereby invited to undertake the official examinations of the Hogwarts Archive.
+      </p>
+
+      <p>
+        These assessments draw from the complete known wizarding canon including the seven novels, eight films, companion lore and the wider magical world.
+      </p>
+
+      <p>
+        Knowledge alone will not be enough.
+      </p>
+
+      <p class="signature">
+        Professor Minerva McGonagall
+      </p>
+
+      <button id="enterArchive" class="gold-btn">
+        Enter the Archive
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================
+     MODE SELECTION
+========================================= -->
+<section id="modeScreen" class="screen">
+
+  <div class="container">
+
+    <h1>Select Your Examination</h1>
+
+    <p class="center">
+      Nothing is preselected. Choose the examination you wish to attempt.
+    </p>
+
+    <div class="mode-grid">
+
+      <div class="mode-card" data-mode="owl">
+
+        <div class="difficulty">FOUNDATION</div>
+
+        <h2>O.W.L.</h2>
+
+        <p>Ordinary Wizarding Level</p>
+
+        <div class="meta">
+          20 Questions · 15 min
+        </div>
+
+      </div>
+
+      <div class="mode-card" data-mode="newt">
+
+        <div class="difficulty">ADVANCED</div>
+
+        <h2>N.E.W.T.</h2>
+
+        <p>Nastily Exhausting Wizarding Test</p>
+
+        <div class="meta">
+          50 Questions · 35 min
+        </div>
+
+      </div>
+
+      <div class="mode-card headmaster" data-mode="headmaster">
+
+        <div class="difficulty gold">MASTER</div>
+
+        <h2>Headmaster's Trial</h2>
+
+        <p>The complete Hogwarts Archive</p>
+
+        <div class="meta">
+          100 Questions · 75 min
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================
+     QUIZ
+========================================= -->
+<section id="quizScreen" class="screen">
+
+  <div class="quiz-container">
+
+    <div class="topbar">
+
+      <span id="subject">Charms</span>
+
+      <span id="progressText">1 / 20</span>
+
+    </div>
+
+    <div class="progress-track">
+      <div id="progressFill"></div>
+    </div>
+
+    <div class="difficulty-badge" id="difficultyBadge">
+      Foundation
+    </div>
+
+    <h2 id="questionText">
+      Question
+    </h2>
+
+    <div id="answers" class="answers"></div>
+
+    <div class="bottom-actions">
+      <button id="quitExam" class="secondary-btn">
+        Exit
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================
+     STORY EXPLANATION
+========================================= -->
+<section id="storyScreen" class="screen">
+
+  <div class="story-card">
+
+    <div id="resultIcon" class="result-icon correct">✓</div>
+
+    <h1 id="storyTitle">Correct</h1>
+
+    <div class="correct-answer-box">
+
+      <span>Correct Answer</span>
+
+      <h2 id="correctAnswer"></h2>
+
+    </div>
+
+    <div class="explanation">
+
+      <h3>Why?</h3>
+
+      <p id="storyExplanation"></p>
+
+    </div>
+
+    <div class="source-box">
+
+      <strong>Canon Source</strong>
+
+      <p id="storySource"></p>
+
+    </div>
+
+    <button id="continueBtn" class="gold-btn">
+      Continue
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================
+     FINAL REPORT
+========================================= -->
+<section id="resultScreen" class="screen">
+
+  <div class="result-card">
+
+    <div class="crest large">⚡</div>
+
+    <h1>Examination Complete</h1>
+
+    <p id="examName">O.W.L.</p>
+
+    <div class="score-circle">
+      <span id="finalScore">18/20</span>
+    </div>
+
+    <h2 id="wizardGrade">Outstanding</h2>
+
+    <div class="report">
+
+      <div class="row">
+        <span>Charms</span>
+        <span id="charmsScore">92%</span>
+      </div>
+
+      <div class="row">
+        <span>Potions</span>
+        <span id="potionsScore">88%</span>
+      </div>
+
+      <div class="row">
+        <span>Dark Arts</span>
+        <span id="darkScore">81%</span>
+      </div>
+
+      <div class="row">
+        <span>History</span>
+        <span id="historyScore">95%</span>
+      </div>
+
+    </div>
+
+    <div class="achievement">
+
+      <h3>Strongest Subject</h3>
+
+      <p id="bestSubject">Wandlore</p>
+
+    </div>
+
+    <div class="result-buttons">
+
+      <button id="restartBtn" class="gold-btn">
+        Take Another Exam
+      </button>
+
+      <button id="shareBtn" class="secondary-btn">
+        Share Result
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================
+     SCRIPTS
+========================================= -->
+<script src="questions.js"></script>
+<script src="script.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
+
+</body>
+</html>
