@@ -1,301 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Hogwarts Archive</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<title>The Hogwarts Archive</title>
 
-  <link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#5B3FD9">
+<meta name="description" content="The ultimate Harry Potter canon quiz with OWL, NEWT and Headmaster's Trial.">
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
 
-<!-- =========================================
-     LETTER SCREEN
-========================================= -->
-<section id="letterScreen" class="screen active">
+<!-- ===================================================== -->
+<!-- LOADING -->
+<!-- ===================================================== -->
 
-  <div class="letter-container">
+<div id="loadingScreen" class="screen active">
 
-    <div class="crest">⚡</div>
+    <div class="loading-content">
 
-    <h1>HOGWARTS ARCHIVE</h1>
+        <div class="crest">✦</div>
 
-    <p class="subtitle">
-      Department of Magical Education
-    </p>
+        <h1>THE HOGWARTS ARCHIVE</h1>
 
-    <div class="envelope" id="envelope">
-      <div class="seal">H</div>
-    </div>
+        <p>
+            A magical examination of the Wizarding World
+        </p>
 
-    <button id="openLetter" class="gold-btn">
-      Open Letter
-    </button>
-
-    <div id="letter" class="letter hidden">
-
-      <h2>Dear Witch or Wizard,</h2>
-
-      <p>
-        You are hereby invited to undertake the official examinations of the Hogwarts Archive.
-      </p>
-
-      <p>
-        These assessments draw from the complete known wizarding canon including the seven novels, eight films, companion lore and the wider magical world.
-      </p>
-
-      <p>
-        Knowledge alone will not be enough.
-      </p>
-
-      <p class="signature">
-        Professor Minerva McGonagall
-      </p>
-
-      <button id="enterArchive" class="gold-btn">
-        Enter the Archive
-      </button>
+        <button id="enterArchive" class="gold-btn">
+            Enter the Archive
+        </button>
 
     </div>
 
-  </div>
+</div>
 
-</section>
+<!-- ===================================================== -->
+<!-- HOME -->
+<!-- ===================================================== -->
 
+<div id="homeScreen" class="screen">
 
-<!-- =========================================
-     MODE SELECTION
-========================================= -->
-<section id="modeScreen" class="screen">
+    <div class="hero">
 
-  <div class="container">
+        <div class="hero-inner">
 
-    <h1>Select Your Examination</h1>
+            <h1>THE HOGWARTS ARCHIVE</h1>
 
-    <p class="center">
-      Nothing is preselected. Choose the examination you wish to attempt.
-    </p>
+            <p class="subtitle">
+                The most comprehensive Harry Potter knowledge examination.
+            </p>
 
-    <div class="mode-grid">
+            <div class="features">
 
-      <div class="mode-card" data-mode="owl">
+                <div class="feature">
+                    <span>📚</span>
+                    <p>600+ Canon Questions</p>
+                </div>
 
-        <div class="difficulty">FOUNDATION</div>
+                <div class="feature">
+                    <span>🪄</span>
+                    <p>Books & Films</p>
+                </div>
 
-        <h2>O.W.L.</h2>
+                <div class="feature">
+                    <span>🏰</span>
+                    <p>Random Every Time</p>
+                </div>
 
-        <p>Ordinary Wizarding Level</p>
+            </div>
 
-        <div class="meta">
-          20 Questions · 15 min
+            <button id="beginExam" class="gold-btn large">
+                Begin Examination
+            </button>
+
         </div>
 
-      </div>
+    </div>
 
-      <div class="mode-card" data-mode="newt">
+</div>
 
-        <div class="difficulty">ADVANCED</div>
+<!-- ===================================================== -->
+<!-- MODE -->
+<!-- ===================================================== -->
 
-        <h2>N.E.W.T.</h2>
+<div id="modeScreen" class="screen">
 
-        <p>Nastily Exhausting Wizarding Test</p>
+    <div class="container">
 
-        <div class="meta">
-          50 Questions · 35 min
+        <h2>Choose Your Examination</h2>
+
+        <p class="section-text">
+            Nothing is pre-selected. Every attempt generates a different quiz.
+        </p>
+
+        <div class="mode-grid">
+
+            <div class="mode-card" data-mode="OWL">
+
+                <h3>O.W.L.</h3>
+
+                <div class="questions">20 Questions</div>
+
+                <p>
+                    Foundational Hogwarts knowledge. Ideal for casual fans.
+                </p>
+
+                <span>10–15 min</span>
+
+            </div>
+
+            <div class="mode-card" data-mode="NEWT">
+
+                <h3>N.E.W.T.</h3>
+
+                <div class="questions">50 Questions</div>
+
+                <p>
+                    Character motivations, magical theory, timeline and lore.
+                </p>
+
+                <span>25–35 min</span>
+
+            </div>
+
+            <div class="mode-card" data-mode="HEADMASTER">
+
+                <h3>Headmaster's Trial</h3>
+
+                <div class="questions">100 Questions</div>
+
+                <p>
+                    The ultimate canon examination spanning the entire Wizarding World.
+                </p>
+
+                <span>60+ min</span>
+
+            </div>
+
         </div>
 
-      </div>
+    </div>
 
-      <div class="mode-card headmaster" data-mode="headmaster">
+</div>
 
-        <div class="difficulty gold">MASTER</div>
+<!-- ===================================================== -->
+<!-- QUIZ -->
+<!-- ===================================================== -->
 
-        <h2>Headmaster's Trial</h2>
+<div id="quizScreen" class="screen">
 
-        <p>The complete Hogwarts Archive</p>
+    <div class="quiz-top">
 
-        <div class="meta">
-          100 Questions · 75 min
+        <div class="progress-info">
+
+            <span id="questionCounter">1 / 20</span>
+
+            <span id="categoryName">Characters</span>
+
         </div>
 
-      </div>
+        <div class="progress">
+
+            <div id="progressBar"></div>
+
+        </div>
 
     </div>
 
-  </div>
+    <div class="quiz-container">
 
-</section>
+        <div class="difficulty-row">
 
+            <span id="difficultyBadge">Easy</span>
 
-<!-- =========================================
-     QUIZ
-========================================= -->
-<section id="quizScreen" class="screen">
+            <span id="sourceBadge">Books & Films</span>
 
-  <div class="quiz-container">
+        </div>
 
-    <div class="topbar">
+        <h2 id="questionText">
+            Question appears here
+        </h2>
 
-      <span id="subject">Charms</span>
+        <div id="answers" class="answers"></div>
 
-      <span id="progressText">1 / 20</span>
+        <div class="quiz-actions">
 
-    </div>
+            <button id="backBtn" class="secondary">
+                Back
+            </button>
 
-    <div class="progress-track">
-      <div id="progressFill"></div>
-    </div>
+            <button id="quitBtn" class="secondary">
+                Quit
+            </button>
 
-    <div class="difficulty-badge" id="difficultyBadge">
-      Foundation
-    </div>
-
-    <h2 id="questionText">
-      Question
-    </h2>
-
-    <div id="answers" class="answers"></div>
-
-    <div class="bottom-actions">
-      <button id="quitExam" class="secondary-btn">
-        Exit
-      </button>
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================================
-     STORY EXPLANATION
-========================================= -->
-<section id="storyScreen" class="screen">
-
-  <div class="story-card">
-
-    <div id="resultIcon" class="result-icon correct">✓</div>
-
-    <h1 id="storyTitle">Correct</h1>
-
-    <div class="correct-answer-box">
-
-      <span>Correct Answer</span>
-
-      <h2 id="correctAnswer"></h2>
+        </div>
 
     </div>
 
-    <div class="explanation">
+</div>
 
-      <h3>Why?</h3>
+<!-- ===================================================== -->
+<!-- ANSWER REVIEW -->
+<!-- ===================================================== -->
 
-      <p id="storyExplanation"></p>
+<div id="reviewScreen" class="screen">
 
-    </div>
+    <div class="review-card">
 
-    <div class="source-box">
+        <div id="reviewIcon" class="review-icon">
+            ✓
+        </div>
 
-      <strong>Canon Source</strong>
+        <h2 id="reviewTitle">
+            Correct
+        </h2>
 
-      <p id="storySource"></p>
+        <div class="correct-box">
 
-    </div>
+            <small>Correct Answer</small>
 
-    <button id="continueBtn" class="gold-btn">
-      Continue
-    </button>
+            <h3 id="correctAnswer"></h3>
 
-  </div>
+        </div>
 
-</section>
+        <div class="explanation">
 
+            <h4>Story Behind It</h4>
 
-<!-- =========================================
-     FINAL REPORT
-========================================= -->
-<section id="resultScreen" class="screen">
+            <p id="explanationText"></p>
 
-  <div class="result-card">
+        </div>
 
-    <div class="crest large">⚡</div>
+        <div class="canon-source">
 
-    <h1>Examination Complete</h1>
+            <strong>Canon Source:</strong>
 
-    <p id="examName">O.W.L.</p>
+            <span id="canonSource"></span>
 
-    <div class="score-circle">
-      <span id="finalScore">18/20</span>
-    </div>
+        </div>
 
-    <h2 id="wizardGrade">Outstanding</h2>
-
-    <div class="report">
-
-      <div class="row">
-        <span>Charms</span>
-        <span id="charmsScore">92%</span>
-      </div>
-
-      <div class="row">
-        <span>Potions</span>
-        <span id="potionsScore">88%</span>
-      </div>
-
-      <div class="row">
-        <span>Dark Arts</span>
-        <span id="darkScore">81%</span>
-      </div>
-
-      <div class="row">
-        <span>History</span>
-        <span id="historyScore">95%</span>
-      </div>
+        <button id="continueBtn" class="gold-btn">
+            Continue
+        </button>
 
     </div>
 
-    <div class="achievement">
+</div>
 
-      <h3>Strongest Subject</h3>
+<!-- ===================================================== -->
+<!-- THINKING -->
+<!-- ===================================================== -->
 
-      <p id="bestSubject">Wandlore</p>
+<div id="thinkingScreen" class="screen">
+
+    <div class="thinking">
+
+        <div class="spinner"></div>
+
+        <h2>Compiling Examination Report</h2>
+
+        <p id="thinkingLine">
+            Evaluating magical knowledge...
+        </p>
 
     </div>
 
-    <div class="result-buttons">
+</div>
 
-      <button id="restartBtn" class="gold-btn">
-        Take Another Exam
-      </button>
+<!-- ===================================================== -->
+<!-- RESULT -->
+<!-- ===================================================== -->
 
-      <button id="shareBtn" class="secondary-btn">
-        Share Result
-      </button>
+<div id="resultScreen" class="screen">
+
+    <div class="result-wrapper">
+
+        <div class="result-header">
+
+            <h1>Examination Complete</h1>
+
+            <p>Your official Hogwarts Archive report</p>
+
+        </div>
+
+        <div class="score-circle">
+
+            <div id="finalScore">92%</div>
+
+            <span>Overall Score</span>
+
+        </div>
+
+        <div class="grade-card">
+
+            <h2 id="gradeText">Outstanding</h2>
+
+            <p id="gradeDescription"></p>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat">
+                <h3 id="correctCount">18</h3>
+                <span>Correct</span>
+            </div>
+
+            <div class="stat">
+                <h3 id="wrongCount">2</h3>
+                <span>Incorrect</span>
+            </div>
+
+            <div class="stat">
+                <h3 id="timeTaken">12m</h3>
+                <span>Time</span>
+            </div>
+
+            <div class="stat">
+                <h3 id="accuracyValue">90%</h3>
+                <span>Accuracy</span>
+            </div>
+        </div>
+
+        <div class="category-section">
+
+            <h2>Subject Performance</h2>
+
+            <div id="categoryBreakdown"></div>
+
+        </div>
+
+        <div class="strength-section">
+
+            <div class="strength-card">
+                <h3>Strongest Subject</h3>
+                <p id="bestCategory"></p>
+            </div>
+
+            <div class="strength-card">
+                <h3>Needs Revision</h3>
+                <p id="weakCategory"></p>
+            </div>
+        </div>
+
+        <div class="achievement-section">
+
+            <h2>Achievements</h2>
+
+            <div id="achievementGrid" class="achievement-grid"></div>
+
+        </div>
+
+        <div class="result-buttons">
+
+            <button id="playAgain" class="gold-btn">
+                Play Again
+            </button>
+
+            <button id="shareResult" class="secondary">
+                Share Result
+            </button>
+
+        </div>
 
     </div>
 
-  </div>
+</div>
 
-</section>
+<!-- ===================================================== -->
+<!-- SCRIPTS -->
+<!-- ===================================================== -->
 
-
-<!-- =========================================
-     SCRIPTS
-========================================= -->
 <script src="questions.js"></script>
 <script src="script.js"></script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js');
-  });
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+    });
 }
 </script>
 
