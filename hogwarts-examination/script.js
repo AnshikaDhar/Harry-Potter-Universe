@@ -1,19 +1,55 @@
-let selectedQuestions = [];
+/* ======================================
+   HOGWARTS ARCHIVE
+====================================== */
 
-function startQuiz(mode){
+const screens=document.querySelectorAll(".screen");
 
-  let count = 20;
+function showScreen(id){
 
-  if(mode==="OWL") count = 20;
-  if(mode==="NEWT") count = 50;
-  if(mode==="HEADMASTER") count = 100;
+  screens.forEach(screen=>{
+    screen.classList.remove("active");
+  });
 
-  const pool = QUESTION_BANK.filter(q=>q.level===mode);
+  document
+    .getElementById(id)
+    .classList.add("active");
 
-  selectedQuestions = shuffle([...pool]).slice(0,count);
+  window.scrollTo(0,0);
 
-  currentQuestion = 0;
-  score = 0;
-
-  renderQuestion();
 }
+
+/* ---------- ENTER ARCHIVE ---------- */
+
+document
+.getElementById("enterArchive")
+.addEventListener("click",()=>{
+
+    showScreen("homeScreen");
+
+});
+
+/* ---------- BEGIN EXAM ---------- */
+
+document
+.getElementById("beginExam")
+.addEventListener("click",()=>{
+
+    showScreen("modeScreen");
+
+});
+
+/* ---------- MODE CARDS ---------- */
+
+document
+.querySelectorAll(".mode-card")
+.forEach(card=>{
+
+    card.addEventListener("click",()=>{
+
+        const mode=card.dataset.mode;
+
+        alert(`${mode} selected.\n\nNext we'll load the randomized question engine.`);
+
+    });
+
+});
